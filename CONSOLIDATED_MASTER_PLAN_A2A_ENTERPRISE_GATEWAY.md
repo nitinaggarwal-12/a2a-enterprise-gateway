@@ -316,7 +316,53 @@ To make this platform a universal demo and testing tool for **all global biophar
 
 ---
 
-## Part 10: Customer Demo Readiness Inventory & Interactive UI Deliverables
+## Part 10: Global Enterprise-Grade Architecture, Data Sovereignty & International Readiness
+
+To support Global 2000 multinational pharmaceutical operations across the United States, Europe, Japan, and APAC, six enterprise-grade international pillars are incorporated:
+
+```
+             ┌─────────────────────────────────────────────────────────────────────────────┐
+             │         THE GLOBAL ENTERPRISE-GRADE PRODUCT ARCHITECTURE                    │
+             └──────────────────────────────────────┬──────────────────────────────────────┘
+                                                    │
+        ┌───────────────────┬───────────────────────┼───────────────────────┬───────────────────┐
+        ▼                   ▼                       ▼                       ▼                   ▼
+ 1. GLOBAL SOVEREIGNTY  2. ENTERPRISE IDENTITY  3. MEDICAL I18N / L10N  4. SIEM & BYOKMS     5. CLOUD MARKETPLACE
+   (GDPR/APPI/PIPL)        (SSO/SAML/SCIM)       (Japanese/German/CET)   (Splunk/Datadog)     (1-Click Commit)
+```
+
+### 1. 🌍 Global Data Sovereignty & Geo-Fencing Enclaves (GDPR / APPI / PIPL)
+* **EU Sovereign Enclave (`europe-west3` Frankfurt / Paris)**: Strict data residency guaranteeing zero unencrypted egress outside the EEA under EU GDPR (Schrems II).
+* **Japan PMDA Enclave (`asia-northeast1` Tokyo)**: Dedicated audit retention conforming to Japan MHLW (Ministry of Health, Labour and Welfare) and APPI regulations.
+* **US HIPAA & FedRAMP Enclave (`us-central1` / `us-east4`)**: Enforces HIPAA BAA and SOC 2 Type II compliance controls.
+
+### 2. 🔐 Enterprise Identity, RBAC & SCIM 2.0 User Provisioning
+* **SAML 2.0 / OIDC SSO**: Native enterprise authentication with **Okta**, **Microsoft Entra ID (Azure AD)**, **Ping Identity**, and **CyberArk**.
+* **SCIM 2.0 Deprovisioning**: Automated user lifecycle management revoking active tokens and trial access in $<1\text{ second}$ upon investigator offboarding.
+* **Attribute-Based Access Control (ABAC)**: Dynamic permission boundaries scoped by Study ID, Site Location, and DSMB clearance.
+
+### 3. 🌐 Multilingual Medical Localization (i18n / l10n)
+* **Multilingual A2UI Surfaces**: Dynamic card rendering in **Japanese, German, French, Spanish, and Mandarin**.
+* **Localized Medical Dictionaries**: Native support for **MedDRA/J (Japanese)** and European MedDRA translations.
+* **Clinical Assay Unit Conversion**: Live unit toggling (e.g. Bilirubin $\text{mg/dL} \leftrightarrow \mu\text{mol/L}$, Creatinine $\text{mg/dL} \leftrightarrow \mu\text{mol/L}$).
+* **Localized Timezone Clocks**: UTC audit timestamps converted to local site clocks (JST, CET, EST, PST).
+
+### 4. 🛡️ Enterprise SIEM Telemetry & Customer-Managed Encryption (BYOKMS)
+* **Real-Time SIEM Event Streaming**: Live Syslog RFC 5424 / JSON forwarding to **Splunk**, **Datadog**, **Sumo Logic**, and **Microsoft Sentinel**.
+* **Bring Your Own KMS (BYOKMS)**: Backing 21 CFR Part 11 signatures with customer-managed keys in **Google Cloud KMS**, **AWS CloudHSM**, **Azure Key Vault**, or on-prem **Thales/Luna HSMs**.
+
+### 5. ⚡ 99.99% SLA High Availability & Disaster Recovery (DR)
+* **Active-Active Global Anycast Routing** via Google Cloud Armor and Cloudflare Enterprise.
+* **RPO = 0 seconds** (Zero data loss) and **RTO < 60 seconds** (Automated multi-region failover).
+* **Zero-Downtime Blue/Green Deployments** with automated canary health checks.
+
+### 6. 💳 Cloud Marketplace 1-Click Procurement & FinOps Cost Allocation
+* **Google Cloud, AWS & Azure Marketplace Listings**: Enables enterprise buyers to draw down against existing **$10M–$100M annual cloud commit contracts (EDP / MAC)**, closing procurement in days instead of months.
+* **FinOps Trial Cost Allocation**: Granular chargeback accounting mapping compute and token consumption directly to clinical study budget codes (e.g. Study `MK-3475-087`).
+
+---
+
+## Part 11: Customer Demo Readiness Inventory & Interactive UI Deliverables
 
 To turn the current live backend engine into an **immediate, irresistible 5-minute customer demo**, the following four high-craft interactive UI components are established as Phase 1 deliverables:
 
@@ -360,7 +406,7 @@ To turn the current live backend engine into an **immediate, irresistible 5-minu
 
 ---
 
-## Part 11: Phased Implementation Roadmap
+## Part 12: Phased Implementation Roadmap
 
 The execution plan is decomposed into six logical, progressive phases from foundational core to enterprise-scale production rollout:
 
@@ -438,7 +484,7 @@ The execution plan is decomposed into six logical, progressive phases from found
 
 ---
 
-## Part 12: Live Verification & Visual Gallery Index
+## Part 13: Live Verification & Visual Gallery Index
 
 - **Interactive Verification Portal**: `http://127.0.0.1:8090`
 - **GitHub Repository**: [`https://github.com/nitinaggarwal-12/a2a-enterprise-gateway`](https://github.com/nitinaggarwal-12/a2a-enterprise-gateway) (Branch: `main`)
