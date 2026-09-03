@@ -133,7 +133,58 @@ The gateway bridges **Gemini Enterprise (GE)** and client orchestrators to sover
 
 ---
 
-## Part 5: Phased Implementation Roadmap
+## Part 5: Hardened Logical Architecture, Edge Case Mitigations & Quality Guards
+
+To guarantee production resilience under heavy concurrent enterprise traffic and strict FDA/GxP regulatory audits, the logical flow addresses five critical distributed system edge cases:
+
+```
+                       ┌─────────────────────────────────────────────────────────┐
+                       │       ARCHITECTURAL & LOGICAL FLOW HARDENING MATRIX     │
+                       └────────────────────────────┬────────────────────────────┘
+                                                    │
+        ┌───────────────────┬───────────────────────┼───────────────────────┬───────────────────┐
+        ▼                   ▼                       ▼                       ▼                   ▼
+ 1. TOKEN REPLAY &    2. STREAMING VS       3. ASYMMETRIC NON-      4. OMNICHANNEL      5. CIRCULAR SWARM
+   IDEMPOTENCY GUARD    PUBSUB CUTOVER      REPUDIATION (PART 11)   FEATURE ASYMMETRY    DELEGATION LOOPS
+```
+
+### 1. 🛡️ State Token Replay & Concurrency Invalidation (Idempotency Guard)
+* **Risk**: A clinician opening an A2UI card on multiple devices or clicking "Approve" multiple times could cause duplicate amendment executions within the 48-hr token TTL.
+* **Hardened Solution**:
+  - Every state token contains a cryptographic `jti` (JWT ID / Task Nonce).
+  - The gateway executes an atomic check-and-set (`CAS`) transaction in a distributed state registry (e.g. Firestore / Cloud Spanner) marking the `jti` as `CONSUMED`.
+  - Repeated submissions are rejected immediately with `409 CONFLICT: Action Already Executed`.
+
+### 2. ⚡ Streaming vs. Long-Running Pub/Sub Cutover (AIP-127 Lifecycle)
+* **Risk**: Analytical modeling tasks $>5\text{ minutes}$ (e.g. Monte Carlo Bayesian trial simulations) trigger $504\text{ Gateway Timeout}$ on open HTTP/2 or gRPC streams.
+* **Hardened Solution**:
+  - **Phase A ($\le 60\text{s}$)**: Real-time token streaming via `StreamTask`.
+  - **Phase B ($> 60\text{s}$)**: Gateway emits `[WORKING_ASYNC]` with an AIP-127 `operation_id` and cleanly closes the synchronous HTTP connection.
+  - **Phase C (Completion)**: Background worker publishes to Cloud Pub/Sub, and an async push webhook delivers the final A2UI card to the user's workspace.
+
+### 3. ⚖️ 21 CFR Part 11 Asymmetric Non-Repudiation & OIDC MFA Binding
+* **Risk**: Symmetric HMAC shared secrets (`HS256`) could theoretically be forged by internal engineers with server key access during an FDA audit.
+* **Hardened Solution**:
+  - **Gateway Inbound Cards**: Asymmetrically signed with `RS256` / `Ed25519` private keys held securely in **Google Cloud KMS (HSM-backed)**.
+  - **User Electronic Signatures**: Cryptographically bound to the clinician's OAuth / OIDC Identity Token containing MFA authentication method references (`amr: ["pwd", "mfa"]`).
+
+### 4. 📱 Omnichannel Rule-Based Graceful Degradation Engine
+* **Risk**: `a2ui.v1` continuous sliders and live JavaScript math cannot run natively in Slack Block Kit or Google Card v2.
+* **Hardened Solution**:
+  - **Web / React**: Fluid `<input type="range">` with instant client-side variance recalculation.
+  - **Google Card v2**: Gracefully transpiles into a `TextInput` with numeric schema validation.
+  - **Slack Block Kit**: Gracefully transpiles into a `static_select` menu with discrete dose options ($100\text{mg}, 150\text{mg}, \dots, 400\text{mg}$).
+  - **Teams Adaptive Card**: Gracefully transpiles into `Input.ChoiceSet` (compact dropdown).
+
+### 5. 🔁 Multi-Agent Swarm Distributed Tracing & Loop Prevention
+* **Risk**: Cyclic sub-agent delegation cascades (Agent A $\rightarrow$ B $\rightarrow$ C $\rightarrow$ A) causing context token exhaustion and infinite request loops.
+* **Hardened Solution**:
+  - Mandatory propagation headers: `X-A2A-Trace-ID` (W3C trace), `X-A2A-Hop-Count` (hard limit $\le 5$), and `X-A2A-Visited-Agents`.
+  - Gateway interceptor halts execution and emits a structured DAG cycle error if a loop is detected.
+
+---
+
+## Part 6: Phased Implementation Roadmap
 
 ```
 PHASE 1: Core Portal Hub & Interactive Persona Playgrounds (Weeks 1-2)
@@ -142,17 +193,17 @@ PHASE 1: Core Portal Hub & Interactive Persona Playgrounds (Weeks 1-2)
   ├── 1.3 Merkle Audit Explorer & Tamper Security Guard Simulation
   └── 1.4 Live StreamTask SSE/gRPC Reasoning Console
 
-PHASE 2: Multi-Agent Swarm Registry & Universal Transpiler (Weeks 3-4)
-  ├── 2.1 Enterprise Agent Catalog & Discovery Schema Browser (/.well-known/agent.json)
-  ├── 2.2 Interactive Mesh Delegation Topology Graph
-  ├── 2.3 4-Way Universal A2UI Transpilation Engine (Google Card, React, Slack, Teams)
-  └── 2.4 Synchronized Cross-Channel State Token Handshake
+PHASE 2: Hardened Protocols, Idempotency & Omnichannel Engine (Weeks 3-4)
+  ├── 2.1 Atomic `jti` Nonce Idempotency Guard & CAS Invalidation
+  ├── 2.2 Two-Tier Stream-to-Pub/Sub Auto-Cutover Protocol (AIP-127)
+  ├── 2.3 4-Way Omnichannel Transpiler with Graceful Degradation Engine
+  └── 2.4 Multi-Agent Mesh Distributed Tracing & Cycle Interceptor (X-A2A-Hop-Count <= 5)
 
-PHASE 3: Biopharma Regulatory Capabilities (Weeks 5-6)
-  ├── 3.1 Role-Based Double-Blind Masking & DSMB Unblinding Module
-  ├── 3.2 Automated Continuous GxP CSV (IQ/OQ/PQ) Telemetry & PDF Generator
-  ├── 3.3 Pharmacovigilance MedDRA Coding & E2B(R3) XML Generator
-  └── 3.4 CDISC SDTM/ADaM Ingestion AST Boundary
+PHASE 3: Biopharma Regulatory & Non-Repudiation Capabilities (Weeks 5-6)
+  ├── 3.1 Asymmetric Ed25519 / Cloud KMS Key Management & OIDC MFA Signatures
+  ├── 3.2 Role-Based Double-Blind Masking & DSMB Cryptographic Key Claims
+  ├── 3.3 Continuous GxP CSV (IQ/OQ/PQ) Telemetry & Automated PDF Dossier
+  └── 3.4 Pharmacovigilance MedDRA Auto-Coder & E2B(R3) XML Submission Engine
 
 PHASE 4: Enterprise Validation & Customer Demo Mastery (Weeks 7-8)
   ├── 4.1 End-to-End Multi-Persona Automated Test Suite (100% MECE Coverage)
@@ -163,7 +214,7 @@ PHASE 4: Enterprise Validation & Customer Demo Mastery (Weeks 7-8)
 
 ---
 
-## Part 6: Live Verification & Visual Gallery Index
+## Part 7: Live Verification & Visual Gallery Index
 
 - **Interactive Verification Portal**: `http://127.0.0.1:8090`
 - **GitHub Repository**: [`https://github.com/nitinaggarwal-12/a2a-enterprise-gateway`](https://github.com/nitinaggarwal-12/a2a-enterprise-gateway) (Branch: `main`)
@@ -175,3 +226,4 @@ PHASE 4: Enterprise Validation & Customer Demo Mastery (Weeks 7-8)
   - [Agent Developer View](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/04_persona_developer_view.jpg)
   - [Agent Swarm Mesh Registry](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/05_persona_swarm_registry.jpg)
   - [Omnichannel Transpilation Studio](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/06_persona_omnichannel_transpiler.jpg)
+
