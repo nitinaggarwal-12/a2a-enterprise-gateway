@@ -63,7 +63,61 @@ In regulated biopharma and healthcare, enterprise buyers justify software invest
 
 ---
 
-## Part 2: The Multi-Persona Demonstration Suite
+## Part 3: Multi-Cloud & Cross-Cloud Sovereign Hybrid Architecture
+
+The gateway is **100% cloud-agnostic and cross-cloud by design**. It bridges heterogeneous enterprise environments across **Google Cloud (GCP)**, **Amazon Web Services (AWS)**, **Microsoft Azure**, and **On-Premises Enclaves**:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       1. USER INTERACTION CLIENTS (ANY CLOUD)                                   │
+│   • Google Workspace / Chat (GCP)    • Microsoft Teams (Azure)    • Slack (AWS)    • Web Clinician Portal       │
+└────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────┘
+                                                         │ Standard A2A v1.0.0 / A2UI Transpilation
+                                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 2. A2A ENTERPRISE GATEWAY (MULTI-CLOUD RUNTIME)                                  │
+│  • AST Sanitizer (28µs)    • Cross-Cloud Identity Broker    • Multi-Provider Router    • Merkle Audit Ledger     │
+│  • Deployable on: Google Cloud Run, AWS ECS / Fargate, Azure Container Apps, or On-Premises Kubernetes (GKE/EKS)│
+└───────────────────────┬────────────────────────────────┼────────────────────────────────┬────────────────────────┘
+                        │                                │                                │
+       ┌────────────────┴──────────────┐  ┌──────────────┴──────────────┐  ┌──────────────┴──────────────┐
+       ▼                               ▼  ▼                             ▼  ▼                             ▼
+┌─────────────────────────────┐  ┌─────────────────────────────┐  ┌─────────────────────────────┐  ┌───────────────────┐
+│     GOOGLE CLOUD (GCP)      │  │      AMAZON WEB SERVICES    │  │       MICROSOFT AZURE       │  │   ON-PREM ENCLAVE │
+│ • Vertex AI (Gemini 1.5 Pro)│  │ • Bedrock (Claude 3.5 Sonnet│  │ • Azure OpenAI (GPT-4o)     │  │ • NVIDIA NIMs     │
+│ • BigQuery Clinical Lake    │  │ • AWS S3 Clinical Parquet   │  │ • Azure Cosmos / Fabric     │  │ • BioMistral /    │
+│ • Workload Identity (WIF)   │  │ • IAM AssumeRoleWithWebId   │  │ • Entra ID Federated Token  │  │   Llama-3.3-Med   │
+└─────────────────────────────┘  └─────────────────────────────┘  └─────────────────────────────┘  └───────────────────┘
+```
+
+### Multi-Cloud Compatibility & Interoperability Matrix
+
+| Architectural Layer | Google Cloud (GCP) | Amazon Web Services (AWS) | Microsoft Azure | On-Premises / Private DC |
+| :--- | :--- | :--- | :--- | :--- |
+| **Gateway Hosting** | Cloud Run / GKE | ECS / EKS / Fargate | Azure Container Apps / AKS | Kubernetes / Docker Swarm |
+| **Foundational LLMs** | Vertex AI (Gemini 1.5 Pro) | Amazon Bedrock (Claude 3.5) | Azure OpenAI (GPT-4o) | Local vLLM (Llama-3/BioMistral) |
+| **Identity Federation** | Workload Identity (WIF)| IAM AssumeRole (OIDC) | Entra ID Workload Identity | mTLS / SPIFFE-SPIRE / Vault |
+| **Clinical Data Lakes** | BigQuery / Cloud Storage| S3 / Redshift / Snowflake | Azure Data Lake / Fabric | On-Premises NAS / Oracle / SAS |
+| **Private Networking** | Private Service Connect | AWS PrivateLink | Azure Private Link | Direct Connect / Dedicated Interconnect |
+| **Cryptographic KMS** | Google Cloud KMS (HSM) | AWS KMS (CloudHSM) | Azure Key Vault (HSM) | HashiCorp Vault / Hardware HSM |
+
+---
+
+## Part 4: Dual-Mode Connection: Instant BYOK API Key vs. Enterprise WIF
+
+To eliminate sales and onboarding friction, the gateway supports two complementary connection modes:
+
+| Capability | 🔑 Mode A: Instant API Key (BYOK) | 🏛️ Mode B: Enterprise WIF / Private Service Connect |
+| :--- | :--- | :--- |
+| **Setup Time** | **30 Seconds** (Self-serve directly in UI) | **5–10 Minutes** (Admin cloud script) |
+| **Best Used For** | **Customer Demos, Hackathons, POCs, Rapid Prototyping** | **Formal Phase 3 Clinical Trials, GxP Production** |
+| **Credentials Needed** | Gemini / OpenAI / Anthropic API Key | Cloud IAM Trust Policy (Zero static keys) |
+| **Network Path** | Encrypted TLS 1.3 HTTPS | Google Cloud Private Service Connect (PSC) |
+| **Customer Friction** | **Zero Friction** (Anyone with an API key can test) | Requires Cloud Administrator approval |
+
+---
+
+## Part 5: The Multi-Persona Demonstration Suite
 
 ```
                           ┌─────────────────────────────────────────────────────────┐
@@ -122,7 +176,7 @@ In regulated biopharma and healthcare, enterprise buyers justify software invest
 
 ---
 
-## Part 3: Advanced Enterprise Platform Capabilities
+## Part 6: Advanced Enterprise Platform Capabilities
 
 ### 5. 🌐 Enterprise Agent Swarm Mesh & Service Registry
 * **Catalog of Specialized Agents**: Dynamic discovery of *Pharmacovigilance Agent*, *Biostatistics Agent*, *Regulatory Dossier Agent*, and *Clinical EDC Ingestion Agent* with real-time status and SLA tracking ($38\text{ms} - 120\text{ms}$).
@@ -145,7 +199,7 @@ In regulated biopharma and healthcare, enterprise buyers justify software invest
 
 ---
 
-## Part 4: Biopharmaceutical & Regulated Enterprise Capabilities
+## Part 7: Biopharmaceutical & Regulated Enterprise Capabilities
 
 | Domain Capability | Technical Mechanism | Regulatory / Operational Value |
 | :--- | :--- | :--- |
@@ -158,7 +212,7 @@ In regulated biopharma and healthcare, enterprise buyers justify software invest
 
 ---
 
-## Part 5: Hardened Logical Architecture, Edge Case Mitigations & Quality Guards
+## Part 8: Hardened Logical Architecture, Edge Case Mitigations & Quality Guards
 
 To guarantee production resilience under heavy concurrent enterprise traffic and strict FDA/GxP regulatory audits, the logical flow addresses five critical distributed system edge cases:
 
@@ -209,7 +263,7 @@ To guarantee production resilience under heavy concurrent enterprise traffic and
 
 ---
 
-## Part 6: Universal Biopharma AI Agent Testing & Benchmarking Platform
+## Part 9: Universal Biopharma AI Agent Testing & Benchmarking Platform
 
 To make this platform a universal demo and testing tool for **all global biopharma enterprises** (Pfizer, Roche, Novartis, J&J, AstraZeneca, Eli Lilly, Sanofi, BMS, AbbVie, Takeda, GSK), six missing industry-wide modules are added:
 
@@ -262,7 +316,7 @@ To make this platform a universal demo and testing tool for **all global biophar
 
 ---
 
-## Part 7: Customer Demo Readiness Inventory & Interactive UI Deliverables
+## Part 10: Customer Demo Readiness Inventory & Interactive UI Deliverables
 
 To turn the current live backend engine into an **immediate, irresistible 5-minute customer demo**, the following four high-craft interactive UI components are established as Phase 1 deliverables:
 
@@ -306,7 +360,7 @@ To turn the current live backend engine into an **immediate, irresistible 5-minu
 
 ---
 
-## Part 8: Phased Implementation Roadmap
+## Part 11: Phased Implementation Roadmap
 
 ```
 PHASE 1: Core Portal Hub & Interactive Persona Playgrounds (Weeks 1-2)
@@ -337,7 +391,7 @@ PHASE 4: Enterprise Validation, GAMP 5 Scorecard & Customer Demo (Weeks 7-8)
 
 ---
 
-## Part 9: Live Verification & Visual Gallery Index
+## Part 12: Live Verification & Visual Gallery Index
 
 - **Interactive Verification Portal**: `http://127.0.0.1:8090`
 - **GitHub Repository**: [`https://github.com/nitinaggarwal-12/a2a-enterprise-gateway`](https://github.com/nitinaggarwal-12/a2a-enterprise-gateway) (Branch: `main`)
@@ -349,5 +403,6 @@ PHASE 4: Enterprise Validation, GAMP 5 Scorecard & Customer Demo (Weeks 7-8)
   - [Agent Developer View](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/04_persona_developer_view.jpg)
   - [Agent Swarm Mesh Registry](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/05_persona_swarm_registry.jpg)
   - [Omnichannel Transpilation Studio](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/06_persona_omnichannel_transpiler.jpg)
+
 
 
