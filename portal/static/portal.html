@@ -197,144 +197,245 @@
 <body class="cyber-bg min-h-screen antialiased flex flex-col justify-between transition-colors duration-300 custom-scrollbar" x-data="portalState()">
 
   <!-- ========================================================================= -->
-  <!-- STICKY ENTERPRISE HEADER -->
+  <!-- ========================================================================= -->
+  <!-- STICKY ENTERPRISE CLEAN HEADER                                            -->
   <!-- ========================================================================= -->
   <header class="sticky top-0 z-40 w-full glass-card border-b backdrop-blur-2xl shadow-xl">
-    <div class="w-full px-4 md:px-8 lg:px-12 py-3 flex flex-wrap items-center justify-between gap-4">
+    <div class="w-full px-4 md:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
       
-      <!-- Brand & Live Pulse Badge -->
-      <div class="flex items-center space-x-3.5">
-        <div class="relative group cursor-pointer" @click="triggerSparkleCelebration()">
-          <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse"></div>
-          <div class="relative w-11 h-11 rounded-xl bg-slate-950 dark:bg-slate-900 flex items-center justify-center border border-teal-400/50 shadow-md">
-            <i class="fa-solid fa-dna text-cyan-400 text-xl font-black"></i>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-xl font-black tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">Enterprise A2A Gateway</h1>
-            <span class="text-[11px] px-2.5 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);">v1.0.0</span>
-            <span class="text-[11px] px-2.5 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">21 CFR Part 11</span>
-          </div>
-          <p class="text-[11px] flex items-center space-x-2 font-medium" style="color: var(--color-text-muted);">
-            <span>Sovereign Biopharma Swarm Mesh</span>
-            <span>•</span>
-            <span class="font-mono font-bold flex items-center space-x-1.5" style="color: var(--color-badge-emerald-text);">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>28 µs AST Latency</span>
-            </span>
-          </p>
-        </div>
-      </div>
-
-      <!-- Persona Storyboard Switcher -->
-      <div class="hidden xl:flex items-center space-x-1.5 p-1.5 rounded-2xl border text-xs shadow-inner sub-navbar">
-        <span class="text-[11px] px-2 font-mono uppercase font-bold tracking-wider" style="color: var(--color-text-muted);">Persona:</span>
-        <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-600'" :style="activePersona !== 'architect' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl transition-all flex items-center space-x-1.5">
-          <span>🏛️ Architect</span>
-        </button>
-        <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-emerald-600'" :style="activePersona !== 'clinician' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl transition-all flex items-center space-x-1.5">
-          <span>🩺 Clinician</span>
-        </button>
-        <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-md' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl transition-all flex items-center space-x-1.5">
-          <span>⚖️ Compliance</span>
-        </button>
-        <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl transition-all flex items-center space-x-1.5">
-          <span>💻 Developer</span>
-        </button>
-      </div>
-
-      <!-- Action Buttons & Controls -->
+      <!-- Left: Sidebar Toggle + Brand Logo + Workspace Breadcrumb -->
       <div class="flex items-center space-x-3">
+        <!-- Sidebar Collapse / Expand Toggle Button -->
+        <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shrink-0 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Toggle Sidebar">
+          <i class="fa-solid text-sm transition-transform duration-300" :class="sidebarCollapsed ? 'fa-bars' : 'fa-bars-staggered text-cyan-400'"></i>
+        </button>
+
+        <!-- Brand Emblem & Title -->
+        <div class="flex items-center space-x-2.5 cursor-pointer group" @click="triggerSparkleCelebration()">
+          <div class="relative w-9 h-9 rounded-xl bg-slate-950 dark:bg-slate-900 flex items-center justify-center border border-teal-400/50 shadow-md group-hover:scale-105 transition-transform">
+            <i class="fa-solid fa-dna text-cyan-400 text-base font-black"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h1 class="text-base md:text-lg font-black tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">Enterprise A2A Gateway</h1>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm hidden sm:inline" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);">v1.0.0</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm hidden md:inline" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">21 CFR Part 11</span>
+            </div>
+            <p class="text-[10px] flex items-center space-x-1.5 font-medium" style="color: var(--color-text-muted);">
+              <span>Sovereign Biopharma Swarm</span>
+              <span>•</span>
+              <span class="font-mono font-bold flex items-center space-x-1" style="color: var(--color-badge-emerald-text);">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>28 µs AST Latency</span>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Active Tab Context Pill -->
+        <div class="hidden xl:flex items-center space-x-2 pl-3 border-l text-xs font-bold" style="border-color: var(--color-border-subtle);">
+          <span style="color: var(--color-text-muted);">Workspace:</span>
+          <span class="px-2.5 py-0.5 rounded-lg font-mono text-cyan-400 border border-cyan-500/20 bg-cyan-500/10" x-text="getTabName(currentTab)"></span>
+        </div>
+      </div>
+
+      <!-- Center / Right: Persona Selector + Quick Controls -->
+      <div class="flex items-center space-x-2 sm:space-x-2.5">
+        
+        <!-- Persona Storyboard Switcher -->
+        <div class="hidden lg:flex items-center space-x-1 p-1 rounded-xl border text-xs shadow-inner sub-navbar">
+          <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-cyan-600'" :style="activePersona !== 'architect' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
+            <span>🏛️ Architect</span>
+          </button>
+          <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-emerald-600'" :style="activePersona !== 'clinician' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
+            <span>🩺 Clinician</span>
+          </button>
+          <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-sm' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
+            <span>⚖️ Compliance</span>
+          </button>
+          <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
+            <span>💻 Developer</span>
+          </button>
+        </div>
+
         <!-- Theme Toggle -->
-        <button @click="toggleTheme()" class="p-2.5 rounded-xl border hover:border-teal-500 transition-all shadow-sm flex items-center justify-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
-          <i class="fa-solid text-sm" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
+        <button @click="toggleTheme()" class="p-2 rounded-xl border hover:border-teal-500 transition-all shadow-sm flex items-center justify-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
+          <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
         </button>
 
         <!-- SSO Login Button -->
-        <button @click="ssoModalOpen = true" class="px-3.5 py-2 rounded-xl border text-xs font-bold flex items-center space-x-2 transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-          <i class="fa-solid fa-user-shield text-teal-500"></i>
-          <span class="hidden sm:inline" x-text="currentUser ? currentUser.name : 'Enterprise SSO'"></span>
+        <button @click="ssoModalOpen = true" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+          <i class="fa-solid fa-user-shield text-teal-500 text-xs"></i>
+          <span class="hidden md:inline text-[11px]" x-text="currentUser ? currentUser.name : 'SSO'"></span>
         </button>
 
         <!-- BYOK Key -->
-        <button @click="byokDrawerOpen = true" class="px-3.5 py-2 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-          <i class="fa-solid fa-key text-amber-500"></i>
-          <span class="hidden sm:inline">BYOK Key</span>
+        <button @click="byokDrawerOpen = true" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+          <i class="fa-solid fa-key text-amber-500 text-xs"></i>
+          <span class="hidden md:inline text-[11px]">BYOK</span>
         </button>
 
         <!-- Live Alerts Counter -->
-        <button @click="currentTab = 'alerts_feedback'" class="relative px-3.5 py-2 rounded-xl border text-xs font-bold transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-          <i class="fa-solid fa-bell text-rose-500"></i>
-          <span class="hidden sm:inline ml-1">Alerts</span>
-          <span x-show="unreadAlertsCount > 0" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white font-black text-[9px] flex items-center justify-center animate-bounce shadow-md" x-text="unreadAlertsCount"></span>
+        <button @click="currentTab = 'alerts_feedback'" class="relative p-2 rounded-xl border text-xs font-bold transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Alerts">
+          <i class="fa-solid fa-bell text-rose-500 text-xs"></i>
+          <span x-show="unreadAlertsCount > 0" class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white font-black text-[8px] flex items-center justify-center animate-bounce shadow-md" x-text="unreadAlertsCount"></span>
         </button>
 
         <!-- Dr. A2A Copilot -->
-        <button @click="assistantOpen = true" class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-extrabold flex items-center space-x-2 shadow-lg shadow-teal-500/25 transition-all active:scale-95">
-          <i class="fa-solid fa-robot"></i>
-          <span>Dr. A2A Copilot</span>
+        <button @click="assistantOpen = true" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-extrabold flex items-center space-x-1.5 shadow-lg shadow-teal-500/20 transition-all active:scale-95">
+          <i class="fa-solid fa-robot text-xs"></i>
+          <span class="hidden sm:inline">Dr. A2A</span>
         </button>
       </div>
-    </div>
 
-    <!-- Sub-Navbar Navigation Tabs -->
-    <div class="w-full px-4 md:px-8 lg:px-12 py-2.5 flex items-center space-x-2 overflow-x-auto custom-scrollbar border-t sub-navbar">
-      <button id="tab-dag" @click="currentTab = 'dag_studio'" :class="currentTab === 'dag_studio' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-600'" :style="currentTab !== 'dag_studio' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-diagram-project"></i>
-        <span>Visual Drag & Drop DAG</span>
-      </button>
-      <button id="tab-dose" @click="currentTab = 'dose_curve'" :class="currentTab === 'dose_curve' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-emerald-600'" :style="currentTab !== 'dose_curve' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-sliders"></i>
-        <span>Dose Titration Curve</span>
-      </button>
-      <button id="tab-playground" @click="currentTab = 'playground'" :class="currentTab === 'playground' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-teal-600'" :style="currentTab !== 'playground' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-flask-vial"></i>
-        <span>Playground & Ingestion</span>
-      </button>
-      <button id="tab-integrations" @click="currentTab = 'integrations'" :class="currentTab === 'integrations' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-md' : 'font-semibold hover:text-purple-600'" :style="currentTab !== 'integrations' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-plug"></i>
-        <span>Tool Integrations Hub</span>
-      </button>
-      <button id="tab-kpis" @click="currentTab = 'kpis'" :class="currentTab === 'kpis' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-amber-600'" :style="currentTab !== 'kpis' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-gauge-high"></i>
-        <span>KPI Speedometers</span>
-      </button>
-      <button id="tab-veo" @click="currentTab = 'veo_studio'" :class="currentTab === 'veo_studio' ? 'bg-gradient-to-r from-rose-500 via-purple-500 to-cyan-500 text-white font-black shadow-lg shadow-purple-500/20' : 'font-semibold hover:text-purple-600'" :style="currentTab !== 'veo_studio' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5 ring-1 ring-purple-400/30">
-        <i class="fa-solid fa-film text-amber-300"></i>
-        <span>🎬 Veo 2 & Omni Studio</span>
-      </button>
-      <button id="tab-overview" @click="currentTab = 'overview'" :class="currentTab === 'overview' ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-teal-600'" :style="currentTab !== 'overview' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>Overview & MECE</span>
-      </button>
-      <button id="tab-opt1" @click="currentTab = 'opt1'" :class="currentTab === 'opt1' ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="currentTab !== 'opt1' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-shield-halved"></i>
-        <span>Option 1: Cloud Run</span>
-      </button>
-      <button id="tab-opt2" @click="currentTab = 'opt2'" :class="currentTab === 'opt2' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black shadow-md' : 'font-semibold hover:text-indigo-600'" :style="currentTab !== 'opt2' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-code"></i>
-        <span>Option 2: gRPC Stream</span>
-      </button>
-      <button id="tab-opt3" @click="currentTab = 'opt3'" :class="currentTab === 'opt3' ? 'bg-gradient-to-r from-purple-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-purple-600'" :style="currentTab !== 'opt3' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-layer-group"></i>
-        <span>Option 3: Dual-Plane</span>
-      </button>
-      <button id="tab-alerts" @click="currentTab = 'alerts_feedback'" :class="currentTab === 'alerts_feedback' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-teal-600'" :style="currentTab !== 'alerts_feedback' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
-        <i class="fa-solid fa-comments"></i>
-        <span>Alerts & Feedback</span>
-      </button>
-      <button id="tab-faq" @click="currentTab = 'faq'" :class="currentTab === 'faq' ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 text-white font-black shadow-lg shadow-rose-500/20' : 'font-semibold hover:text-cyan-600'" :style="currentTab !== 'faq' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5 ring-1 ring-rose-400/30">
-        <i class="fa-solid fa-circle-question"></i>
-        <span>Technical FAQ</span>
-      </button>
     </div>
   </header>
 
   <!-- ========================================================================= -->
-  <!-- MAIN PAGE CONTENT CONTAINER -->
+  <!-- MAIN APP WRAPPER: SIDEBAR + CONTENT AREA                                  -->
   <!-- ========================================================================= -->
-  <main class="w-full px-4 md:px-8 lg:px-12 py-8 space-y-8 max-w-8xl mx-auto flex-1">
+  <div class="flex-1 flex w-full relative min-h-[calc(100vh-65px)]">
+
+    <!-- ========================================================================= -->
+    <!-- COLLAPSIBLE LEFT NAVIGATION SIDEBAR                                       -->
+    <!-- ========================================================================= -->
+    <aside :class="sidebarCollapsed ? 'w-20' : 'w-64 xl:w-72'" class="transition-all duration-300 ease-in-out shrink-0 sticky top-[57px] h-[calc(100vh-57px)] flex flex-col justify-between p-3 glass-card border-r z-30 overflow-y-auto custom-scrollbar shadow-lg" style="border-color: var(--color-border-card); background-color: var(--color-bg-card-subtle);">
+      
+      <!-- Top Navigation Groups -->
+      <div class="space-y-5">
+        
+        <!-- Group 1: Core Studios -->
+        <div class="space-y-1">
+          <div x-show="!sidebarCollapsed" class="px-3 py-1 text-[10px] font-mono font-extrabold uppercase tracking-widest" style="color: var(--color-text-muted);">
+            Core Workflows & Studios
+          </div>
+          
+          <button id="tab-dag" @click="currentTab = 'dag_studio'" :class="currentTab === 'dag_studio' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400 hover:bg-slate-800/20'" :style="currentTab !== 'dag_studio' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Visual Drag & Drop DAG' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'dag_studio' ? 'bg-slate-950/20 text-slate-950' : 'text-teal-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-diagram-project text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Visual Drag & Drop DAG</span>
+          </button>
+
+          <button id="tab-dose" @click="currentTab = 'dose_curve'" :class="currentTab === 'dose_curve' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-emerald-400 hover:bg-slate-800/20'" :style="currentTab !== 'dose_curve' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Dose Titration Curve' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'dose_curve' ? 'bg-slate-950/20 text-slate-950' : 'text-emerald-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-sliders text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Dose Titration Curve</span>
+          </button>
+
+          <button id="tab-playground" @click="currentTab = 'playground'" :class="currentTab === 'playground' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-teal-400 hover:bg-slate-800/20'" :style="currentTab !== 'playground' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Playground & Ingestion' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'playground' ? 'bg-slate-950/20 text-slate-950' : 'text-cyan-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-flask-vial text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Playground & Ingestion</span>
+          </button>
+
+          <button id="tab-veo" @click="currentTab = 'veo_studio'" :class="currentTab === 'veo_studio' ? 'bg-gradient-to-r from-rose-500 via-purple-500 to-cyan-500 text-white font-black shadow-md shadow-purple-500/20' : 'font-semibold hover:text-purple-400 hover:bg-slate-800/20 ring-1 ring-purple-500/20'" :style="currentTab !== 'veo_studio' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? '🎬 Veo 2 & Omni Studio' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'veo_studio' ? 'bg-white/20 text-white' : 'text-rose-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-film text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left flex items-center space-x-1.5">
+              <span>🎬 Veo 2 & Omni Studio</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Group 2: Enterprise Gateway Options -->
+        <div class="space-y-1 pt-2 border-t" style="border-color: var(--color-border-subtle);">
+          <div x-show="!sidebarCollapsed" class="px-3 py-1 text-[10px] font-mono font-extrabold uppercase tracking-widest" style="color: var(--color-text-muted);">
+            Enterprise Gateway Options
+          </div>
+
+          <button id="tab-overview" @click="currentTab = 'overview'" :class="currentTab === 'overview' ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400 hover:bg-slate-800/20'" :style="currentTab !== 'overview' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Overview & MECE Matrix' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'overview' ? 'bg-slate-950/20 text-slate-950' : 'text-teal-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-chart-pie text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Overview & MECE Matrix</span>
+          </button>
+
+          <button id="tab-opt1" @click="currentTab = 'opt1'" :class="currentTab === 'opt1' ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-400 hover:bg-slate-800/20'" :style="currentTab !== 'opt1' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Option 1: Cloud Run' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'opt1' ? 'bg-slate-950/20 text-slate-950' : 'text-sky-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-shield-halved text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Option 1: Cloud Run</span>
+          </button>
+
+          <button id="tab-opt2" @click="currentTab = 'opt2'" :class="currentTab === 'opt2' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black shadow-md' : 'font-semibold hover:text-indigo-400 hover:bg-slate-800/20'" :style="currentTab !== 'opt2' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Option 2: gRPC Stream' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'opt2' ? 'bg-white/20 text-white' : 'text-indigo-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-code text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Option 2: gRPC Stream</span>
+          </button>
+
+          <button id="tab-opt3" @click="currentTab = 'opt3'" :class="currentTab === 'opt3' ? 'bg-gradient-to-r from-purple-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-purple-400 hover:bg-slate-800/20'" :style="currentTab !== 'opt3' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Option 3: Dual-Plane' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'opt3' ? 'bg-slate-950/20 text-slate-950' : 'text-purple-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-layer-group text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Option 3: Dual-Plane</span>
+          </button>
+        </div>
+
+        <!-- Group 3: Intelligence & Governance -->
+        <div class="space-y-1 pt-2 border-t" style="border-color: var(--color-border-subtle);">
+          <div x-show="!sidebarCollapsed" class="px-3 py-1 text-[10px] font-mono font-extrabold uppercase tracking-widest" style="color: var(--color-text-muted);">
+            Intelligence & Governance
+          </div>
+
+          <button id="tab-integrations" @click="currentTab = 'integrations'" :class="currentTab === 'integrations' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-md' : 'font-semibold hover:text-purple-400 hover:bg-slate-800/20'" :style="currentTab !== 'integrations' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Tool Integrations Hub' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'integrations' ? 'bg-white/20 text-white' : 'text-pink-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-plug text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Tool Integrations Hub</span>
+          </button>
+
+          <button id="tab-kpis" @click="currentTab = 'kpis'" :class="currentTab === 'kpis' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-amber-400 hover:bg-slate-800/20'" :style="currentTab !== 'kpis' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'KPI Speedometers' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'kpis' ? 'bg-slate-950/20 text-slate-950' : 'text-amber-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-gauge-high text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">KPI Speedometers</span>
+          </button>
+
+          <button id="tab-alerts" @click="currentTab = 'alerts_feedback'" :class="currentTab === 'alerts_feedback' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-teal-400 hover:bg-slate-800/20'" :style="currentTab !== 'alerts_feedback' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Alerts & Feedback' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 relative" :class="currentTab === 'alerts_feedback' ? 'bg-slate-950/20 text-slate-950' : 'text-emerald-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-comments text-sm"></i>
+              <span x-show="unreadAlertsCount > 0" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Alerts & Feedback</span>
+          </button>
+
+          <button id="tab-faq" @click="currentTab = 'faq'" :class="currentTab === 'faq' ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-cyan-500 text-white font-black shadow-md shadow-rose-500/20' : 'font-semibold hover:text-rose-400 hover:bg-slate-800/20 ring-1 ring-rose-500/20'" :style="currentTab !== 'faq' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Technical FAQ' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'faq' ? 'bg-white/20 text-white' : 'text-rose-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-circle-question text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left">Technical FAQ</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Bottom Sidebar Footer & Collapse Toggle Button -->
+      <div class="pt-3 border-t space-y-2" style="border-color: var(--color-border-subtle);">
+        <div x-show="!sidebarCollapsed" class="p-2.5 rounded-xl border flex items-center justify-between text-[11px]" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-bold" style="color: var(--color-text-primary);">A2A Mesh</span>
+          </div>
+          <span class="font-mono text-[10px] text-emerald-400 font-black">ONLINE</span>
+        </div>
+
+        <button @click="sidebarCollapsed = !sidebarCollapsed" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all hover:border-cyan-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+          <i class="fa-solid" :class="sidebarCollapsed ? 'fa-angles-right text-cyan-400' : 'fa-angles-left'"></i>
+          <span x-show="!sidebarCollapsed" class="text-[11px]">Collapse Sidebar</span>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ========================================================================= -->
+    <!-- MAIN PAGE CONTENT CONTAINER                                               -->
+    <!-- ========================================================================= -->
+    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-8 max-w-8xl mx-auto overflow-y-auto custom-scrollbar">
 
     <!-- ========================================================================= -->
     <!-- TAB 1: VISUAL DRAG & DROP DAG STUDIO -->
@@ -1150,6 +1251,7 @@
     </div>
 
   </main>
+  </div>
 
   <!-- ========================================================================= -->
   <!-- STICKY ENTERPRISE FOOTER -->
@@ -1371,6 +1473,7 @@
     function portalState() {
       return {
         currentTab: 'dag_studio',
+        sidebarCollapsed: false,
         activePersona: 'architect',
         assistantOpen: false,
         byokDrawerOpen: false,
@@ -1379,6 +1482,24 @@
         unreadAlertsCount: 2,
         currentUser: null,
         isDark: true,
+
+        getTabName(tab) {
+          const map = {
+            'dag_studio': 'Visual Drag & Drop DAG',
+            'dose_curve': 'Dose Titration Curve',
+            'playground': 'Playground & Ingestion',
+            'integrations': 'Tool Integrations Hub',
+            'kpis': 'Live KPI Speedometers',
+            'veo_studio': 'Veo 2 & Omni Studio',
+            'overview': 'Overview & MECE Matrix',
+            'opt1': 'Option 1: Cloud Run',
+            'opt2': 'Option 2: gRPC Stream',
+            'opt3': 'Option 3: Dual-Plane',
+            'alerts_feedback': 'Alerts & Feedback',
+            'faq': 'Technical FAQ & Deep-Dive'
+          };
+          return map[tab] || 'Workspace';
+        },
 
         paletteNodes: [
           { type: 'ingest', label: 'CDISC SDTM Ingest', icon: 'fa-database', desc: 'Ingests raw EDC AE/LB domains.' },
