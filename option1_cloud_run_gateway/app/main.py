@@ -99,10 +99,11 @@ async def dispatch_push_notification(push_url: str, task_id: str, decision: str,
 # Discovery Endpoint
 @app.get("/.well-known/agent.json")
 async def get_agent_discovery():
-    """Expose standard A2A discovery card metadata (0.2.0)."""
+    """Expose standard A2A discovery card metadata (v1.0.0)."""
     return {
-        "schemaVersion": "0.2.0",
-        "name": "Enterprise Enterprise Clinical Agent Gateway",
+        "schemaVersion": "1.0.0",
+        "protocolVersion": "1.0.0",
+        "name": "Enterprise Clinical Agent Gateway",
         "description": "GxP Validated 21 CFR Part 11 Clinical Study Amendment & Adverse Event Analyzer",
         "version": settings.SERVICE_VERSION,
         "capabilities": {
@@ -110,13 +111,15 @@ async def get_agent_discovery():
             "pushNotifications": True,
             "stateTokens": True,
             "gxpSanitization": True,
+            "a2ui": True,
+            "webhooks": True,
         },
         "endpoints": {
             "tasks": "/a2a/tasks",
             "uiAction": "/a2a/ui/action",
             "health": "/healthz",
         },
-        "supportedDialects": ["a2ui_flat", "google_card_v2"],
+        "supportedDialects": ["a2ui.v1", "google_card_v2"],
     }
 
 

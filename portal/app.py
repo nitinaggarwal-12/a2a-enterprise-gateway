@@ -179,10 +179,10 @@ TEST_CASES_DATA = [
         "id": "TC-01",
         "option": "Option 1 (Cloud Run)",
         "category": "Discovery & Health",
-        "objective": "A2A Protocol 0.2.0 Capability Discovery & Liveness Check",
+        "objective": "A2A Protocol 1.0.0 Capability Discovery & Liveness Check",
         "input": "GET /.well-known/agent.json, GET /healthz",
-        "output": '{"schemaVersion": "0.2.0", "capabilities": {"streaming": true, "gxpSanitization": true, "stateTokens": true}}',
-        "compliance": "A2A Spec 0.2.0",
+        "output": '{"schemaVersion": "1.0.0", "protocolVersion": "1.0.0", "capabilities": {"streaming": true, "gxpSanitization": true, "stateTokens": true, "a2ui": true}}',
+        "compliance": "A2A Spec 1.0.0",
         "status": "PASSED",
         "screenshot": "/static/screenshots/01_architecture_overview_matrix.png",
         "description": "Validates discovery card publication and health check responses required by Gemini Enterprise agent orchestrators."

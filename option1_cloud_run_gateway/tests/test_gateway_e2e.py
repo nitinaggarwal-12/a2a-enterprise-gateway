@@ -23,11 +23,13 @@ def test_discovery_endpoint(client):
     response = client.get("/.well-known/agent.json")
     assert response.status_code == 200
     data = response.json()
-    assert data["schemaVersion"] == "0.2.0"
+    assert data["schemaVersion"] == "1.0.0"
+    assert data["protocolVersion"] == "1.0.0"
     assert data["capabilities"]["gxpSanitization"] is True
     assert data["capabilities"]["streaming"] is True
     assert data["capabilities"]["stateTokens"] is True
-    assert "a2ui_flat" in data["supportedDialects"]
+    assert data["capabilities"]["a2ui"] is True
+    assert "a2ui.v1" in data["supportedDialects"]
 
 
 def test_healthz_endpoint(client):

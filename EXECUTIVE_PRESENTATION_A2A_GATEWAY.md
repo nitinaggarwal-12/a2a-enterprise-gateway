@@ -152,7 +152,7 @@ All 8 test cases were executed and verified with 100% pass rates:
 
 | Test ID | Module | Objective | Input | Expected Output | Status |
 | :--- | :--- | :--- | :--- | :--- | :---: |
-| **TC-01** | Option 1 | A2A Discovery & Liveness Check | `GET /.well-known/agent.json`, `GET /healthz` | Protocol 0.2.0 capabilities & Healthy status | **PASSED** |
+| **TC-01** | Option 1 | A2A Discovery & Liveness Check | `GET /.well-known/agent.json`, `GET /healthz` | Protocol 1.0.0 capabilities & Healthy status | **PASSED** |
 | **TC-02** | Option 1 | Recursive AST Metadata & Header Stripping | `POST /a2a/tasks` with `adk_metadata`, `_adk`, headers | 100% prohibited keys stripped; clinical keys intact | **PASSED** |
 | **TC-03** | Option 1 | Stateless 48-Hr HMAC Token Sealing | `POST /a2a/tasks` (Standalone mode) | `INPUT_REQUIRED` with signed A2UI state tokens | **PASSED** |
 | **TC-04** | Option 1 | Stateless User Sign-Off & Webhook Push | `POST /a2a/ui/action` with valid stateToken | `COMPLETED`, `decision: "APPROVED"`, audit logged | **PASSED** |

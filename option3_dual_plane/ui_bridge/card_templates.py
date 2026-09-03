@@ -54,7 +54,7 @@ def render_approval_card(
     card_id = f"a2ui-card-{study_id}-{cohort}"
 
     a2ui_card = {
-        "schemaVersion": "0.2.0",
+        "schemaVersion": "1.0.0",
         "surfaceType": "a2ui_card",
         "id": card_id,
         "title": f"Clinical Study Amendment Approval: {study_id}",

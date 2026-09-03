@@ -46,9 +46,9 @@ def build_clinical_review_surface(
         "pushUrl": push_url,
     })
 
-    # A2UI Flat Dialect Specification
+    # A2UI Flat Dialect Specification (v1.0.0)
     a2ui_flat = {
-        "schemaVersion": "0.2.0",
+        "schemaVersion": "1.0.0",
         "surfaceType": "a2ui_card",
         "id": f"card-review-{task_id}",
         "header": {
