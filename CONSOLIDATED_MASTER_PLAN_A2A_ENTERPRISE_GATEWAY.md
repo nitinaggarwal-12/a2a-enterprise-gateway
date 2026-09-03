@@ -362,32 +362,79 @@ To turn the current live backend engine into an **immediate, irresistible 5-minu
 
 ## Part 11: Phased Implementation Roadmap
 
+The execution plan is decomposed into six logical, progressive phases from foundational core to enterprise-scale production rollout:
+
 ```
-PHASE 1: Core Portal Hub & Interactive Persona Playgrounds (Weeks 1-2)
-  ├── 1.1 Persona Switcher Header & Hero UI (Architect, Clinician, Compliance, Dev)
-  ├── 1.2 Interactive A2UI Clinical Playground with Live Dose Titration Slider
-  ├── 1.3 Merkle Audit Explorer & Tamper Security Guard Simulation
-  └── 1.4 Live StreamTask SSE/gRPC Reasoning Console
-
-PHASE 2: Hardened Protocols, Idempotency & Omnichannel Engine (Weeks 3-4)
-  ├── 2.1 Atomic `jti` Nonce Idempotency Guard & CAS Invalidation
-  ├── 2.2 Two-Tier Stream-to-Pub/Sub Auto-Cutover Protocol (AIP-127)
-  ├── 2.3 4-Way Omnichannel Transpiler with Graceful Degradation Engine
-  └── 2.4 Multi-Agent Mesh Distributed Tracing & Cycle Interceptor (X-A2A-Hop-Count <= 5)
-
-PHASE 3: Universal Biopharma Suite & Multi-Model Engine (Weeks 5-6)
-  ├── 3.1 Therapeutic Area Switcher (Oncology, GLP-1 Metabolic, Immunology, Rare Disease)
-  ├── 3.2 Multi-Vendor Synthetic EDC Hub (Medidata Rave, Veeva Vault, Oracle InForm)
-  ├── 3.3 Multi-Cloud LLM Router (Vertex Gemini, AWS Claude 3.5, Azure GPT-4o)
-  ├── 3.4 Safe Harbor 18 PHI Auto-Redaction Boundary
-  └── 3.5 "Build Your Own Clinical Trial Agent" Interactive Sandbox
-
-PHASE 4: Enterprise Validation, GAMP 5 Scorecard & Customer Demo (Weeks 7-8)
-  ├── 4.1 Automated 50-Test GAMP 5 & 21 CFR Part 11 Compliance Benchmark Suite
-  ├── 4.2 1-Click GxP Grade A+ Certified Scorecard & PDF Export
-  ├── 4.3 Executive Multi-Persona Demo Playbooks & Scripts
-  └── 4.4 1-Click Live Cloud Deployment (Cloud Run / Railway)
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       6-PHASE PROGRESSIVE EXECUTION ROADMAP                                      │
+├───────────────────┬───────────────────┬───────────────────┬───────────────────┬───────────────────┬──────────────┤
+│      PHASE 0      │      PHASE 1      │      PHASE 2      │      PHASE 3      │      PHASE 4      │   PHASE 5    │
+│  Foundation Core  │ Interactive Demo  │  Hardened Mesh &  │  Biopharma Suite  │  GxP Governance & │ GAMP 5 Cert  │
+│  & Protocol v1.0  │ Experience Hub    │ Omnichannel Trans │  & Multi-Cloud    │ 21 CFR Part 11 PKI│ & Enterprise │
+│  (COMPLETED)      │ (Weeks 1–2)       │ (Weeks 3–4)       │ (Weeks 5–6)       │ (Weeks 7–8)       │ (Weeks 9–10) │
+└───────────────────┴───────────────────┴───────────────────┴───────────────────┴───────────────────┴──────────────┘
 ```
+
+### 🏁 Phase 0: Foundation Core & Protocol Baseline (Completed & Verified ✅)
+* **Milestones**:
+  - Implementation and empirical benchmarking of all 3 Architecture Options (Cloud Run Interceptor, gRPC Protobuf, Dual-Plane).
+  - Adoption of standard **A2A v1.0.0** (`schemaVersion: 1.0.0`, `protocolVersion: 1.0.0`, AIP-127 LRO) and **A2UI v1.0.0** schemas.
+  - In-process **$28\mu\text{s}$ AST sanitization engine** and **$84\mu\text{s}$ HMAC state token sealer**.
+  - 8/8 MECE integration test cases passing end-to-end (`./test_all_options.sh`).
+* **Deliverables**: [`option1_cloud_run_gateway/`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/option1_cloud_run_gateway/), [`option2_grpc_service/`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/option2_grpc_service/), [`option3_dual_plane/`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/option3_dual_plane/), [`portal/`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/portal/).
+
+---
+
+### 🚀 Phase 1: High-Craft Multi-Persona Interactive Demo Hub (Weeks 1–2)
+* **Milestones**:
+  - **1.1 Persona Switcher Header**: Instant switching across *Architect*, *Clinician*, *Compliance*, and *Developer* storyboards.
+  - **1.2 Interactive A2UI Clinical Playground**: Live drag-and-drop dose titration slider ($100\text{mg} - 400\text{mg}$) with client-side mathematical recalculation of projected hepatotoxicity and safety variance.
+  - **1.3 Live Tamper Attack Security Simulator**: Interactive button demonstrating instant 401 unauthorized rejection with animated red security shield.
+  - **1.4 30-Second BYOK API Key Drawer**: Instant self-serve onboarding modal supporting Google AI Studio, Anthropic, and OpenAI keys with live connection latency ping.
+  - **1.5 Live `StreamTask` Reasoning Console**: Progressive token-by-token terminal animation.
+* **Deliverables**: Updated [`portal/static/portal.html`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/portal/static/portal.html) and [`portal/app.py`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/portal/app.py).
+
+---
+
+### 🛡️ Phase 2: Distributed Resilience, Idempotency & Omnichannel Engine (Weeks 3–4)
+* **Milestones**:
+  - **2.1 Atomic `jti` Nonce Idempotency Guard**: Single-use token validation via check-and-set (`CAS`) state transitions to eliminate double-approval race conditions.
+  - **2.2 Two-Tier Stream-to-Pub/Sub Cutover**: Automatic lifecycle handover from synchronous `StreamTask` ($\le 60\text{s}$) to asynchronous Cloud Pub/Sub ($> 60\text{s}$) with AIP-127 `operation_id` polling.
+  - **2.3 4-Way Universal Omnichannel Transpiler**: Live synchronized rendering across Google Workspace Card v2, Web React Glassmorphic Card, Slack Block Kit, and Microsoft Teams Adaptive Card with rule-based graceful degradation.
+  - **2.4 Multi-Agent Mesh Tracing**: Enforcement of `X-A2A-Trace-ID`, `X-A2A-Hop-Count` ($\le 5$), and `X-A2A-Visited-Agents` cycle detection interceptors.
+* **Deliverables**: Distributed state store integration, transpiler middleware, and mesh tracing interceptor.
+
+---
+
+### 🧬 Phase 3: Universal Biopharma Suite & Cross-Cloud Model Router (Weeks 5–6)
+* **Milestones**:
+  - **3.1 Multi-Therapeutic Area Vault**: Interactive scenario switcher for *Oncology* (RECIST 1.1), *GLP-1 Metabolic* (HbA1c), *Immunology* (ACR20/50), *Rare Disease* (AAV vectors), and *Vaccines* (antibody titers).
+  - **3.2 Multi-Vendor Synthetic EDC Hub**: Interoperability adapters for *Medidata Rave* (ODM-XML), *Veeva Vault CDMS* (REST API), and *Oracle InForm*.
+  - **3.3 Multi-Cloud Model Router**: Dynamic task dispatching across Google Cloud Vertex AI (Gemini 1.5 Pro), AWS Bedrock (Claude 3.5 Sonnet), Azure OpenAI (GPT-4o), and On-Premises NIMs.
+  - **3.4 HIPAA Safe Harbor 18 PHI Redaction**: In-process pattern match and NER pipeline redacting patient identifiers before LLM ingestion.
+  - **3.5 "Build Your Own Clinical Trial Agent" Sandbox**: Low-code trial agent studio with instant `agent.json` compilation and live A2UI card execution.
+* **Deliverables**: Therapeutic scenario library, EDC synthetic bridges, and low-code trial agent builder.
+
+---
+
+### ⚖️ Phase 4: GxP Governance, 21 CFR Part 11 & Non-Repudiation (Weeks 7–8)
+* **Milestones**:
+  - **4.1 Asymmetric PKI & Cloud KMS Signatures**: Upgrading server HMAC to `RS256` / `Ed25519` private key signatures in Google Cloud KMS / AWS KMS.
+  - **4.2 Clinician OIDC MFA Signature Challenge**: Cryptographic binding of electronic signatures to clinician OAuth Identity Tokens containing `amr: ["pwd", "mfa"]`.
+  - **4.3 Role-Based Double-Blind Masking**: Cryptographic attribute masking inside state tokens with DSMB hardware unblinding key access.
+  - **4.4 Pharmacovigilance Auto-Coder**: Autonomous MedDRA v26+ coding and E2B(R3) XML export for FDA FAERS and EMA EudraVigilance filings.
+  - **4.5 Cross-Border eCTD Compiler**: Multi-agency submission packaging agent for US FDA, European EMA, and Japan PMDA.
+* **Deliverables**: PKI KMS module, DSMB unblinding token claims, and E2B(R3) XML generator.
+
+---
+
+### 🏆 Phase 5: GAMP 5 Compliance Certification & Enterprise Production Scale (Weeks 9–10)
+* **Milestones**:
+  - **5.1 Automated 50-Test Compliance Benchmark Suite**: Formal qualification testing across AST sanitization, prompt injection defenses, Part 11 non-repudiation, MedDRA precision, and 1,000-user concurrency stress tests.
+  - **5.2 1-Click "GxP Grade A+ Certified Scorecard"**: Automated generation of signed, tamper-evident IQ/OQ/PQ qualification dossiers (PDF / JSON).
+  - **5.3 Enterprise Infrastructure-as-Code (IaC)**: 1-Click Terraform & Helm modules for air-gapped VPC deployment (Cloud Run, AWS ECS Fargate, Azure Container Apps).
+  - **5.4 Multi-Persona Sales & Training Playbooks**: Executive demo scripts and customer onboarding documentation.
+* **Deliverables**: Automated GAMP 5 test harness, 1-click qualification PDF export, and verified Terraform modules.
 
 ---
 
