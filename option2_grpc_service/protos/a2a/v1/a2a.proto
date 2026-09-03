@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package a2a.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
+
+// Task lifecycle state enum conforming to AIP-127 Long-Running Operations (LRO)
+enum TaskState {
+  TASK_STATE_UNSPECIFIED = 0;
+  SUBMITTED = 1;
+  WORKING = 2;
+  INPUT_REQUIRED = 3;
+  COMPLETED = 4;
+  FAILED = 5;
+  CANCELLED = 6;
+}
+
+// Push notification configuration for out-of-band asynchronous completion callbacks
+message TaskPushNotificationConfig {
+  string url = 1;
+  string token = 2;
+}
+
+// Core Task entity
+message Task {
+  string id = 1;
+  TaskState state = 2;
+  google.protobuf.Struct input = 3;
+  google.protobuf.Struct output = 4;
+  string error = 5;
+}
+
+// Request to execute task synchronously or initiate LRO
+message ExecuteTaskRequest {
+  string task_id = 1;
+  google.protobuf.Struct parameters = 2;
+  TaskPushNotificationConfig push_config = 3;
+}
+
+// Streaming response frame for real-time thought traces and progressive events
+message StreamTaskResponse {
+  string task_id = 1;
+  string chunk_text = 2;
+  TaskState current_state = 3;
+  bool is_terminal = 4;
+  google.protobuf.Struct payload = 5;
+}
+
+// Request to cancel an in-flight task
+message CancelTaskRequest {
+  string task_id = 1;
+  string reason = 2;
+}
+
+// Canonical AIP-127 Compliant A2A Service
+service A2AService {
+  // ExecuteTask: Synchronous task execution
+  rpc ExecuteTask(ExecuteTaskRequest) returns (Task);
+
+  // StreamTask: Server-streaming real-time reasoning traces & state transitions
+  rpc StreamTask(ExecuteTaskRequest) returns (stream StreamTaskResponse);
+
+  // CancelTask: Graceful cancellation of active task execution
+  rpc CancelTask(CancelTaskRequest) returns (google.protobuf.Empty);
+}
