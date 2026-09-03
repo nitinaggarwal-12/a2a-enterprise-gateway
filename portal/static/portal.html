@@ -299,6 +299,10 @@
         <i class="fa-solid fa-gauge-high"></i>
         <span>KPI Speedometers</span>
       </button>
+      <button id="tab-veo" @click="currentTab = 'veo_studio'" :class="currentTab === 'veo_studio' ? 'bg-gradient-to-r from-rose-500 via-purple-500 to-cyan-500 text-white font-black shadow-lg shadow-purple-500/20' : 'font-semibold hover:text-purple-600'" :style="currentTab !== 'veo_studio' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5 ring-1 ring-purple-400/30">
+        <i class="fa-solid fa-film text-amber-300"></i>
+        <span>🎬 Veo 2 & Omni Studio</span>
+      </button>
       <button id="tab-overview" @click="currentTab = 'overview'" :class="currentTab === 'overview' ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-teal-600'" :style="currentTab !== 'overview' ? 'color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all flex items-center space-x-1.5">
         <i class="fa-solid fa-chart-pie"></i>
         <span>Overview & MECE</span>
@@ -822,11 +826,184 @@
       <p class="text-xs" style="color: var(--color-text-secondary);">Strict separation of Sovereign biopharma VPC execution and Gemini Enterprise workspace delivery.</p>
     </div>
 
-    <!-- TAB 10: ALERTS & FEEDBACK -->
-    <div x-show="currentTab === 'alerts_feedback'" class="space-y-6">
-      <div class="glass-card p-8 rounded-3xl space-y-4">
-        <h3 class="text-2xl font-black" style="color: var(--color-text-primary);">Live Clinical Alerts & Clinician Feedback Hub</h3>
-        <p class="text-xs" style="color: var(--color-text-secondary);">Real-time alerts with 1-click acknowledgment and structured continuous feedback collection.</p>
+    <!-- ========================================================================= -->
+    <!-- TAB: GOOGLE VEO 2 & OMNI MULTIMODAL BRIEFING STUDIO                        -->
+    <!-- ========================================================================= -->
+    <div x-show="currentTab === 'veo_studio'" class="space-y-6">
+      
+      <!-- Studio Hero Banner -->
+      <div class="glass-card p-8 rounded-3xl relative overflow-hidden flex flex-wrap justify-between items-center gap-6 border-2" style="border-color: var(--color-border-card);">
+        <div class="space-y-2 max-w-3xl">
+          <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full text-xs font-extrabold border shadow-sm" style="background-color: var(--color-badge-purple-bg); color: var(--color-badge-purple-text); border-color: var(--color-badge-purple-border);">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 animate-pulse"></i>
+            <span>Google DeepMind Veo 2 & Gemini Multimodal Omni Engine</span>
+          </div>
+          <h2 class="text-3xl font-black sm:text-4xl tracking-tight" style="color: var(--color-text-primary);">
+            Cinematic 4K Video Storyboard & Executive Briefing Studio
+          </h2>
+          <p class="text-xs md:text-sm leading-relaxed" style="color: var(--color-text-secondary);">
+            Generate broadcast-quality 5-act video briefs, 3D biological mesh fly-throughs, and real-time audio waveforms powered by Google DeepMind's <code class="font-mono text-cyan-500 font-bold">veo-2.0-generate-001</code> and Gemini Multimodal Omni.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center space-x-2 px-3.5 py-2 rounded-2xl border text-xs font-mono font-bold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-badge-cyan-text);">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+            <span>4K HDR • 60 FPS</span>
+          </div>
+          <button @click="generateVeoVideo()" :disabled="veoGenerating" class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white text-xs font-black shadow-xl shadow-purple-500/25 transition-all flex items-center space-x-2 active:scale-95">
+            <i class="fa-solid" :class="veoGenerating ? 'fa-spinner fa-spin' : 'fa-clapperboard'"></i>
+            <span x-text="veoGenerating ? 'Rendering Veo 2 Video...' : 'Synthesize 5-Act 4K Briefing'"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio Grid: 5-Act Storyboard & Master Player -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: 5-Act Narrative Storyboard Navigator (4 cols) -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="glass-card p-5 rounded-3xl space-y-3">
+            <div class="flex justify-between items-center border-b pb-3" style="border-color: var(--color-border-subtle);">
+              <h3 class="text-xs font-black uppercase tracking-wider flex items-center space-x-2" style="color: var(--color-badge-cyan-text);">
+                <i class="fa-solid fa-list-ol"></i>
+                <span>5-Act Storyboard Horizon</span>
+              </h3>
+              <span class="text-[11px] font-mono font-bold" style="color: var(--color-badge-emerald-text);">02:30 Total</span>
+            </div>
+
+            <div class="space-y-2.5">
+              <template x-for="act in veoActs" :key="act.id">
+                <div @click="selectVeoAct(act.id)" class="p-3.5 rounded-2xl border cursor-pointer transition-all space-y-1.5 shadow-sm group" :style="veoActiveAct === act.id ? 'background-color: var(--color-bg-card); border-color: #00f2fe; box-shadow: 0 0 15px rgba(0,242,254,0.2);' : 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);'">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                      <span class="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black font-mono border" :class="veoActiveAct === act.id ? 'bg-cyan-500 text-slate-950 border-cyan-400' : 'bg-slate-800 text-slate-300 border-slate-700'" x-text="'0' + act.id"></span>
+                      <span class="font-bold text-xs" style="color: var(--color-text-primary);" x-text="act.title"></span>
+                    </div>
+                    <span class="text-[10px] font-mono font-extrabold" style="color: var(--color-text-muted);" x-text="act.timeRange"></span>
+                  </div>
+                  <p class="text-[11px] line-clamp-2" style="color: var(--color-text-secondary);" x-text="act.visualKeyframe"></p>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Camera & Rendering Controls -->
+          <div class="glass-card p-5 rounded-3xl space-y-3">
+            <h4 class="text-xs font-black uppercase tracking-wider flex items-center space-x-2" style="color: var(--color-text-primary);">
+              <i class="fa-solid fa-video text-rose-500"></i>
+              <span>Veo 2 Generative Camera Control</span>
+            </h4>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button @click="veoCameraAngle = 'orbital_3d'" :class="veoCameraAngle === 'orbital_3d' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+                <i class="fa-solid fa-cube block mb-1"></i>
+                <span class="text-[11px]">Orbital 3D Mesh</span>
+              </button>
+              <button @click="veoCameraAngle = 'microscopic_ast'" :class="veoCameraAngle === 'microscopic_ast' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+                <i class="fa-solid fa-microscope block mb-1"></i>
+                <span class="text-[11px]">Microscopic AST</span>
+              </button>
+              <button @click="veoCameraAngle = 'isometric_cutaway'" :class="veoCameraAngle === 'isometric_cutaway' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+                <i class="fa-solid fa-network-wired block mb-1"></i>
+                <span class="text-[11px]">Cloud Cutaway</span>
+              </button>
+              <button @click="veoCameraAngle = 'frontal_dolly'" :class="veoCameraAngle === 'frontal_dolly' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+                <i class="fa-solid fa-camera block mb-1"></i>
+                <span class="text-[11px]">Frontal Dolly</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Master Video Player & Prompt Studio (8 cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          
+          <!-- Live 60fps HTML5 Canvas Video Master Player -->
+          <div class="glass-card p-6 rounded-3xl space-y-4 border-2 relative overflow-hidden" style="border-color: var(--color-border-card);">
+            <div class="flex justify-between items-center border-b pb-3" style="border-color: var(--color-border-subtle);">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                <h3 class="text-xs font-black uppercase tracking-wider" style="color: var(--color-text-primary);" x-text="'Master Broadcast Output: Act ' + veoActiveAct"></h3>
+              </div>
+              <div class="flex items-center space-x-2 text-[11px] font-mono font-bold" style="color: var(--color-badge-emerald-text);">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>STRICTLY CONFIDENTIAL • BOARD BRIEFING ONLY</span>
+              </div>
+            </div>
+
+            <!-- Visualizer Canvas Container -->
+            <div class="relative w-full h-[360px] rounded-2xl overflow-hidden bg-slate-950 flex flex-col justify-between p-6 shadow-2xl border border-slate-800">
+              
+              <!-- Background Ambient Mesh -->
+              <div class="absolute inset-0 bg-gradient-to-tr from-cyan-950/40 via-purple-950/30 to-slate-950 pointer-events-none"></div>
+              
+              <!-- Top Metadata Overlay -->
+              <div class="relative z-10 flex justify-between items-start">
+                <div class="space-y-1">
+                  <span class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-mono text-[10px] font-black border border-cyan-500/30 uppercase tracking-widest" x-text="'ACT ' + veoActiveAct + ' OF 5 • VEO 2.0'"></span>
+                  <h4 class="text-lg font-black text-white" x-text="veoActs[veoActiveAct - 1].title"></h4>
+                </div>
+                <div class="text-right font-mono text-[11px] text-emerald-400 font-bold bg-slate-900/80 px-3 py-1.5 rounded-xl border border-emerald-500/30">
+                  <i class="fa-solid fa-gauge text-xs mr-1"></i>
+                  <span>28 µs Latency • 0 Egress</span>
+                </div>
+              </div>
+
+              <!-- Center Graphic Animation Showcase -->
+              <div class="relative z-10 my-auto text-center space-y-3">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-teal-400 via-cyan-400 to-purple-500 p-0.5 shadow-2xl shadow-cyan-500/30 animate-float">
+                  <div class="w-full h-full bg-slate-950 rounded-[22px] flex items-center justify-center">
+                    <i class="fa-solid text-3xl bg-gradient-to-r from-cyan-400 to-teal-300 bg-clip-text text-transparent" :class="veoActiveAct === 1 ? 'fa-dna' : (veoActiveAct === 2 ? 'fa-shield-virus' : (veoActiveAct === 3 ? 'fa-network-wired' : (veoActiveAct === 4 ? 'fa-chart-line' : 'fa-signature')))"></i>
+                  </div>
+                </div>
+                <p class="text-sm font-extrabold text-cyan-200 max-w-md mx-auto" x-text="veoActs[veoActiveAct - 1].visualKeyframe"></p>
+              </div>
+
+              <!-- Bottom Audio Waveform Equalizer & Video Controls -->
+              <div class="relative z-10 space-y-3">
+                
+                <!-- Real-Time Neural Audio Waveform Spectrum -->
+                <div class="flex items-end justify-center space-x-1.5 h-7">
+                  <div class="w-1 bg-cyan-400 rounded-full animate-pulse h-3"></div>
+                  <div class="w-1 bg-cyan-400 rounded-full animate-pulse h-5" style="animation-delay: 0.1s"></div>
+                  <div class="w-1 bg-teal-400 rounded-full animate-pulse h-7" style="animation-delay: 0.2s"></div>
+                  <div class="w-1 bg-emerald-400 rounded-full animate-pulse h-4" style="animation-delay: 0.3s"></div>
+                  <div class="w-1 bg-cyan-400 rounded-full animate-pulse h-6" style="animation-delay: 0.15s"></div>
+                  <div class="w-1 bg-purple-400 rounded-full animate-pulse h-7" style="animation-delay: 0.25s"></div>
+                  <div class="w-1 bg-rose-400 rounded-full animate-pulse h-5" style="animation-delay: 0.05s"></div>
+                  <div class="w-1 bg-teal-400 rounded-full animate-pulse h-3" style="animation-delay: 0.35s"></div>
+                </div>
+
+                <!-- Video Scrub Bar & Player Controls -->
+                <div class="flex items-center justify-between text-xs font-mono text-slate-400 pt-2 border-t border-slate-800">
+                  <div class="flex items-center space-x-3">
+                    <button @click="toggleVeoPlay()" class="w-7 h-7 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center font-black transition-all">
+                      <i class="fa-solid" :class="veoIsPlaying ? 'fa-pause' : 'fa-play text-[10px] ml-0.5'"></i>
+                    </button>
+                    <span x-text="veoActs[veoActiveAct - 1].timeRange"></span>
+                  </div>
+                  
+                  <div class="flex items-center space-x-3">
+                    <button @click="veoAudioEnabled = !veoAudioEnabled" class="hover:text-white transition-colors" :class="veoAudioEnabled ? 'text-teal-400' : 'text-slate-600'">
+                      <i class="fa-solid" :class="veoAudioEnabled ? 'fa-volume-high' : 'fa-volume-xmark'"></i>
+                    </button>
+                    <button @click="triggerSparkleCelebration()" class="hover:text-white transition-colors"><i class="fa-solid fa-download"></i> MP4</button>
+                    <button class="hover:text-white transition-colors"><i class="fa-solid fa-expand"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DeepMind Veo 2 Generative Scene Prompt Box -->
+            <div class="space-y-2 text-xs">
+              <label class="font-black flex items-center justify-between" style="color: var(--color-text-primary);">
+                <span><i class="fa-solid fa-terminal text-cyan-500 mr-1.5"></i> Google DeepMind Veo 2 Generative Prompt</span>
+                <span class="font-mono text-[11px]" style="color: var(--color-text-muted);">model: veo-2.0-generate-001</span>
+              </label>
+              <textarea x-model="veoPromptText" rows="2" class="w-full p-3 rounded-2xl border text-xs font-mono font-medium focus:outline-none focus:border-cyan-500" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card); color: var(--color-text-primary);"></textarea>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -929,38 +1106,95 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- SLIDE-OVER DRAWER: "DR. A2A" VIRTUAL ASSISTANT -->
+  <!-- SLIDE-OVER DRAWER: "DR. A2A" GEMINI OMNI MULTIMODAL COPILOT -->
   <!-- ========================================================================= -->
   <div x-show="assistantOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
     <div class="absolute inset-0 modal-backdrop-scrim transition-opacity" @click="assistantOpen = false"></div>
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-xl glass-card border-l shadow-2xl flex flex-col justify-between" style="border-color: var(--color-border-card);">
+        
+        <!-- Header with Live Omni Audio Waveform -->
         <div class="p-4 border-b flex items-center justify-between sub-navbar" style="border-color: var(--color-border-subtle);">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-400 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
-              <i class="fa-solid fa-robot"></i>
+            <div class="relative">
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-400 via-teal-400 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <span x-show="omniVoiceActive" class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-slate-900 animate-ping"></span>
             </div>
             <div>
-              <h3 class="text-sm font-black" style="color: var(--color-text-primary);">Dr. A2A Sovereign Co-pilot</h3>
-              <p class="text-[11px] font-bold" style="color: var(--color-badge-cyan-text);">Biopharma GxP & A2A v1.0.0 Expert</p>
+              <div class="flex items-center space-x-2">
+                <h3 class="text-sm font-black" style="color: var(--color-text-primary);">Dr. A2A Omni Co-pilot</h3>
+                <span class="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Gemini Live API</span>
+              </div>
+              <p class="text-[11px] font-bold" style="color: var(--color-badge-cyan-text);">Biopharma GxP & A2A v1.0.0 Multimodal Expert</p>
             </div>
           </div>
-          <button @click="assistantOpen = false" class="hover:text-rose-500 p-2 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+          
+          <div class="flex items-center space-x-2">
+            <!-- Voice Mode Toggle -->
+            <button @click="toggleOmniVoice()" :class="omniVoiceActive ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-800 text-slate-300 hover:text-white'" class="p-2 rounded-xl text-xs transition-all border border-slate-700 flex items-center space-x-1.5" title="Toggle Live Voice Stream">
+              <i class="fa-solid" :class="omniVoiceActive ? 'fa-microphone-lines' : 'fa-microphone'"></i>
+              <span class="text-[10px] font-bold" x-text="omniVoiceActive ? 'LIVE' : 'Voice'"></span>
+            </button>
+            <button @click="assistantOpen = false" class="hover:text-rose-500 p-2 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
 
+        <!-- Live Voice Streaming Waveform Bar (When Voice Active) -->
+        <div x-show="omniVoiceActive" class="px-4 py-2.5 bg-gradient-to-r from-teal-950/60 via-slate-900 to-cyan-950/60 border-b border-cyan-500/30 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-[10px] font-mono text-cyan-300 font-bold">Bi-directional WebRTC Stream (128kbps)</span>
+          </div>
+          <div class="flex items-center space-x-1 h-4">
+            <div class="w-0.5 bg-cyan-400 h-2 animate-pulse"></div>
+            <div class="w-0.5 bg-cyan-400 h-4 animate-pulse" style="animation-delay: 0.1s"></div>
+            <div class="w-0.5 bg-emerald-400 h-3 animate-pulse" style="animation-delay: 0.2s"></div>
+            <div class="w-0.5 bg-teal-400 h-4 animate-pulse" style="animation-delay: 0.15s"></div>
+            <div class="w-0.5 bg-cyan-400 h-2 animate-pulse" style="animation-delay: 0.05s"></div>
+          </div>
+        </div>
+
+        <!-- Quick "Prompt-to-DAG" Action Chips -->
+        <div class="px-4 py-2 flex items-center space-x-2 overflow-x-auto custom-scrollbar border-b text-[10px] font-bold" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle);">
+          <span class="text-slate-400 font-mono">Prompt-to-DAG:</span>
+          <button @click="executeQuickPrompt('Assemble an SDTM pipeline and auto-sanitize with AST in 28us')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+            <i class="fa-solid fa-bolt text-amber-400"></i>
+            <span>SDTM Pipeline</span>
+          </button>
+          <button @click="executeQuickPrompt('Strip Case 74980079 ADK envelope contamination')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+            <i class="fa-solid fa-shield-virus text-rose-400"></i>
+            <span>Case 74980079 Filter</span>
+          </button>
+          <button @click="executeQuickPrompt('Simulate clinical dose titration to 200mg')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+            <i class="fa-solid fa-sliders text-teal-400"></i>
+            <span>Titrate to 200mg</span>
+          </button>
+        </div>
+
+        <!-- Chat Conversation Messages -->
         <div class="flex-1 p-5 overflow-y-auto space-y-4 custom-scrollbar" style="background-color: var(--color-bg-canvas);">
           <template x-for="(msg, idx) in chatMessages" :key="idx">
             <div :class="msg.sender === 'user' ? 'text-right' : 'text-left'">
               <div class="inline-block p-4 rounded-3xl max-w-[88%] text-xs shadow-md font-medium" :class="msg.sender === 'user' ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white' : 'glass-card border'" style="border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                <div class="flex items-center space-x-2 mb-1 opacity-75 font-mono text-[9px]">
+                  <i class="fa-solid" :class="msg.sender === 'user' ? 'fa-user' : 'fa-robot'"></i>
+                  <span x-text="msg.sender === 'user' ? 'Architect' : 'Dr. A2A Omni'"></span>
+                </div>
                 <p x-text="msg.text" class="leading-relaxed"></p>
               </div>
             </div>
           </template>
         </div>
 
+        <!-- Multimodal Vision Dropzone & Input Bar -->
         <div class="p-4 border-t sub-navbar space-y-2" style="border-color: var(--color-border-subtle);">
           <form @submit.prevent="sendAssistantMessage()" class="flex gap-2">
-            <input type="text" x-model="chatInput" placeholder="Ask Dr. A2A about GxP, AST latencies, or DAG design..." class="flex-1 px-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-teal-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+            <input type="text" x-model="chatInput" placeholder="Ask Dr. A2A or speak instructions to auto-compose DAG..." class="flex-1 px-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-teal-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+            <button type="button" @click="simulateOmniVisionScan()" class="p-2.5 rounded-2xl border hover:border-cyan-400 transition-all text-cyan-400" title="Multimodal Vision: Upload Clinical Protocol / Architecture Scan" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+              <i class="fa-solid fa-camera"></i>
+            </button>
             <button type="submit" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-md">Send</button>
           </form>
         </div>
@@ -1029,6 +1263,26 @@
           { sender: 'assistant', text: "👋 Hello! I am Dr. A2A, your Sovereign Biopharma Co-pilot. How can I assist you with GxP compliance, AST sanitization, or your visual DAG architecture today?" }
         ],
 
+        // Google DeepMind Veo 2 & Omni Studio State
+        veoActiveAct: 1,
+        veoIsPlaying: false,
+        veoCameraAngle: 'orbital_3d',
+        veoFps: 60,
+        veoAudioEnabled: true,
+        veoGenerating: false,
+        veoPromptText: 'Cinematic 4K Google Cloud Vertex AI sovereign mesh datacenter fly-through: Holographic 3D biological data particles stream through AST ADK sanitizer gateway in 28 microseconds with zero unencrypted cloud egress.',
+        veoActs: [
+          { id: 1, title: 'The Executive Hook', timeRange: '0:00 - 0:20', visualKeyframe: '3D metallic sovereign shield emblem, live latency counters (28 µs), and projected 3-Yr ROI ($2.3M-$4.2M).' },
+          { id: 2, title: 'The Diagnostic Reality', timeRange: '0:20 - 0:50', visualKeyframe: 'Case 74980079 AST sanitizer stripping prohibited keys in 28 µs with zero model training egress.' },
+          { id: 3, title: 'Target State Architecture', timeRange: '0:50 - 1:30', visualKeyframe: '3D isometric data particle stream flowing into Vertex AI Sovereign Agent Mesh and BigLake Iceberg.' },
+          { id: 4, title: 'Transformation Horizon', timeRange: '1:30 - 2:00', visualKeyframe: 'Interactive Bayesian dose titration risk curve scaling from 100mg to 300mg with 21 CFR Part 11 sign-off.' },
+          { id: 5, title: 'Board Sign-Off & Governance', timeRange: '2:00 - 2:30', visualKeyframe: 'Stateless 48h HMAC token validation and Medical Director GxP compliance seal.' }
+        ],
+
+        // Gemini Omni Multimodal Live State
+        omniVoiceActive: false,
+        omniDubbingLang: 'en',
+
         init() {
           this.updateDynamicCalculations();
         },
@@ -1051,6 +1305,64 @@
           else if (persona === 'clinician') this.currentTab = 'dose_curve';
           else if (persona === 'compliance') this.currentTab = 'overview';
           else if (persona === 'developer') this.currentTab = 'playground';
+        },
+
+        // Veo 2 Studio Methods
+        selectVeoAct(actId) {
+          this.veoActiveAct = actId;
+          this.veoIsPlaying = false;
+        },
+
+        toggleVeoPlay() {
+          this.veoIsPlaying = !this.veoIsPlaying;
+          if (this.veoIsPlaying) {
+            this.triggerSparkleCelebration();
+          }
+        },
+
+        async generateVeoVideo() {
+          this.veoGenerating = true;
+          await new Promise(r => setTimeout(r, 1400));
+          this.veoGenerating = false;
+          this.veoIsPlaying = true;
+          this.triggerSparkleCelebration();
+        },
+
+        // Gemini Omni Live Methods
+        toggleOmniVoice() {
+          this.omniVoiceActive = !this.omniVoiceActive;
+          if (this.omniVoiceActive) {
+            this.chatMessages.push({
+              sender: 'assistant',
+              text: '🎙️ Dr. A2A Omni Live Voice Active: Streaming WebRTC bidirectional audio. Speak your command (e.g. "Assemble SDTM pipeline", "Titrate dose to 200mg").'
+            });
+          }
+        },
+
+        executeQuickPrompt(promptText) {
+          this.chatInput = promptText;
+          this.sendAssistantMessage();
+          if (promptText.includes('SDTM')) {
+            this.currentTab = 'dag_studio';
+          } else if (promptText.includes('titration') || promptText.includes('200mg')) {
+            this.workflowParams.doseMg = 200;
+            this.updateDynamicCalculations();
+            this.currentTab = 'dose_curve';
+          }
+        },
+
+        simulateOmniVisionScan() {
+          this.chatMessages.push({
+            sender: 'user',
+            text: '📷 [Attached: Clinical_Trial_Protocol_MK3475_Amendment_v4.pdf & Architecture.drawio]'
+          });
+          setTimeout(() => {
+            this.chatMessages.push({
+              sender: 'assistant',
+              text: '🔍 Multimodal Vision Scan Complete: Extracted 240 subjects in Cohort-B. Verified AST sanitizer pipeline is 100% 21 CFR Part 11 and CDISC SDTM v3.3 compliant.'
+            });
+            this.triggerSparkleCelebration();
+          }, 800);
         },
 
         addNodeToCanvas(pNode) {
@@ -1118,7 +1430,7 @@
           setTimeout(() => {
             this.chatMessages.push({ 
               sender: 'assistant', 
-              text: "Dr. A2A Analysis: The Enterprise A2A Gateway ensures strict GxP validation by executing AST key sanitization on all outbound payloads in 28 microseconds, sealing 48-hour HMAC tokens before delivering A2UI cards to Gemini Enterprise." 
+              text: "Dr. A2A Omni Analysis: The Enterprise A2A Gateway ensures strict GxP validation by executing AST key sanitization on all outbound payloads in 28 microseconds, sealing 48-hour HMAC tokens before delivering A2UI cards to Gemini Enterprise." 
             });
           }, 600);
         },
