@@ -1,16 +1,13 @@
 {
   "name": "a2a-enterprise-gateway",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Enterprise A2A Gateway for Gemini Enterprise with GxP sanitization and stateless HITL tokens",
+  "main": "portal/app.py",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "python3 -m uvicorn portal.app:app --host 0.0.0.0 --port ${PORT:-8080}",
+    "test:e2e": "node scratch/run_e2e_screenshots.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "puppeteer": "^25.10.0"
+    "puppeteer": "^22.4.1"
   }
 }
