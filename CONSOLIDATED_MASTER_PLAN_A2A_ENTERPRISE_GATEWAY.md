@@ -434,43 +434,46 @@ The execution plan is decomposed into six logical, progressive phases from found
 ### 🚀 Phase 1: High-Craft Multi-Persona Interactive Demo Hub (Weeks 1–2)
 * **Milestones**:
   - **1.1 Persona Switcher Header**: Instant switching across *Architect*, *Clinician*, *Compliance*, and *Developer* storyboards.
-  - **1.2 Interactive A2UI Clinical Playground**: Live drag-and-drop dose titration slider ($100\text{mg} - 400\text{mg}$) with client-side mathematical recalculation of projected hepatotoxicity and safety variance.
-  - **1.3 Live Tamper Attack Security Simulator**: Interactive button demonstrating instant 401 unauthorized rejection with animated red security shield.
-  - **1.4 30-Second BYOK API Key Drawer**: Instant self-serve onboarding modal supporting Google AI Studio, Anthropic, and OpenAI keys with live connection latency ping.
-  - **1.5 Live `StreamTask` Reasoning Console**: Progressive token-by-token terminal animation.
+  - **1.2 Visual Drag-and-Drop Workflow Canvas (v1.0 Preview)**: Interactive visual node palette (Data Ingest, AST Filter, LLM Reasoning Agent, CDISC Guardrail, A2UI Card Synthesis) with drag-and-drop DAG assembly.
+  - **1.3 Interactive A2UI Clinical Playground**: Live dose titration slider ($100\text{mg} - 400\text{mg}$) with client-side mathematical recalculation of projected hepatotoxicity and safety variance.
+  - **1.4 Enterprise SSO Sign-In & 30-Second BYOK Drawer**: 1-click enterprise SSO onboarding simulation (Google Workspace, Microsoft Entra ID, Okta, Ping Identity) and self-serve API key drawer with live latency ping.
+  - **1.5 "Dr. A2A" Sovereign Virtual Assistant & Live Alerts Hub**: Slide-over AI co-pilot with domain citations, live real-time biopharma alerts stream, and continuous feedback collection.
+  - **1.6 Enterprise Legal & Trust Footprint**: Global sticky footer with GxP Clinical Decision Support disclaimer, Privacy Policy, Cookie settings, and Copyright / Open-Source attributions.
 * **Deliverables**: Updated [`portal/static/portal.html`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/portal/static/portal.html) and [`portal/app.py`](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/portal/app.py).
 
 ---
 
-### 🛡️ Phase 2: Distributed Resilience, Idempotency & Omnichannel Engine (Weeks 3–4)
+### 🛡️ Phase 2: Distributed Resilience, Integrations Hub & Omnichannel Engine (Weeks 3–4)
 * **Milestones**:
-  - **2.1 Atomic `jti` Nonce Idempotency Guard**: Single-use token validation via check-and-set (`CAS`) state transitions to eliminate double-approval race conditions.
-  - **2.2 Two-Tier Stream-to-Pub/Sub Cutover**: Automatic lifecycle handover from synchronous `StreamTask` ($\le 60\text{s}$) to asynchronous Cloud Pub/Sub ($> 60\text{s}$) with AIP-127 `operation_id` polling.
-  - **2.3 4-Way Universal Omnichannel Transpiler**: Live synchronized rendering across Google Workspace Card v2, Web React Glassmorphic Card, Slack Block Kit, and Microsoft Teams Adaptive Card with rule-based graceful degradation.
-  - **2.4 Multi-Agent Mesh Tracing**: Enforcement of `X-A2A-Trace-ID`, `X-A2A-Hop-Count` ($\le 5$), and `X-A2A-Visited-Agents` cycle detection interceptors.
-* **Deliverables**: Distributed state store integration, transpiler middleware, and mesh tracing interceptor.
+  - **2.1 Third-Party Tool, Product & Platform Integrations Hub**: Native bi-directional connectors for *Snowflake*, *Databricks Unity Catalog*, *Google BigQuery*, *AWS S3 / Redshift*, *Medidata Rave EDC*, *Veeva Vault CDMS*, *ServiceNow*, and *Jira*.
+  - **2.2 Atomic `jti` Nonce Idempotency Guard**: Single-use token validation via check-and-set (`CAS`) state transitions to eliminate double-approval race conditions.
+  - **2.3 Two-Tier Stream-to-Pub/Sub Cutover**: Automatic lifecycle handover from synchronous `StreamTask` ($\le 60\text{s}$) to asynchronous Cloud Pub/Sub ($> 60\text{s}$) with AIP-127 `operation_id` polling.
+  - **2.4 4-Way Universal Omnichannel Transpiler**: Live synchronized rendering across Google Workspace Card v2, Web React Glassmorphic Card, Slack Block Kit, and Microsoft Teams Adaptive Card with rule-based graceful degradation.
+  - **2.5 Multi-Agent Mesh Tracing**: Enforcement of `X-A2A-Trace-ID`, `X-A2A-Hop-Count` ($\le 5$), and `X-A2A-Visited-Agents` cycle detection interceptors.
+* **Deliverables**: Integrations adapter library, distributed state store integration, transpiler middleware, and mesh tracing interceptor.
 
 ---
 
-### 🧬 Phase 3: Universal Biopharma Suite & Cross-Cloud Model Router (Weeks 5–6)
+### 🧬 Phase 3: Universal Biopharma Suite & Full Drag-and-Drop DAG Composer (Weeks 5–6)
 * **Milestones**:
-  - **3.1 Multi-Therapeutic Area Vault**: Interactive scenario switcher for *Oncology* (RECIST 1.1), *GLP-1 Metabolic* (HbA1c), *Immunology* (ACR20/50), *Rare Disease* (AAV vectors), and *Vaccines* (antibody titers).
-  - **3.2 Multi-Vendor Synthetic EDC Hub**: Interoperability adapters for *Medidata Rave* (ODM-XML), *Veeva Vault CDMS* (REST API), and *Oracle InForm*.
-  - **3.3 Multi-Cloud Model Router**: Dynamic task dispatching across Google Cloud Vertex AI (Gemini 1.5 Pro), AWS Bedrock (Claude 3.5 Sonnet), Azure OpenAI (GPT-4o), and On-Premises NIMs.
-  - **3.4 HIPAA Safe Harbor 18 PHI Redaction**: In-process pattern match and NER pipeline redacting patient identifiers before LLM ingestion.
-  - **3.5 "Build Your Own Clinical Trial Agent" Sandbox**: Low-code trial agent studio with instant `agent.json` compilation and live A2UI card execution.
-* **Deliverables**: Therapeutic scenario library, EDC synthetic bridges, and low-code trial agent builder.
+  - **3.1 Full Visual Drag-and-Drop DAG Composer**: Visual low-code node canvas with dynamic snapping, conditional branching, multi-agent parallel execution, and bi-directional code synchronization (`agent.json` / YAML $\leftrightarrow$ Visual Graph).
+  - **3.2 Multi-Therapeutic Area Vault**: Interactive scenario switcher for *Oncology* (RECIST 1.1), *GLP-1 Metabolic* (HbA1c), *Immunology* (ACR20/50), *Rare Disease* (AAV vectors), and *Vaccines* (antibody titers).
+  - **3.3 Multi-Vendor Synthetic EDC Hub**: Interoperability adapters for *Medidata Rave* (ODM-XML), *Veeva Vault CDMS* (REST API), and *Oracle InForm*.
+  - **3.4 Multi-Cloud Model Router**: Dynamic task dispatching across Google Cloud Vertex AI (Gemini 1.5 Pro), AWS Bedrock (Claude 3.5 Sonnet), Azure OpenAI (GPT-4o), and On-Premises NIMs.
+  - **3.5 HIPAA Safe Harbor 18 PHI Redaction**: In-process pattern match and NER pipeline redacting patient identifiers before LLM ingestion.
+* **Deliverables**: Visual DAG composer studio, therapeutic scenario library, and low-code trial agent builder.
 
 ---
 
-### ⚖️ Phase 4: GxP Governance, 21 CFR Part 11 & Non-Repudiation (Weeks 7–8)
+### ⚖️ Phase 4: GxP Governance, Enterprise SAML/OIDC SSO & 21 CFR Part 11 (Weeks 7–8)
 * **Milestones**:
-  - **4.1 Asymmetric PKI & Cloud KMS Signatures**: Upgrading server HMAC to `RS256` / `Ed25519` private key signatures in Google Cloud KMS / AWS KMS.
-  - **4.2 Clinician OIDC MFA Signature Challenge**: Cryptographic binding of electronic signatures to clinician OAuth Identity Tokens containing `amr: ["pwd", "mfa"]`.
-  - **4.3 Role-Based Double-Blind Masking**: Cryptographic attribute masking inside state tokens with DSMB hardware unblinding key access.
-  - **4.4 Pharmacovigilance Auto-Coder**: Autonomous MedDRA v26+ coding and E2B(R3) XML export for FDA FAERS and EMA EudraVigilance filings.
-  - **4.5 Cross-Border eCTD Compiler**: Multi-agency submission packaging agent for US FDA, European EMA, and Japan PMDA.
-* **Deliverables**: PKI KMS module, DSMB unblinding token claims, and E2B(R3) XML generator.
+  - **4.1 Enterprise SAML 2.0 & OIDC SSO Federation**: Production identity broker integration with Microsoft Entra ID (Azure AD), Okta, Google Workspace, and PingFederate with SCIM 2.0 automated user provisioning.
+  - **4.2 Asymmetric PKI & Cloud KMS Signatures**: Upgrading server HMAC to `RS256` / `Ed25519` private key signatures in Google Cloud KMS / AWS KMS.
+  - **4.3 Clinician OIDC MFA Signature Challenge**: Cryptographic binding of electronic signatures to clinician OAuth Identity Tokens containing `amr: ["pwd", "mfa"]`.
+  - **4.4 Role-Based Double-Blind Masking**: Cryptographic attribute masking inside state tokens with DSMB hardware unblinding key access.
+  - **4.5 Global Legal & Regulatory Compliance Framework**: Formally audited Privacy Policy (GDPR / HIPAA / EU-US DPF), zero-third-party tracking cookie architecture, and comprehensive copyright / OSS licensing registry.
+  - **4.6 Pharmacovigilance Auto-Coder**: Autonomous MedDRA v26+ coding and E2B(R3) XML export for FDA FAERS and EMA EudraVigilance filings.
+* **Deliverables**: Production SSO module, PKI KMS module, DSMB unblinding token claims, and global compliance audit pack.
 
 ---
 
@@ -478,24 +481,75 @@ The execution plan is decomposed into six logical, progressive phases from found
 * **Milestones**:
   - **5.1 Automated 50-Test Compliance Benchmark Suite**: Formal qualification testing across AST sanitization, prompt injection defenses, Part 11 non-repudiation, MedDRA precision, and 1,000-user concurrency stress tests.
   - **5.2 1-Click "GxP Grade A+ Certified Scorecard"**: Automated generation of signed, tamper-evident IQ/OQ/PQ qualification dossiers (PDF / JSON).
-  - **5.3 Enterprise Infrastructure-as-Code (IaC)**: 1-Click Terraform & Helm modules for air-gapped VPC deployment (Cloud Run, AWS ECS Fargate, Azure Container Apps).
-  - **5.4 Multi-Persona Sales & Training Playbooks**: Executive demo scripts and customer onboarding documentation.
-* **Deliverables**: Automated GAMP 5 test harness, 1-click qualification PDF export, and verified Terraform modules.
+  - **5.3 Enterprise Ecosystem Marketplace**: Certified connectors for biopharma enterprise software (Veeva, Medidata, Snowflake, Databricks, Slack, Teams, ServiceNow).
+  - **5.4 Enterprise Infrastructure-as-Code (IaC)**: 1-Click Terraform & Helm modules for air-gapped VPC deployment (Cloud Run, AWS ECS Fargate, Azure Container Apps).
+* **Deliverables**: Automated GAMP 5 test harness, 1-click qualification PDF export, and certified ecosystem marketplace.
 
 ---
 
-## Part 13: Live Verification & Visual Gallery Index
+## Part 13: Customer Experience Elevation, Visual Drag-and-Drop & Trust Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       CUSTOMER EXPERIENCE ELEVATION ARCHITECTURE                                 │
+├──────────────────────────────────────┬────────────────────────────────────┬──────────────────────────────────────┤
+│ 1. VISUAL DRAG-AND-DROP DAG STUDIO   │ 2. THIRD-PARTY INTEGRATION HUB     │ 3. ENTERPRISE SSO & LEGAL TRUST      │
+│ • Drag nodes: Ingest, AST, Agent, UI │ • Data: Snowflake, Databricks, S3  │ • SAML 2.0 / OIDC (Okta, Entra ID)   │
+│ • Dynamic port snapping & branches   │ • EDC: Medidata Rave, Veeva Vault  │ • 21 CFR Part 11 MFA AMR Claims      │
+│ • Real-time JSON/YAML DAG sync       │ • Collab: Slack, Teams, ServiceNow │ • Privacy, Cookies, GxP Disclaimers  │
+└──────────────────────────────────────┴────────────────────────────────────┴──────────────────────────────────────┘
+```
+
+### 1. Visual Drag-and-Drop Workflow Canvas
+* **Component Node Palette**:
+  - `Ingestion Nodes`: CDISC SDTM Ingest, E2B(R3) XML Parser, EDC CSV/SAS7BDAT Connector.
+  - `Security & Processing Nodes`: AST Prohibited Key Sanitizer ($28\mu\text{s}$), HIPAA Safe Harbor De-identifier, Merkle Ledger Hashing.
+  - `AI & Reasoning Nodes`: Sovereign Vertex AI Agent, Cross-Cloud Model Router (Claude / GPT-4o / Gemini), Bayesian Toxicity Evaluator.
+  - `HITL & Presentation Nodes`: A2UI Card Synthesizer, Dose Titration Range Slider, 48-Hour Stateless HMAC Sealer, Part 11 Sign-off Gate.
+  - `Omnichannel Egress Nodes`: Google Workspace Card v2, Microsoft Teams Adaptive Card, Slack Block Kit, Webhook Pusher.
+* **Capabilities**: Live drag-and-drop wire connecting, conditional branching, parameter inspection drawer, and instant 1-click "Run Swarm" execution.
+
+### 2. Multi-Platform & Tool Integrations Catalog
+| Integration Category | Supported Platforms | Protocols / Connectors | GxP Validation Level |
+| :--- | :--- | :--- | :--- |
+| **Enterprise Data Lakes** | Google BigQuery, Snowflake, Databricks Unity Catalog, AWS S3, Azure Fabric | JDBC, REST, Iceberg REST, Storage API | Grade A+ (Read-only / VPC-SC) |
+| **Clinical EDC / CDMS** | Medidata Rave, Veeva Vault, Oracle InForm | CDISC ODM-XML, Veeva REST API | Grade A+ (Part 11 Certified) |
+| **Enterprise Chat & Bots** | Google Chat, Microsoft Teams, Slack | A2UI Dynamic Transpiler, Webhooks | Grade A (Encrypted Payloads) |
+| **ITSM & Enterprise Ops** | ServiceNow, Jira, PagerDuty | REST API, OAuth 2.0, Webhook | Grade B+ (Operational Audits) |
+| **Identity & Access** | Okta, Microsoft Entra ID, Google Workspace, Ping Identity | SAML 2.0, OIDC, SCIM 2.0 | Grade A+ (FIPS 140-2 / MFA) |
+
+### 3. Enterprise SSO & Legal / Trust Footprint
+* **1-Click SSO Options**:
+  - **Google Workspace Enterprise SSO** (`google-workspace-oidc`)
+  - **Microsoft Entra ID / Azure Active Directory** (`microsoft-entra-saml`)
+  - **Okta Enterprise Identity Cloud** (`okta-saml2`)
+  - **Ping Identity / PingFederate** (`ping-oidc`)
+* **Legal Disclaimers & Compliance Statements**:
+  - **GxP & Clinical Decision Support (CDS) Disclaimer**: *"This AI-powered Gateway is designed for clinical decision support and regulatory workflow acceleration in accordance with FDA 21 CFR Part 11. It does not provide medical diagnosis or replace licensed clinician judgment."*
+  - **Privacy Policy & Data Sovereignty**: Comprehensive transparency on zero model weight training, zero cross-border data leakage, GDPR Article 28 compliance, and HIPAA Business Associate Agreement (BAA) alignment.
+  - **Cookie Consent Management**: Zero third-party advertising trackers; strictly necessary session tokens and cryptographic state nonces only.
+  - **Copyright & Open Source Disclosures**: Copyright &copy; 2026 Enterprise A2A Gateway. All rights reserved. Open-source dependencies disclosed under Apache 2.0 and MIT licenses.
+
+---
+
+## Part 14: Live Verification & Visual Gallery Index
 
 - **Interactive Verification Portal**: `http://127.0.0.1:8090`
 - **GitHub Repository**: [`https://github.com/nitinaggarwal-12/a2a-enterprise-gateway`](https://github.com/nitinaggarwal-12/a2a-enterprise-gateway) (Branch: `main`)
 - **Protocol Test Suite**: `./test_all_options.sh` (8/8 Tests Passed - 100% MECE)
-- **Visual Mockup Gallery**:
+- **Visual Mockup & Screenshot Gallery**:
   - [Architect Persona View](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/01_persona_architect_view.jpg)
   - [Medical Director Persona View](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/02_persona_clinician_view.jpg)
   - [GxP Compliance Officer View](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/03_persona_compliance_view.jpg)
   - [Agent Developer View](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/04_persona_developer_view.jpg)
   - [Agent Swarm Mesh Registry](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/05_persona_swarm_registry.jpg)
   - [Omnichannel Transpilation Studio](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/06_persona_omnichannel_transpiler.jpg)
+  - [Customer Workflow Playground](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/07_persona_workflow_playground.jpg)
+  - [Dr. A2A Virtual Assistant Co-pilot](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/mockups/08_persona_expert_assistant.jpg)
+  - [Customer Playground Screenshot](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/screenshots/07_customer_workflow_playground.png)
+  - [Clinical Dose Titration Slider Screenshot](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/screenshots/08_clinical_dose_titration_slider.png)
+  - [Alerts & Feedback Hub Screenshot](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/screenshots/09_live_alerts_and_feedback_hub.png)
+  - [Dr. A2A Chat Drawer Screenshot](file:///Users/nitinagga/Documents/a2a-enterprise-gateway/docs/screenshots/10_dr_a2a_virtual_assistant_chat.png)
 
 
 
