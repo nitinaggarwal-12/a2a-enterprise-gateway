@@ -164,4 +164,18 @@ Open **`http://localhost:8090`** in your browser to inspect the live test harnes
 
 ---
 
+## 8. Agentic Engineering & Context Framework
+
+This repository serves as the reference implementation for autonomous agent pair programming, multi-agent swarms, and AI coding assistants:
+
+* **[Universal Agentic Coding Framework](docs/UNIVERSAL_AGENTIC_FRAMEWORK.md)**: A portable, 4-layer cognition and context management architecture (Rules, Documentation, Executable Skills, and AST Knowledge Graphs) adaptable to any codebase.
+* **[Project Context & Architecture Guide](docs/CONTEXT_AND_ARCHITECTURE_GUIDE.md)**: Full evolutionary journal detailing why each context layer, verification skill, and Graft evaluation was performed.
+* **[System Rules (`GEMINI.md`)](GEMINI.md)**: Canonical turn-0 directives, latency budgets, and compliance constraints for Google Gemini and Antigravity.
+* **[Multi-Agent Coordination (`AGENTS.md`)](AGENTS.md)**: Universal protocol specification for autonomous agent swarms.
+* **[Architecture Specification (`ARCHITECTURE.md`)](ARCHITECTURE.md)**: Three production deployment archetypes and in-memory AST dictionary stripping algorithm.
+* **[Regulatory & Security Matrix (`SECURITY.md`)](SECURITY.md)**: FDA 21 CFR Part 11 electronic signatures and Zero Clinical Cloud Egress guardrails.
+* **[Operations Runbook (`RUNBOOK.md`)](RUNBOOK.md)**: Port allocation, test harnesses, socket benchmarks, and troubleshooting.
+
+---
+
 *Submitted by the Google Cloud Enterprise Architecture Team.*
