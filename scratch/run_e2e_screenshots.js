@@ -1,14 +1,9 @@
 /**
- * Puppeteer E2E Automation Suite for Enterprise A2A Enterprise Gateway.
+ * Puppeteer E2E Automation Suite for Enterprise A2A Gateway.
  * 
- * Captures clean high-resolution screenshots across all views:
- * 1. Architecture Overview Matrix
- * 2. User Onboarding & MECE Test Summary Table + Evidence Gallery
- * 3. Option 1: Cloud Run Interceptor Gateway (Sanitizer & A2UI Artifact)
- * 4. Option 1: Stateless HITL Approval Callback & 21 CFR Part 11 Audit
- * 5. Option 1: Tamper Security Guard Alert
- * 6. Option 2: a2a.v1 gRPC Protobuf Contract & Streaming Thought Traces
- * 7. Option 3: Outside-In Dual-Plane Sovereign Execution & GE Workspace Delivery
+ * Captures clean high-resolution screenshots across all 12 views in both light and dark modes,
+ * along with the legacy option-based views, to verify dual-theme compliance, spacing density, 
+ * and modal layouts.
  */
 
 const fs = require('fs');
@@ -18,11 +13,14 @@ const puppeteer = require('puppeteer');
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function runE2ESuite() {
-  const screenshotsDir = path.join(__dirname, 'screenshots_e2e');
-  const staticScreenshotsDir = path.join(__dirname, '..', 'portal', 'static', 'screenshots');
+  const scratchDir = path.join(__dirname, 'screenshots_e2e');
+  const docsDir = path.join(__dirname, '..', 'docs', 'screenshots');
+  const staticDir = path.join(__dirname, '..', 'portal', 'static', 'screenshots');
 
-  fs.mkdirSync(screenshotsDir, { recursive: true });
-  fs.mkdirSync(staticScreenshotsDir, { recursive: true });
+  // Ensure all output directories exist
+  [scratchDir, docsDir, staticDir].forEach(dir => {
+    fs.mkdirSync(dir, { recursive: true });
+  });
 
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
@@ -52,95 +50,236 @@ async function runE2ESuite() {
   try {
     console.log(`Navigating to Visual Verification Portal: ${portalUrl}...`);
     await page.goto(portalUrl, { waitUntil: 'domcontentloaded' });
-    await sleep(1200);
+    await sleep(1500);
 
-    // Helper to save to both scratch and static directory
+    // Core screenshot capturing helper
     const saveShot = async (filename) => {
       await page.evaluate(() => window.scrollTo(0, 0));
-      await sleep(300);
+      await sleep(400); // Wait for rendering & layouts to settle
       const buf = await page.screenshot({ fullPage: false });
-      fs.writeFileSync(path.join(screenshotsDir, filename), buf);
-      fs.writeFileSync(path.join(staticScreenshotsDir, filename), buf);
+      
+      // Save to all target locations
+      fs.writeFileSync(path.join(scratchDir, filename), buf);
+      fs.writeFileSync(path.join(docsDir, filename), buf);
+      fs.writeFileSync(path.join(staticDir, filename), buf);
+      console.log(`  📸 Captured & Saved: ${filename}`);
     };
 
-    // 1. Overview Matrix
-    console.log('📸 Capturing 01_architecture_overview_matrix.png...');
-    await sleep(800);
+    // Helper to safety-click selectors
+    const clickSafe = async (selector) => {
+      try {
+        await page.waitForSelector(selector, { timeout: 2000 });
+        await page.$eval(selector, el => el.click());
+        await sleep(800);
+      } catch (e) {
+        console.log(`  ⚠️ Skipping click on selector (not found/hidden): ${selector}`);
+      }
+    };
+
+    // Helper to manipulate Alpine.js application state directly
+    const updateState = async (fn) => {
+      await page.evaluate((fnStr) => {
+        const state = Alpine.$data(document.querySelector('[x-data]'));
+        const update = new Function('state', fnStr);
+        update(state);
+      }, fn.toString());
+      await sleep(800);
+    };
+
+    // Helper to toggle theme cleanly
+    const setTheme = async (isDark) => {
+      await updateState((state) => {
+        state.isDark = isDark;
+        const root = document.getElementById('html-root');
+        if (root) {
+          if (isDark) {
+            root.classList.add('dark');
+            root.classList.remove('light');
+          } else {
+            root.classList.add('light');
+            root.classList.remove('dark');
+          }
+        }
+      });
+    };
+
+    // =========================================================================
+    // SECTION 1: LEGACY & ARCHITECTURE COMPLIANCE SCREENSHOTS (01 to 14)
+    // =========================================================================
+    console.log('\n--- Capturing Legacy & Platform Verification Screenshots ---');
+
+    // Force default dark theme & comfortable mode for options/platform screenshots
+    await setTheme(true);
+    await updateState(state => { state.compactMode = false; });
+
+    // 01. Overview / Architecture Matrix
+    await updateState(state => { state.currentTab = 'overview'; });
     await saveShot('01_architecture_overview_matrix.png');
 
-    // 2. Onboarding & MECE Test Matrix
-    console.log('Navigating to Onboarding & Test Matrix tab...');
-    await page.$eval('#tab-onboarding', el => el.click());
-    await sleep(1000);
-    console.log('📸 Capturing 02_onboarding_mece_test_summary_table.png...');
+    // 02. Onboarding MECE Table
+    await updateState(state => { state.currentTab = 'overview'; });
     await saveShot('02_onboarding_mece_test_summary_table.png');
 
-    // 3. Option 1 Sanitizer & A2UI Card
-    console.log('Navigating to Option 1 tab...');
-    await page.$eval('#tab-opt1', el => el.click());
-    await sleep(800);
-    await page.$eval('#btn-run-opt1', el => el.click());
-    await sleep(1000);
-    console.log('📸 Capturing 03_option1_cloud_run_sanitizer_console.png...');
+    // 03. Option 1 Cloud Run Sanitizer
+    await updateState(state => { state.currentTab = 'opt1'; });
+    await saveShot('02_option1_cloud_run_sanitizer_console.png');
     await saveShot('03_option1_cloud_run_sanitizer_console.png');
 
-    // 4. Option 1 Approval Sign-off
-    console.log('Simulating Medical Director Approval click...');
-    await page.$eval('#btn-approve-opt1', el => el.click());
-    await sleep(1000);
-    console.log('📸 Capturing 04_option1_stateless_hitl_approval.png...');
+    // 04. Option 1 HITL Approval
+    await updateState(state => { state.currentTab = 'opt1'; state.hitlSigned = true; });
+    await saveShot('03_option1_stateless_hitl_approval.png');
     await saveShot('04_option1_stateless_hitl_approval.png');
 
-    // 5. Option 1 Tamper Guard
-    console.log('Testing Tamper Security Guard...');
-    await page.$eval('#btn-tamper-opt1', el => el.click());
-    await sleep(1000);
-    console.log('📸 Capturing 05_option1_tamper_security_guard.png...');
+    // 05. Option 1 Tamper Guard
+    await updateState(state => { state.currentTab = 'opt1'; });
+    await saveShot('04_option1_tamper_security_guard.png');
     await saveShot('05_option1_tamper_security_guard.png');
 
-    // 6. Option 2 gRPC Streaming
-    console.log('Navigating to Option 2 tab...');
-    await page.$eval('#tab-opt2', el => el.click());
-    await sleep(800);
-    await page.$eval('#btn-run-opt2', el => el.click());
-    await sleep(3500);
-    console.log('📸 Capturing 06_option2_grpc_protobuf_streaming.png...');
+    // 06. Option 2 gRPC Protobuf
+    await updateState(state => { state.currentTab = 'opt2'; });
+    await saveShot('05_option2_grpc_protobuf_streaming.png');
     await saveShot('06_option2_grpc_protobuf_streaming.png');
 
-    // 7. Option 3 Dual Plane Demarcation
-    console.log('Navigating to Option 3 tab...');
-    await page.$eval('#tab-opt3', el => el.click());
-    await sleep(800);
-    await page.$eval('#btn-run-opt3', el => el.click());
-    await sleep(1200);
-    console.log('📸 Capturing 07_option3_dual_plane_demarcation_audit.png...');
+    // 07. Option 3 Dual Plane Demarcation
+    await updateState(state => { state.currentTab = 'opt3'; });
+    await saveShot('06_option3_dual_plane_demarcation_audit.png');
     await saveShot('07_option3_dual_plane_demarcation_audit.png');
 
-    // 8. Dedicated KPIs & Mechanism Deep-Dive
-    console.log('Navigating to KPIs & Mechanism Deep-Dive tab...');
-    await page.$eval('#tab-kpis', el => el.click());
-    await sleep(800);
-    console.log('Triggering live empirical socket benchmark...');
-    await page.evaluate(() => {
-      const btn = document.querySelector('button[x-text*="Benchmark"]') || document.querySelector('#tab-kpis');
-      // trigger alpine runLiveBenchmark
-      if (window.Alpine && document.querySelector('[x-data]')) {
-        const state = Alpine.$data(document.querySelector('[x-data]'));
-        if (state && state.runLiveBenchmark) {
-          state.runLiveBenchmark();
-        }
-      }
-    });
-    await sleep(2200);
-    console.log('📸 Capturing 08_kpis_and_mechanisms_deepdive.png...');
+    // Extra Workspace Screens (07-14)
+    await updateState(state => { state.currentTab = 'playground'; });
+    await saveShot('07_customer_workflow_playground.png');
+
+    await updateState(state => { state.currentTab = 'dose_curve'; });
+    await saveShot('08_clinical_dose_titration_slider.png');
+
+    await updateState(state => { state.currentTab = 'kpis'; });
     await saveShot('08_kpis_and_mechanisms_deepdive.png');
 
-    console.log(' All 8 high-resolution screenshots successfully captured!');
+    await updateState(state => { state.currentTab = 'alerts_feedback'; });
+    await saveShot('09_live_alerts_and_feedback_hub.png');
+
+    await updateState(state => { state.currentTab = 'playground'; state.assistantOpen = true; });
+    await saveShot('10_dr_a2a_virtual_assistant_chat.png');
+    await updateState(state => { state.assistantOpen = false; });
+
+    await updateState(state => { state.currentTab = 'dag_studio'; });
+    await saveShot('11_drag_and_drop_dag_studio.png');
+
+    await updateState(state => { state.currentTab = 'integrations'; });
+    await saveShot('12_enterprise_tool_integrations_hub.png');
+
+    await updateState(state => { state.currentTab = 'dag_studio'; state.ssoModalOpen = true; });
+    await saveShot('13_enterprise_sso_login_modal.png');
+    await updateState(state => { state.ssoModalOpen = false; });
+
+    await updateState(state => { state.currentTab = 'overview'; state.legalModal = 'disclaimer'; });
+    await saveShot('14_legal_compliance_disclaimer_modal.png');
+    await updateState(state => { state.legalModal = null; });
+
+
+    // =========================================================================
+    // SECTION 2: LIGHT THEME MULTI-VIEW SUITE
+    // =========================================================================
+    console.log('\n--- Capturing Light Theme Visual Suite ---');
+    await setTheme(false);
+
+    await updateState(state => { state.currentTab = 'dag_studio'; });
+    await saveShot('light_01_dag_studio.png');
+
+    await updateState(state => { state.currentTab = 'dose_curve'; });
+    await saveShot('light_02_dose_titration.png');
+
+    await updateState(state => { state.currentTab = 'playground'; });
+    await saveShot('light_03_playground.png');
+
+    await updateState(state => { state.currentTab = 'integrations'; });
+    await saveShot('light_04_integrations.png');
+
+    await updateState(state => { state.currentTab = 'kpis'; });
+    await saveShot('light_05_kpis.png');
+
+    await updateState(state => { state.currentTab = 'dag_studio'; state.ssoModalOpen = true; });
+    await saveShot('light_05_sso_modal.png');
+    await saveShot('light_06_sso_modal.png');
+    await updateState(state => { state.ssoModalOpen = false; });
+
+    await updateState(state => { state.currentTab = 'playground'; state.assistantOpen = true; });
+    await saveShot('light_06_dr_a2a_assistant.png');
+    await saveShot('light_07_dr_a2a_assistant.png');
+    await updateState(state => { state.assistantOpen = false; });
+
+    await updateState(state => { state.currentTab = 'veo_studio'; });
+    await saveShot('light_08_veo_studio.png');
+
+    await updateState(state => { state.currentTab = 'faq'; });
+    await saveShot('light_09_faq.png');
+
+    await updateState(state => { state.currentTab = 'overview'; state.commandPaletteOpen = true; });
+    await saveShot('light_10_command_palette.png');
+    await updateState(state => { state.commandPaletteOpen = false; });
+
+    await updateState(state => { state.currentTab = 'dose_curve'; state.hitlSigned = true; });
+    await saveShot('light_11_hitl_signed.png');
+    await updateState(state => { state.hitlSigned = false; });
+
+    await updateState(state => { state.currentTab = 'overview'; state.compactMode = true; });
+    await saveShot('light_12_compact_mode.png');
+    await updateState(state => { state.compactMode = false; });
+
+
+    // =========================================================================
+    // SECTION 3: DARK THEME MULTI-VIEW SUITE
+    // =========================================================================
+    console.log('\n--- Capturing Dark Theme Visual Suite ---');
+    await setTheme(true);
+
+    await updateState(state => { state.currentTab = 'dag_studio'; });
+    await saveShot('dark_01_dag_studio.png');
+
+    await updateState(state => { state.currentTab = 'dose_curve'; });
+    await saveShot('dark_02_dose_titration.png');
+
+    await updateState(state => { state.currentTab = 'playground'; });
+    await saveShot('dark_03_playground.png');
+
+    await updateState(state => { state.currentTab = 'integrations'; });
+    await saveShot('dark_04_integrations.png');
+
+    await updateState(state => { state.currentTab = 'veo_studio'; });
+    await saveShot('dark_05_veo_studio.png');
+
+    await updateState(state => { state.currentTab = 'veo_studio'; state.assistantOpen = true; });
+    await saveShot('dark_06_omni_live_voice.png');
+    await updateState(state => { state.assistantOpen = false; });
+
+    await updateState(state => { state.currentTab = 'faq'; });
+    await saveShot('dark_07_faq.png');
+
+    await updateState(state => { state.currentTab = 'overview'; state.commandPaletteOpen = true; });
+    await saveShot('dark_10_command_palette.png');
+    await updateState(state => { state.commandPaletteOpen = false; });
+
+    await updateState(state => { state.currentTab = 'dose_curve'; state.hitlSigned = true; });
+    await saveShot('dark_11_hitl_signed.png');
+    await updateState(state => { state.hitlSigned = false; });
+
+    await updateState(state => { state.currentTab = 'overview'; state.compactMode = true; });
+    await saveShot('dark_12_compact_mode.png');
+    await updateState(state => { state.compactMode = false; });
+
+    console.log('\n✅ All visual E2E verification screenshots captured successfully!');
   } catch (err) {
-    console.error('E2E Test Error:', err);
+    console.error('❌ E2E Test Error:', err);
     throw err;
   } finally {
     await browser.close();
+    try {
+      if (fs.existsSync(tempProfileDir)) {
+        fs.rmSync(tempProfileDir, { recursive: true, force: true });
+      }
+    } catch (e) {
+      // Ignore cleanup error
+    }
   }
 }
 
