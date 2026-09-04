@@ -188,6 +188,21 @@
       -webkit-backdrop-filter: blur(12px) !important;
     }
 
+    /* Compact Information Density */
+    .compact-density .p-6 { padding: 1rem !important; }
+    .compact-density .p-8 { padding: 1.25rem !important; }
+    .compact-density .space-y-6 > * + * { margin-top: 1rem !important; }
+    .compact-density .space-y-8 > * + * { margin-top: 1.25rem !important; }
+
+    /* Command Palette animations */
+    @keyframes commandFadeIn {
+      from { opacity: 0; transform: scale(0.97) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .command-modal-anim {
+      animation: commandFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
     /* Slider track */
     .slider-track-gradient {
       background: linear-gradient(to right, #10b981 0%, #00f2fe 35%, #f59e0b 70%, #f43f5e 100%);
@@ -253,10 +268,22 @@
           <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-sm' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
             <span>⚖️ Compliance</span>
           </button>
-          <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
+          <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
             <span>💻 Developer</span>
           </button>
         </div>
+
+        <!-- Omni Command Palette Trigger (Cmd+K) -->
+        <button @click="openCommandPalette()" class="px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm hover:border-cyan-400 group" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Open Command Palette (Cmd+K)">
+          <i class="fa-solid fa-magnifying-glass text-cyan-400 text-xs group-hover:scale-110 transition-transform"></i>
+          <span class="hidden xl:inline text-[11px]" style="color: var(--color-text-secondary);">Actions</span>
+          <kbd class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[9px]">⌘K</kbd>
+        </button>
+
+        <!-- Information Density Switcher -->
+        <button @click="compactMode = !compactMode" class="p-2 rounded-xl border hover:border-teal-500 transition-all shadow-sm flex items-center justify-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" :title="compactMode ? 'Switch to Comfortable Spacing' : 'Switch to Compact Spacing'">
+          <i class="fa-solid text-xs" :class="compactMode ? 'fa-compress text-cyan-400' : 'fa-expand text-slate-400'"></i>
+        </button>
 
         <!-- Theme Toggle -->
         <button @click="toggleTheme()" class="p-2 rounded-xl border hover:border-teal-500 transition-all shadow-sm flex items-center justify-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
@@ -435,7 +462,7 @@
     <!-- ========================================================================= -->
     <!-- MAIN PAGE CONTENT CONTAINER                                               -->
     <!-- ========================================================================= -->
-    <main class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-8 max-w-8xl mx-auto overflow-y-auto custom-scrollbar">
+    <main :class="{ 'compact-density': compactMode }" class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-8 max-w-8xl mx-auto overflow-y-auto custom-scrollbar">
 
     <!-- ========================================================================= -->
     <!-- TAB 1: VISUAL DRAG & DROP DAG STUDIO -->
@@ -603,15 +630,82 @@
             </div>
           </div>
 
+          <!-- Inline Tactile 1-Click HITL Sign-off & Tamper Guard -->
           <div class="space-y-3 pt-2">
-            <button @click="submitOption1Action('APPROVED')" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-xl shadow-teal-500/30 flex items-center justify-center space-x-2 active:scale-95 transition-all">
-              <i class="fa-solid fa-signature"></i>
-              <span>Execute 21 CFR Part 11 Electronic Signature</span>
-            </button>
-            <button @click="triggerTamperAlert()" class="w-full py-3 rounded-2xl border font-bold text-xs flex items-center justify-center space-x-2 transition-all" style="background-color: var(--color-badge-rose-bg); color: var(--color-badge-rose-text); border-color: var(--color-badge-rose-border);">
+            
+            <!-- Unsigned State: High-craft 1-Click Action Button -->
+            <div x-show="!hitlSigned" class="space-y-2">
+              <button 
+                id="btn-hitl-sign"
+                @click="signHitlRecord()" 
+                class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-xl shadow-teal-500/30 flex items-center justify-center space-x-2 active:scale-95 transition-all group"
+              >
+                <i class="fa-solid fa-signature group-hover:scale-110 transition-transform"></i>
+                <span>Execute 21 CFR Part 11 Electronic Signature</span>
+              </button>
+              <p class="text-[10px] text-center font-mono" style="color: var(--color-text-muted);">
+                Generates 48-hr stateless HMAC-SHA256 token • Zero DB lock
+              </p>
+            </div>
+
+            <!-- Signed State: Tactile Cryptographic Seal Certificate -->
+            <div 
+              x-show="hitlSigned" 
+              class="p-4 rounded-2xl border-2 space-y-2.5 transition-all" 
+              style="background-color: var(--color-badge-emerald-bg); border-color: var(--color-badge-emerald-border);"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <div class="w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <div>
+                    <span class="text-xs font-black block" style="color: var(--color-badge-emerald-text);">GxP Electronic Signature Sealed</span>
+                    <span class="text-[10px] font-mono" style="color: var(--color-text-secondary);" x-text="'Signer: ' + (currentUser ? currentUser.name : 'Dr. Eleanor Vance') + ' • 21 CFR §11.50'"></span>
+                  </div>
+                </div>
+                <span class="text-[9px] px-2 py-0.5 rounded-full font-mono font-black border bg-emerald-500/20 border-emerald-500/40 text-emerald-400">
+                  STATUTORY VALID
+                </span>
+              </div>
+
+              <!-- HMAC-SHA256 Seal Digest -->
+              <div class="p-2.5 rounded-xl bg-slate-950/40 border border-emerald-500/30 space-y-1 font-mono text-[10px]">
+                <div class="flex justify-between items-center text-slate-400 text-[9px]">
+                  <span>HMAC-SHA256 Digest (48h TTL):</span>
+                  <span x-text="hitlTimestamp"></span>
+                </div>
+                <div class="text-cyan-300 font-bold truncate select-all" x-text="hitlSigHash"></div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[10px] font-bold text-emerald-300 flex items-center space-x-1">
+                  <i class="fa-solid fa-lock text-[9px]"></i>
+                  <span>Tamper-evident envelope locked</span>
+                </span>
+                <button @click="revokeHitlSignature()" class="text-[10px] font-bold text-rose-400 hover:text-rose-300 underline transition-colors">
+                  Revoke / Re-sign
+                </button>
+              </div>
+            </div>
+
+            <!-- Tamper Attack Simulation Button -->
+            <button @click="triggerTamperAlert()" class="w-full py-3 rounded-2xl border font-bold text-xs flex items-center justify-center space-x-2 transition-all hover:opacity-90" style="background-color: var(--color-badge-rose-bg); color: var(--color-badge-rose-text); border-color: var(--color-badge-rose-border);">
               <i class="fa-solid fa-shield-virus"></i>
               <span>Simulate Cyber Tamper Attack (401 Shield)</span>
             </button>
+
+            <!-- Inline Tamper Guard Shield Alert (When active) -->
+            <div x-show="tamperAlertActive" class="p-3.5 rounded-2xl border-2 space-y-1.5 transition-all" style="background-color: var(--color-badge-rose-bg); border-color: var(--color-badge-rose-border);">
+              <div class="flex items-center space-x-2 font-black text-xs" style="color: var(--color-badge-rose-text);">
+                <i class="fa-solid fa-triangle-exclamation text-rose-500 animate-bounce"></i>
+                <span>401 SECURITY SHIELD: Tampered Token Rejected</span>
+              </div>
+              <p class="text-[11px] font-mono leading-tight" style="color: var(--color-text-secondary);">
+                State token payload was mutated in transit. <code class="font-bold text-rose-400">hmac.compare_digest()</code> failed. Audit log <span class="font-bold">#LOG-SEC-8921</span> dispatched to Cloud Logging.
+              </p>
+            </div>
+
           </div>
         </div>
 
@@ -1274,6 +1368,90 @@
   </footer>
 
   <!-- ========================================================================= -->
+  <!-- OMNI COMMAND PALETTE MODAL (Cmd+K / Ctrl+K)                               -->
+  <!-- ========================================================================= -->
+  <div x-show="commandPaletteOpen" class="fixed inset-0 z-50 flex items-start justify-center pt-16 md:pt-24 p-4 modal-backdrop-scrim" style="display: none;" @keydown.escape.window="commandPaletteOpen = false">
+    <div class="glass-card w-full max-w-2xl rounded-3xl shadow-2xl border-2 overflow-hidden flex flex-col command-modal-anim" style="border-color: var(--color-border-card); background-color: var(--color-bg-card);" @click.outside="commandPaletteOpen = false">
+      
+      <!-- Command Input Bar with ⌘K Badge and Search Icon -->
+      <div class="p-4 border-b flex items-center space-x-3" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle);">
+        <i class="fa-solid fa-magnifying-glass text-cyan-400 text-base"></i>
+        <input 
+          id="command-palette-input" 
+          type="text" 
+          x-model="commandSearchQuery" 
+          placeholder="Type a command, studio, persona, or question (e.g. 'DAG', 'Titrate', 'FAQ', 'Veo')..." 
+          class="w-full bg-transparent text-sm font-bold focus:outline-none placeholder:font-normal placeholder:text-slate-500" 
+          style="color: var(--color-text-primary);"
+          @keydown.enter="executeFirstCommand()"
+        >
+        <div class="flex items-center space-x-1.5 shrink-0">
+          <kbd class="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[10px] font-bold">ESC</kbd>
+          <button @click="commandPaletteOpen = false" class="hover:text-rose-500 text-slate-400 p-1 transition-colors">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="px-4 py-2 flex items-center space-x-2 overflow-x-auto custom-scrollbar border-b text-[10px] font-bold" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle);">
+        <span class="text-slate-400 font-mono">Filter:</span>
+        <button @click="commandCategoryFilter = 'all'" :class="commandCategoryFilter === 'all' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'all' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">All Actions</button>
+        <button @click="commandCategoryFilter = 'navigation'" :class="commandCategoryFilter === 'navigation' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'navigation' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Studios & Tabs</button>
+        <button @click="commandCategoryFilter = 'persona'" :class="commandCategoryFilter === 'persona' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'persona' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Personas</button>
+        <button @click="commandCategoryFilter = 'action'" :class="commandCategoryFilter === 'action' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'action' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Quick Triggers</button>
+        <button @click="commandCategoryFilter = 'faq'" :class="commandCategoryFilter === 'faq' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'faq' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">FAQ Search</button>
+      </div>
+
+      <!-- Command List Results -->
+      <div class="max-h-[380px] overflow-y-auto custom-scrollbar p-3 space-y-1">
+        <template x-for="(cmd, idx) in filteredCommands" :key="cmd.id">
+          <div 
+            @click="runCommand(cmd)" 
+            class="p-3 rounded-2xl border cursor-pointer transition-all flex items-center justify-between group hover:border-cyan-400"
+            :style="'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);'"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center border text-sm transition-transform group-hover:scale-110 shrink-0" :class="cmd.iconBg || 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'">
+                <i :class="cmd.icon"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-bold truncate" style="color: var(--color-text-primary);" x-text="cmd.title"></span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase border shrink-0" :class="cmd.badgeClass || 'bg-slate-800 text-slate-400 border-slate-700'" x-text="cmd.category"></span>
+                </div>
+                <p class="text-[11px] truncate" style="color: var(--color-text-secondary);" x-text="cmd.subtitle"></p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-2 shrink-0">
+              <span x-show="cmd.shortcut" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-700" x-text="cmd.shortcut"></span>
+              <i class="fa-solid fa-arrow-right text-xs text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all"></i>
+            </div>
+          </div>
+        </template>
+
+        <div x-show="filteredCommands.length === 0" class="p-8 text-center space-y-2">
+          <i class="fa-solid fa-magnifying-glass text-3xl text-slate-600"></i>
+          <p class="text-xs font-bold" style="color: var(--color-text-secondary);">No matching actions found for "<span x-text="commandSearchQuery"></span>"</p>
+          <p class="text-[11px] text-slate-500">Try searching for 'DAG', 'Titrate', 'FAQ', 'Veo', or 'Theme'.</p>
+        </div>
+      </div>
+
+      <!-- Command Palette Footer with Navigation Hotkeys -->
+      <div class="px-4 py-2.5 border-t flex items-center justify-between text-[11px] font-mono" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle); color: var(--color-text-muted);">
+        <div class="flex items-center space-x-3">
+          <span class="flex items-center space-x-1"><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[9px]">↑↓</kbd><span>Navigate</span></span>
+          <span class="flex items-center space-x-1"><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[9px]">↵</kbd><span>Execute</span></span>
+          <span class="flex items-center space-x-1"><kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[9px]">ESC</kbd><span>Close</span></span>
+        </div>
+        <span class="font-bold text-cyan-400">Enterprise A2A Engine</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- SSO SIGN-IN MODAL (WITH DARK TINTED SCRIM) -->
   <!-- ========================================================================= -->
   <div x-show="ssoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop-scrim" style="display: none;">
@@ -1400,6 +1578,25 @@
           </div>
         </div>
 
+        <!-- Real-Time Speech-to-Text Teleprompter Ticker -->
+        <div x-show="omniVoiceActive" class="px-4 py-2 bg-slate-950 border-b border-cyan-500/30 space-y-1 font-mono text-[11px]">
+          <div class="flex items-center justify-between text-[9px]">
+            <span class="flex items-center space-x-1 text-cyan-400 font-bold">
+              <i class="fa-solid fa-microphone-lines text-rose-400 animate-pulse"></i>
+              <span>STREAMING TELEPROMPTER</span>
+            </span>
+            <span class="text-emerald-400 font-extrabold">WebRTC • 18ms Latency</span>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900 border border-cyan-500/20 text-slate-200 flex items-center justify-between gap-2">
+            <div class="flex items-center space-x-1.5 min-w-0 flex-1">
+              <span class="text-teal-400 font-bold shrink-0">Live:</span>
+              <span class="text-cyan-200 truncate" x-text="teleprompterText || 'Listening for biopharma audio commands...'"></span>
+              <span class="inline-block w-1.5 h-3.5 bg-cyan-400 animate-pulse shrink-0"></span>
+            </div>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0 font-bold" x-text="teleprompterIntent || 'PARSING'"></span>
+          </div>
+        </div>
+
         <!-- Quick "Prompt-to-DAG" Action Chips -->
         <div class="px-4 py-2 flex items-center space-x-2 overflow-x-auto custom-scrollbar border-b text-[10px] font-bold" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle);">
           <span class="text-slate-400 font-mono">Prompt-to-DAG:</span>
@@ -1478,10 +1675,88 @@
         assistantOpen: false,
         byokDrawerOpen: false,
         ssoModalOpen: false,
+        commandPaletteOpen: false,
+        commandSearchQuery: '',
+        commandCategoryFilter: 'all',
+        compactMode: false,
         legalModal: null,
         unreadAlertsCount: 2,
         currentUser: null,
         isDark: true,
+
+        // Inline Tactile HITL Signature State
+        hitlSigned: false,
+        hitlTimestamp: '',
+        hitlSigHash: '',
+        tamperAlertActive: false,
+
+        // Live Multimodal Voice & Teleprompter State
+        omniVoiceActive: false,
+        omniDubbingLang: 'en',
+        teleprompterText: 'Simulating continuous clinical EDC ingest and Bayesian AST parameter extraction...',
+        teleprompterIntent: 'INGEST_SDTM',
+
+        // Omni Command Palette Action Registry
+        commands: [
+          // Studios & Navigation
+          { id: 'nav-dag', title: 'Open Visual DAG Studio', subtitle: 'Compose multi-agent pipelines with 28µs AST filter', category: 'navigation', icon: 'fa-solid fa-diagram-project', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: 'G D', action: 'dag_studio' },
+          { id: 'nav-dose', title: 'Open Dose Titration Curve', subtitle: 'Interactive risk curve with 21 CFR Part 11 sign-off', category: 'navigation', icon: 'fa-solid fa-sliders', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G T', action: 'dose_curve' },
+          { id: 'nav-veo', title: 'Open Veo 2 & Omni Studio', subtitle: 'Google DeepMind 5-act 4K cinematic video engine', category: 'navigation', icon: 'fa-solid fa-clapperboard', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'G V', action: 'veo_studio' },
+          { id: 'nav-playground', title: 'Open Playground & Ingestion', subtitle: 'Simulate live ADK envelope sanitization', category: 'navigation', icon: 'fa-solid fa-flask-vial', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: 'G P', action: 'playground' },
+          { id: 'nav-integrations', title: 'Open Tool Integrations Hub', subtitle: 'Connect MedDRA, BigQuery, and Veeva Vault', category: 'navigation', icon: 'fa-solid fa-network-wired', iconBg: 'bg-sky-500/10 text-sky-400 border-sky-500/20', badgeClass: 'bg-sky-500/20 text-sky-400 border-sky-500/30', shortcut: 'G I', action: 'integrations' },
+          { id: 'nav-kpis', title: 'Open Live KPI Speedometers', subtitle: 'Inspect sub-millisecond latencies and ROI', category: 'navigation', icon: 'fa-solid fa-gauge-high', iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30', shortcut: 'G K', action: 'kpis' },
+          { id: 'nav-faq', title: 'Open Technical FAQ Knowledge Base', subtitle: 'Explore in-depth architectural questions & code', category: 'navigation', icon: 'fa-solid fa-circle-question', iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20', badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30', shortcut: 'G F', action: 'faq' },
+          { id: 'nav-overview', title: 'Open Architecture MECE Matrix', subtitle: 'Cross-functional evaluation across 4 personas', category: 'navigation', icon: 'fa-solid fa-table-cells', iconBg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20', badgeClass: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30', shortcut: 'G O', action: 'overview' },
+          { id: 'nav-opt1', title: 'Open Option 1: Cloud Run Proxy', subtitle: 'Stateless AST sanitizer with 48h HMAC tokens', category: 'navigation', icon: 'fa-solid fa-cloud', iconBg: 'bg-blue-500/10 text-blue-400 border-blue-500/20', badgeClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30', shortcut: 'G 1', action: 'opt1' },
+          { id: 'nav-opt2', title: 'Open Option 2: gRPC Stream', subtitle: 'Typed binary schema with thought streaming', category: 'navigation', icon: 'fa-solid fa-bolt', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G 2', action: 'opt2' },
+          { id: 'nav-opt3', title: 'Open Option 3: Dual-Plane', subtitle: 'Outside-in sovereign biopharma isolation', category: 'navigation', icon: 'fa-solid fa-shield-halved', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'G 3', action: 'opt3' },
+
+          // Persona Switching
+          { id: 'persona-arch', title: 'Switch to Architect Persona', subtitle: 'Focus on enterprise topology and multi-agent DAGs', category: 'persona', icon: 'fa-solid fa-landmark', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: 'P A', action: 'persona_architect' },
+          { id: 'persona-clin', title: 'Switch to Clinician Persona', subtitle: 'Focus on dose titration risk curve and safety', category: 'persona', icon: 'fa-solid fa-user-doctor', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'P C', action: 'persona_clinician' },
+          { id: 'persona-comp', title: 'Switch to Compliance Persona', subtitle: 'Focus on 21 CFR Part 11, GAMP 5, and audit logs', category: 'persona', icon: 'fa-solid fa-scale-balanced', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'P X', action: 'persona_compliance' },
+          { id: 'persona-dev', title: 'Switch to Developer Persona', subtitle: 'Focus on REST/gRPC contracts and latency testing', category: 'persona', icon: 'fa-solid fa-code', iconBg: 'bg-sky-500/10 text-sky-400 border-sky-500/20', badgeClass: 'bg-sky-500/20 text-sky-400 border-sky-500/30', shortcut: 'P D', action: 'persona_developer' },
+
+          // Quick Triggers & Actions
+          { id: 'act-hitl', title: 'Execute 21 CFR Part 11 Sign-off', subtitle: 'Seal HMAC-SHA256 clinical signature stamp', category: 'action', icon: 'fa-solid fa-signature', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: '⌘ S', action: 'action_hitl' },
+          { id: 'act-theme', title: 'Toggle Light / Dark Mode', subtitle: 'Switch between dark glassmorphic and crisp light theme', category: 'action', icon: 'fa-solid fa-circle-half-stroke', iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30', shortcut: '⌘ T', action: 'action_theme' },
+          { id: 'act-density', title: 'Toggle Information Density', subtitle: 'Switch between Comfortable and Compact viewports', category: 'action', icon: 'fa-solid fa-compress', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: '⌘ D', action: 'action_density' },
+          { id: 'act-copilot', title: 'Launch Dr. A2A Omni Co-pilot', subtitle: 'Open multimodal assistant with live WebRTC voice', category: 'action', icon: 'fa-solid fa-robot', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: '⌘ A', action: 'action_copilot' },
+          { id: 'act-byok', title: 'Open BYOK Key Manager', subtitle: 'Manage private LLM and cloud provider credentials', category: 'action', icon: 'fa-solid fa-key', iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30', shortcut: '⌘ K', action: 'action_byok' },
+          { id: 'act-sso', title: 'Single Sign-On (SSO) Portal', subtitle: 'Authenticate with Google, Microsoft, Okta, or Ping', category: 'action', icon: 'fa-solid fa-user-shield', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: '⌘ L', action: 'action_sso' },
+          { id: 'act-veo-gen', title: 'Generate Veo 2 Video Briefing', subtitle: 'Render 5-act cinematic video from clinical data', category: 'action', icon: 'fa-solid fa-wand-magic-sparkles', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: '⌘ G', action: 'action_veo_gen' },
+          { id: 'act-tamper', title: 'Simulate Cyber Tamper Attack', subtitle: 'Test HTTP 401 rejection on manipulated token', category: 'action', icon: 'fa-solid fa-shield-virus', iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20', badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30', shortcut: '⌘ X', action: 'action_tamper' }
+        ],
+
+        get filteredCommands() {
+          const q = (this.commandSearchQuery || '').toLowerCase().trim();
+          const cat = this.commandCategoryFilter;
+          let list = [...this.commands];
+          
+          if (q || cat === 'faq') {
+            const faqCmds = (this.faqs || []).map(f => ({
+              id: 'faq-' + f.id,
+              title: f.question,
+              subtitle: f.categoryName + ' • ' + f.spec,
+              category: 'faq',
+              icon: 'fa-solid fa-circle-question',
+              iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+              badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+              shortcut: 'FAQ',
+              faqId: f.id
+            }));
+            list = [...list, ...faqCmds];
+          }
+
+          return list.filter(cmd => {
+            const matchesCat = (cat === 'all' || cmd.category === cat);
+            const matchesQuery = !q || 
+              cmd.title.toLowerCase().includes(q) || 
+              cmd.subtitle.toLowerCase().includes(q) || 
+              cmd.category.toLowerCase().includes(q);
+            return matchesCat && matchesQuery;
+          });
+        },
 
         getTabName(tab) {
           const map = {
@@ -1844,13 +2119,68 @@
           }
         },
 
-        submitOption1Action(status) {
+        openCommandPalette() {
+          this.commandPaletteOpen = true;
+          this.commandSearchQuery = '';
+          this.commandCategoryFilter = 'all';
+          this.$nextTick && this.$nextTick(() => {
+            const el = document.getElementById('command-palette-input');
+            if (el) el.focus();
+          });
+        },
+
+        runCommand(cmd) {
+          this.commandPaletteOpen = false;
+          if (cmd.faqId) {
+            this.currentTab = 'faq';
+            this.openFaqId = cmd.faqId;
+            this.triggerSparkleCelebration();
+            return;
+          }
+          if (typeof cmd.action === 'string') {
+            if (cmd.action === 'persona_architect') this.selectPersona('architect');
+            else if (cmd.action === 'persona_clinician') this.selectPersona('clinician');
+            else if (cmd.action === 'persona_compliance') this.selectPersona('compliance');
+            else if (cmd.action === 'persona_developer') this.selectPersona('developer');
+            else if (cmd.action === 'action_hitl') { this.currentTab = 'dose_curve'; this.signHitlRecord(); }
+            else if (cmd.action === 'action_theme') this.toggleTheme();
+            else if (cmd.action === 'action_density') this.compactMode = !this.compactMode;
+            else if (cmd.action === 'action_copilot') this.assistantOpen = true;
+            else if (cmd.action === 'action_byok') this.byokDrawerOpen = true;
+            else if (cmd.action === 'action_sso') this.ssoModalOpen = true;
+            else if (cmd.action === 'action_veo_gen') { this.currentTab = 'veo_studio'; this.generateVeoVideo(); }
+            else if (cmd.action === 'action_tamper') { this.currentTab = 'dose_curve'; this.triggerTamperAlert(); }
+            else { this.currentTab = cmd.action; }
+          }
           this.triggerSparkleCelebration();
-          alert("21 CFR Part 11 Electronic Signature recorded! Cryptographic HMAC-SHA256 signature stamped.");
+        },
+
+        executeFirstCommand() {
+          const list = this.filteredCommands;
+          if (list && list.length > 0) {
+            this.runCommand(list[0]);
+          }
+        },
+
+        signHitlRecord() {
+          this.hitlSigned = true;
+          this.hitlTimestamp = new Date().toISOString();
+          const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+          this.hitlSigHash = `sha256:${randomHex}`;
+          this.triggerSparkleCelebration();
+        },
+
+        revokeHitlSignature() {
+          this.hitlSigned = false;
+          this.hitlSigHash = '';
+          this.hitlTimestamp = '';
         },
 
         triggerTamperAlert() {
-          alert("SECURITY GUARD ALERT: State token signature mismatch rejected (HTTP 401 Unauthorized)!");
+          this.tamperAlertActive = true;
+          setTimeout(() => {
+            this.tamperAlertActive = false;
+          }, 4500);
         },
 
         async loginWithSso(provider) {
@@ -1870,6 +2200,42 @@
               text: "Dr. A2A Omni Analysis: The Enterprise A2A Gateway ensures strict GxP validation by executing AST key sanitization on all outbound payloads in 28 microseconds, sealing 48-hour HMAC tokens before delivering A2UI cards to Gemini Enterprise." 
             });
           }, 600);
+        },
+
+        init() {
+          this.init3DScenes();
+          this.initCard3DTilt();
+
+          // Setup keyboard listener for Cmd+K / Ctrl+K
+          window.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+              e.preventDefault();
+              if (this.commandPaletteOpen) {
+                this.commandPaletteOpen = false;
+              } else {
+                this.openCommandPalette();
+              }
+            }
+            if (e.key === 'Escape' && this.commandPaletteOpen) {
+              this.commandPaletteOpen = false;
+            }
+          });
+
+          // Teleprompter interval simulation
+          setInterval(() => {
+            if (this.omniVoiceActive) {
+              const phrases = [
+                { text: 'Analyzing CDISC SDTM clinical parameters for MK-3475-087...', intent: 'ANALYZE_SDTM' },
+                { text: 'Checking AST key sanitization on 28 microsecond latency gate...', intent: 'AST_SANITIZE' },
+                { text: 'Generating Bayesian adverse toxicity probability distribution...', intent: 'BAYESIAN_RISK' },
+                { text: 'Sealing 48-hour stateless HMAC-SHA256 approval envelope...', intent: 'SEAL_HMAC' },
+                { text: 'Ready for human-in-the-loop electronic signature sign-off.', intent: 'HITL_READY' }
+              ];
+              const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+              this.teleprompterText = randomPhrase.text;
+              this.teleprompterIntent = randomPhrase.intent;
+            }
+          }, 3500);
         },
 
         init3DScenes() {
