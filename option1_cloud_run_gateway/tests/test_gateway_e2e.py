@@ -159,3 +159,44 @@ def test_state_token_tampering_rejection(client):
     response = client.post("/a2a/ui/action", json=action_request, headers=headers)
     assert response.status_code == 400
     assert "Tampered or invalid state token signature" in response.json()["detail"]
+
+
+def test_a2ui_omnichannel_transpilation():
+    from app.a2ui_builder import get_a2ui_preset_templates, transpile_a2ui_to_all
+
+    templates = get_a2ui_preset_templates()
+    assert "dose_titration" in templates
+    assert "pv_e2b_expedited" in templates
+    assert "lab_data_grid" in templates
+    assert "gmp_batch_capa" in templates
+
+    dose_tpl = templates["dose_titration"]
+    transpiled = transpile_a2ui_to_all(dose_tpl, unblind=False)
+    assert transpiled["googleCardV2"] is not None
+    assert transpiled["slackBlockKit"] is not None
+    assert transpiled["teamsAdaptiveCard"] is not None
+    assert transpiled["webGlassmorphic"] is not None
+    assert len(transpiled["canonicalA2UI"]["actions"]) >= 1
+
+
+def test_a2ui_jti_nonce_idempotency_guard():
+    from app.security import create_state_token, consume_state_token, reset_jti_registry
+    from fastapi import HTTPException
+
+    reset_jti_registry()
+    token = create_state_token({
+        "taskId": "task-jti-test-01",
+        "decision": "APPROVED",
+    })
+
+    # First consumption must succeed
+    claims1 = consume_state_token(token)
+    assert claims1["decision"] == "APPROVED"
+    assert "jti" in claims1
+
+    # Second consumption (replay attack) must raise HTTPException 409 Conflict
+    with pytest.raises(HTTPException) as exc_info:
+        consume_state_token(token)
+    assert exc_info.value.status_code == 409
+    assert "has already been consumed" in exc_info.value.detail
+

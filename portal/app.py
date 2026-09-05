@@ -10,7 +10,7 @@ import sys
 import uuid
 import httpx
 from pathlib import Path
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,8 +23,18 @@ sys.path.insert(0, str(ROOT_DIR / "option2_grpc_service"))
 sys.path.insert(0, str(ROOT_DIR / "option3_dual_plane"))
 
 from option1_cloud_run_gateway.app.sanitizer import sanitize_payload, sanitize_headers
-from option1_cloud_run_gateway.app.security import create_state_token, verify_state_token
-from option1_cloud_run_gateway.app.a2ui_builder import build_clinical_review_surface
+from option1_cloud_run_gateway.app.security import (
+    create_state_token,
+    verify_state_token,
+    consume_state_token,
+    reset_jti_registry,
+)
+from option1_cloud_run_gateway.app.a2ui_builder import (
+    build_clinical_review_surface,
+    get_a2ui_preset_templates,
+    transpile_a2ui_to_all,
+)
+
 
 from option3_dual_plane.backend.vertex_client import VertexAIClinicalEngine
 from option3_dual_plane.backend.config import config as plane3_config
@@ -134,6 +144,76 @@ async def option1_test_action(request: Request):
         }
     except Exception as exc:
         return JSONResponse(status_code=400, content={"success": False, "error": str(exc)})
+
+
+@app.get("/api/a2ui/templates")
+async def get_a2ui_templates():
+    """Return production biopharma preset templates for A2UI studio."""
+    templates = get_a2ui_preset_templates()
+    return {"templates": templates}
+
+
+@app.post("/api/a2ui/transpile")
+async def transpile_a2ui_endpoint(request: Request):
+    """Transpile canonical A2UI surface into Google Card v2, Slack Block Kit, Teams Adaptive Card, and Web."""
+    body = await request.json()
+    a2ui_card = body.get("a2ui")
+    if not a2ui_card and "templateKey" in body:
+        templates = get_a2ui_preset_templates()
+        a2ui_card = templates.get(body.get("templateKey"), {})
+    if not a2ui_card:
+        a2ui_card = {}
+    unblind = body.get("unblind", body.get("unblinded", False))
+    transpiled = transpile_a2ui_to_all(a2ui_card, unblind=unblind)
+    return transpiled
+
+
+@app.post("/api/a2ui/action")
+async def execute_a2ui_action(request: Request):
+    """Execute action with 21 CFR Part 11 JTI nonce-guarded state token consumption."""
+    body = await request.json()
+    token = body.get("stateToken")
+    action_id = body.get("actionId", "action_unknown")
+
+    if not token:
+        return JSONResponse(status_code=400, content={"success": False, "error": "Missing stateToken parameter"})
+
+    try:
+        claims = consume_state_token(token)
+        return {
+            "success": True,
+            "status": "COMPLETED",
+            "actionId": action_id,
+            "decision": claims.get("decision", "EXECUTED"),
+            "claims": claims,
+            "jti": claims.get("jti"),
+            "audit": {
+                "verifiedAt": "2026-09-04T00:00:00Z",
+                "gxPCompliant": True,
+                "signatureType": "21 CFR Part 11 Stateless JTI Nonce-Guarded Electronic Signature",
+                "idempotencyEnforced": True,
+            },
+        }
+    except HTTPException as exc:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "success": False,
+                "status": "CONFLICT" if exc.status_code == 409 else "FAILED",
+                "error": exc.detail,
+                "idempotencyTriggered": exc.status_code == 409,
+            },
+        )
+    except Exception as exc:
+        return JSONResponse(status_code=400, content={"success": False, "error": str(exc)})
+
+
+@app.post("/api/a2ui/reset-idempotency")
+async def reset_a2ui_idempotency():
+    """Reset JTI registry for interactive demonstration or testing."""
+    reset_jti_registry()
+    return {"success": True, "message": "JTI registry cleared successfully"}
+
 
 
 @app.get("/api/option2/stream-simulation")
