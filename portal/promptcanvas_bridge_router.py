@@ -20,7 +20,8 @@ router = APIRouter(tags=["PromptCanvas Bridge"])
 # ---------------------------------------------------------------------------
 
 class DiagramCompileRequest(BaseModel):
-    drawio_xml: str = Field(..., description="PromptCanvas Draw.io mxGraphModel XML string")
+    drawio_xml: Optional[str] = Field(default=None, description="PromptCanvas Draw.io mxGraphModel XML string")
+    xml: Optional[str] = Field(default=None, description="Alternative key for Draw.io XML")
     target_protocol: str = Field(default="a2a.v1.0.0", description="Target protocol version")
     enforce_ast_sanitization: bool = Field(default=True, description="Enforce sub-28µs AST filter on all egress edges")
 
@@ -228,7 +229,11 @@ async def compile_drawio_xml_to_a2a_dag(request: DiagramCompileRequest):
     and compiles them into a live executable A2A Gateway DAG with execution stages.
     """
     t0 = time.perf_counter()
-    xml_content = request.drawio_xml.strip()
+    raw_input = request.drawio_xml or request.xml or ""
+    xml_content = raw_input.strip()
+
+    if not xml_content:
+        raise HTTPException(status_code=400, detail="Missing Draw.io XML payload in request (expected 'drawio_xml' or 'xml').")
 
     if not xml_content.startswith("<mxGraphModel"):
         # Handle wrapping in <mxfile> if exported from draw.io full editor
