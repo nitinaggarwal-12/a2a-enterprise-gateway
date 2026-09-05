@@ -9055,6 +9055,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           let clock = new THREE.Clock();
           const animate = () => {
             requestAnimationFrame(animate);
+            if (document.hidden || !canvas.offsetParent) return;
             const t = clock.getElapsedTime() * 0.8;
             for (let i = 0; i < posAttr.count; i++) {
               const x = posAttr.getX(i);
@@ -9135,6 +9136,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           let clock = new THREE.Clock();
           const animate = () => {
             requestAnimationFrame(animate);
+            if (document.hidden || !canvas.offsetParent) return;
             const t = clock.getElapsedTime();
             group.rotation.y = t * 0.6;
             group.rotation.x = Math.sin(t * 0.4) * 0.2;
@@ -9178,6 +9180,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           let clock = new THREE.Clock();
           const animate = () => {
             requestAnimationFrame(animate);
+            if (document.hidden || !canvas.offsetParent) return;
             const t = clock.getElapsedTime();
             icoMesh.rotation.x = t * 0.8;
             icoMesh.rotation.y = t * 1.1;
@@ -9328,6 +9331,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           let clock = new THREE.Clock();
           const animate = () => {
             requestAnimationFrame(animate);
+            if (document.hidden || !canvas.offsetParent) return;
             const t = clock.getElapsedTime();
 
             coreGroup.rotation.y += 0.005;

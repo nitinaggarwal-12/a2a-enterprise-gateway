@@ -4,7 +4,79 @@ Simulates Enterprise's internal clinical data warehouse containing patient cohor
 adverse event tables for clinical trial MK-3475-087.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
+from pydantic import BaseModel, Field
+
+
+class SDTM_DM_Record(BaseModel):
+    """CDISC SDTM Demographics Domain Record (DM)."""
+    STUDYID: str = Field(..., description="Unique Study Identifier")
+    DOMAIN: str = Field(default="DM")
+    USUBJID: str = Field(..., description="Unique Subject Identifier")
+    SUBJID: str = Field(..., description="Subject Identifier for the Study")
+    RFSTDTC: Optional[str] = Field(None, description="Subject Reference Start Date/Time")
+    AGE: Optional[int] = Field(None, description="Age at trial enrollment")
+    SEX: str = Field(..., description="Sex: M / F / U")
+    RACE: Optional[str] = Field(None, description="Race")
+    ARMCD: str = Field(..., description="Planned Arm Code")
+
+
+class SDTM_AE_Record(BaseModel):
+    """CDISC SDTM Adverse Events Domain Record (AE)."""
+    STUDYID: str = Field(..., description="Unique Study Identifier")
+    DOMAIN: str = Field(default="AE")
+    USUBJID: str = Field(..., description="Unique Subject Identifier")
+    AETERM: str = Field(..., description="Reported Term for the Adverse Event")
+    AEDECOD: str = Field(..., description="Dictionary-Derived Term (MedDRA)")
+    AESEV: str = Field(..., description="Severity/Intensity: MILD / MODERATE / SEVERE")
+    AESER: str = Field(default="N", description="Serious Event: Y / N")
+    AESTDTC: Optional[str] = Field(None, description="Start Date/Time of Adverse Event")
+    AEENDTC: Optional[str] = Field(None, description="End Date/Time of Adverse Event")
+    AEREL: str = Field(default="POSSIBLE", description="Causality / Relationship to Study Drug")
+
+
+class SDTM_LB_Record(BaseModel):
+    """CDISC SDTM Laboratory Test Results Domain Record (LB)."""
+    STUDYID: str = Field(...)
+    DOMAIN: str = Field(default="LB")
+    USUBJID: str = Field(...)
+    LBTESTCD: str = Field(..., description="Lab Test Short Code, e.g. ALT, AST, BILI")
+    LBTEST: str = Field(..., description="Lab Test Name")
+    LBORRES: float = Field(..., description="Original Result Value")
+    LBORRESU: str = Field(..., description="Original Result Units")
+    LBNRIND: Optional[str] = Field(None, description="Normal Range Indicator: NORMAL / HIGH / LOW")
+
+
+class SDTM_EX_Record(BaseModel):
+    """CDISC SDTM Exposure Domain Record (EX)."""
+    STUDYID: str = Field(...)
+    DOMAIN: str = Field(default="EX")
+    USUBJID: str = Field(...)
+    EXTRT: str = Field(..., description="Name of Actual Treatment")
+    EXDOSE: float = Field(..., description="Dose per Administration")
+    EXDOSU: str = Field(default="mg", description="Dose Units")
+    EXDOSFRQ: str = Field(default="Q3W", description="Dosing Frequency")
+    EXSTDTC: Optional[str] = Field(None)
+
+
+def validate_sdtm_record(domain: str, record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    """Validate raw clinical dictionary against strict CDISC SDTM domain models."""
+    domain_upper = domain.upper()
+    model_map = {
+        "DM": SDTM_DM_Record,
+        "AE": SDTM_AE_Record,
+        "LB": SDTM_LB_Record,
+        "EX": SDTM_EX_Record,
+    }
+    model = model_map.get(domain_upper)
+    if not model:
+        return False, f"Unsupported CDISC SDTM domain: '{domain}'"
+
+    try:
+        model(**record)
+        return True, None
+    except Exception as exc:
+        return False, str(exc)
 
 
 CLINICAL_REGISTRY_DATA: Dict[str, Dict[str, Any]] = {

@@ -4,6 +4,7 @@ Handles Google OIDC Bearer Token verification and HMAC-SHA256 stateless
 state token generation and validation for 48+ hour Human-In-The-Loop (HITL) workflows.
 """
 
+import os
 import hmac
 import hashlib
 import json
@@ -96,10 +97,94 @@ def _prune_expired_jtis(now_ts: float):
             CONSUMED_JTI_REGISTRY.pop(k, None)
 
 
+class BaseJTIStore:
+    """Abstract interface for JTI idempotency stores."""
+
+    def is_consumed_and_record(self, jti: str, exp_ts: float, now_ts: float) -> bool:
+        """Check if JTI was already consumed; if not, atomically mark it consumed.
+        Returns True if already consumed (replay), False if newly recorded.
+        """
+        raise NotImplementedError
+
+    def clear(self):
+        raise NotImplementedError
+
+
+class InMemoryJTIStore(BaseJTIStore):
+    """Thread-safe, in-memory bounded JTI store with TTL-based pruning."""
+
+    def __init__(self, registry: Dict[str, float], lock: threading.Lock, max_size: int = MAX_JTI_CACHE_SIZE):
+        self._registry = registry
+        self._lock = lock
+        self._max_size = max_size
+
+    def is_consumed_and_record(self, jti: str, exp_ts: float, now_ts: float) -> bool:
+        with self._lock:
+            _prune_expired_jtis(now_ts)
+            if jti in self._registry:
+                return True
+            self._registry[jti] = exp_ts
+            return False
+
+    def clear(self):
+        with self._lock:
+            self._registry.clear()
+
+
+class RedisJTIStore(BaseJTIStore):
+    """Distributed JTI store backed by Redis / Google Cloud Memorystore for multi-instance scaling."""
+
+    def __init__(self, redis_url: str, fallback_store: BaseJTIStore):
+        self.redis_url = redis_url
+        self.fallback = fallback_store
+        self._client = None
+        try:
+            import redis
+            self._client = redis.from_url(redis_url, socket_timeout=2.0)
+        except Exception:
+            pass
+
+    def is_consumed_and_record(self, jti: str, exp_ts: float, now_ts: float) -> bool:
+        if not self._client:
+            return self.fallback.is_consumed_and_record(jti, exp_ts, now_ts)
+        try:
+            ttl_seconds = max(1, int(exp_ts - now_ts))
+            key = f"a2a:jti:{jti}"
+            was_set = self._client.set(key, "1", ex=ttl_seconds, nx=True)
+            if not was_set:
+                return True
+            return False
+        except Exception:
+            return self.fallback.is_consumed_and_record(jti, exp_ts, now_ts)
+
+    def clear(self):
+        if self._client:
+            try:
+                for key in self._client.scan_iter("a2a:jti:*"):
+                    self._client.delete(key)
+            except Exception:
+                pass
+        self.fallback.clear()
+
+
+_GLOBAL_IN_MEMORY_STORE = InMemoryJTIStore(CONSUMED_JTI_REGISTRY, _jti_lock)
+_GLOBAL_DISTRIBUTED_STORE: Optional[BaseJTIStore] = None
+
+
+def get_jti_store() -> BaseJTIStore:
+    """Retrieve the configured JTI idempotency store (Redis if configured, otherwise InMemory)."""
+    global _GLOBAL_DISTRIBUTED_STORE
+    redis_url = os.getenv("REDIS_URL") or os.getenv("MEMORYSTORE_URL")
+    if redis_url:
+        if _GLOBAL_DISTRIBUTED_STORE is None or getattr(_GLOBAL_DISTRIBUTED_STORE, "redis_url", None) != redis_url:
+            _GLOBAL_DISTRIBUTED_STORE = RedisJTIStore(redis_url, _GLOBAL_IN_MEMORY_STORE)
+        return _GLOBAL_DISTRIBUTED_STORE
+    return _GLOBAL_IN_MEMORY_STORE
+
+
 def reset_jti_registry():
     """Reset the consumed JTI nonce registry (primarily for test automation)."""
-    with _jti_lock:
-        CONSUMED_JTI_REGISTRY.clear()
+    get_jti_store().clear()
 
 
 def is_safe_webhook_url(url: str, allow_localhost: Optional[bool] = None) -> Tuple[bool, str]:
@@ -228,14 +313,12 @@ def verify_state_token(token: str, enforce_idempotency: bool = False) -> Dict[st
             if jti:
                 now_ts = datetime.now(timezone.utc).timestamp()
                 exp_ts = float(claims.get("exp", now_ts + settings.STATE_TOKEN_TTL_HOURS * 3600))
-                with _jti_lock:
-                    _prune_expired_jtis(now_ts)
-                    if jti in CONSUMED_JTI_REGISTRY:
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail=f"Action Already Executed: State Token JTI '{jti}' has already been consumed. (Idempotency Guard Active)",
-                        )
-                    CONSUMED_JTI_REGISTRY[jti] = exp_ts
+                store = get_jti_store()
+                if store.is_consumed_and_record(jti, exp_ts, now_ts):
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"Action Already Executed: State Token JTI '{jti}' has already been consumed. (Idempotency Guard Active)",
+                    )
 
         return claims
     except jwt.ExpiredSignatureError:

@@ -9,6 +9,7 @@ import json
 import logging
 import sys
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 import httpx
@@ -27,6 +28,18 @@ from .security import (
     is_safe_webhook_url,
 )
 from .a2ui_builder import build_clinical_review_surface
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifecycle and persistent HTTP connection pools."""
+    limits = httpx.Limits(max_keepalive_connections=50, max_connections=200, keepalive_expiry=30.0)
+    app.state.http_client = httpx.AsyncClient(limits=limits, timeout=settings.DOWNSTREAM_TIMEOUT_SECONDS)
+    logger.info("Shared httpx.AsyncClient connection pool initialized.")
+    yield
+    if hasattr(app.state, "http_client") and not app.state.http_client.is_closed:
+        await app.state.http_client.aclose()
+        logger.info("Shared httpx.AsyncClient connection pool closed.")
 
 
 # Configure Structured JSON Logging
@@ -56,6 +69,7 @@ app = FastAPI(
     title="Enterprise A2A Cloud Run Interceptor Gateway",
     version=settings.SERVICE_VERSION,
     description="Production-ready GxP-compliant stateless interceptor gateway for Agent-to-Agent communication.",
+    lifespan=lifespan,
 )
 
 # CORS setup for web client compatibility (Strict W3C/Fetch spec compliant)
@@ -110,12 +124,20 @@ async def dispatch_push_notification(push_url: str, task_id: str, decision: str,
             "id": str(uuid.uuid4()),
         }
         headers = {"Content-Type": "application/json", "X-Enterprise-GxP-Gateway": "Verified"}
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        client = getattr(app.state, "http_client", None)
+        close_client = False
+        if client is None or client.is_closed:
+            client = httpx.AsyncClient(timeout=15.0)
+            close_client = True
+        try:
             resp = await client.post(push_url, json=payload, headers=headers)
             logger.info(
                 f"Push notification delivered to {push_url}. Status: {resp.status_code}",
                 extra={"extra_data": {"taskId": task_id, "pushStatus": resp.status_code}},
             )
+        finally:
+            if close_client:
+                await client.aclose()
     except Exception as exc:
         logger.error(
             f"Failed delivering push notification to {push_url}: {str(exc)}",
@@ -354,7 +376,12 @@ async def handle_task_dispatch(
         target_url = settings.DOWNSTREAM_AGENT_URL.rstrip("/") + "/a2a/tasks"
         logger.info(f"Forwarding sanitized payload to downstream agent: {target_url}")
 
-        client = httpx.AsyncClient(timeout=settings.DOWNSTREAM_TIMEOUT_SECONDS)
+        client = getattr(app.state, "http_client", None)
+        close_client = False
+        if client is None or client.is_closed:
+            client = httpx.AsyncClient(timeout=settings.DOWNSTREAM_TIMEOUT_SECONDS)
+            close_client = True
+
         req = client.build_request(
             method="POST",
             url=target_url,
@@ -378,7 +405,8 @@ async def handle_task_dispatch(
                     logger.warning(f"Error during SSE stream passthrough: {exc}")
                 finally:
                     await response.aclose()
-                    await client.aclose()
+                    if close_client:
+                        await client.aclose()
 
             return StreamingResponse(
                 event_generator(),
@@ -392,7 +420,8 @@ async def handle_task_dispatch(
         else:
             resp_bytes = await response.aread()
             await response.aclose()
-            await client.aclose()
+            if close_client:
+                await client.aclose()
             try:
                 resp_json = json.loads(resp_bytes)
                 sanitized_resp = sanitize_payload(resp_json)
