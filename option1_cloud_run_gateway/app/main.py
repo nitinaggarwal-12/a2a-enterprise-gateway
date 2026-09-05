@@ -19,7 +19,13 @@ from pydantic import BaseModel, Field
 
 from .config import settings
 from .sanitizer import sanitize_headers, sanitize_payload
-from .security import consume_state_token, verify_google_oidc, verify_state_token, CFRPart11Signer
+from .security import (
+    consume_state_token,
+    verify_google_oidc,
+    verify_state_token,
+    CFRPart11Signer,
+    is_safe_webhook_url,
+)
 from .a2ui_builder import build_clinical_review_surface
 
 
@@ -52,10 +58,18 @@ app = FastAPI(
     description="Production-ready GxP-compliant stateless interceptor gateway for Agent-to-Agent communication.",
 )
 
-# CORS setup for web client compatibility
+# CORS setup for web client compatibility (Strict W3C/Fetch spec compliant)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "http://localhost:8090",
+        "http://127.0.0.1:8090",
+    ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://.*\.run\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,7 +79,16 @@ app.add_middleware(
 # Background Worker for Out-of-Band Push Notification
 async def dispatch_push_notification(push_url: str, task_id: str, decision: str, study_id: str, cohort: str):
     """Deliver terminal task completion webhook to Gemini Enterprise."""
+    safe, reason = is_safe_webhook_url(push_url)
+    if not safe:
+        logger.error(
+            f"SSRF Guard Blocked push notification to {push_url}: {reason}",
+            extra={"extra_data": {"taskId": task_id, "pushUrl": push_url, "reason": reason}},
+        )
+        return
+
     try:
+        now_utc = datetime.now(timezone.utc).isoformat()
         payload = {
             "jsonrpc": "2.0",
             "method": "a2a.tasks.notify",
@@ -76,7 +99,7 @@ async def dispatch_push_notification(push_url: str, task_id: str, decision: str,
                     "studyId": study_id,
                     "cohort": cohort,
                     "decision": decision,
-                    "signedOffAt": "2026-09-03T18:00:00Z",
+                    "signedOffAt": now_utc,
                     "auditedBy": "Dr. Medical Director (GxP e-Sign)",
                     "compliance": "21 CFR Part 11 Electronic Signature Verified",
                 },
@@ -303,6 +326,15 @@ async def handle_task_dispatch(
     cohort = params.get("cohort") or params.get("input", {}).get("cohort") or "Cohort-B"
     push_url = params.get("pushUrl") or params.get("pushNotificationConfig", {}).get("url")
 
+    # SSRF Guard: Validate push_url if provided
+    if push_url:
+        safe, reason = is_safe_webhook_url(push_url)
+        if not safe:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Insecure or prohibited pushUrl (SSRF Guard Active): {reason}",
+            )
+
     # Generate the dual-dialect surface with sealed state tokens
     surface = build_clinical_review_surface(
         task_id=task_id,
@@ -419,6 +451,8 @@ async def handle_ui_action(
             cohort=cohort,
         )
 
+    now_utc = datetime.now(timezone.utc).isoformat()
+
     # Return finalized task response
     return {
         "jsonrpc": "2.0",
@@ -438,11 +472,11 @@ async def handle_ui_action(
                 "tokenIssuedAt": state_claims.get("iat"),
                 "tokenExpiresAt": state_claims.get("exp"),
                 "jtiNonce": state_claims.get("jti"),
-                "verifiedAt": "2026-09-03T18:05:00Z",
+                "verifiedAt": now_utc,
                 "gxPCompliant": True,
                 "electronicSignature": {
                     "meaning": "I verify that I am the authorized clinical investigator and have reviewed all patient safety data.",
-                    "timestamp": "2026-09-03T18:05:00Z",
+                    "timestamp": now_utc,
                     "cbfPart11Compliant": True,
                 },
             },

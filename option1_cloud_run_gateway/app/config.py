@@ -2,7 +2,7 @@
 
 from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, model_validator
 
 
 class Settings(BaseSettings):
@@ -43,6 +43,24 @@ class Settings(BaseSettings):
         default=60.0,
         description="HTTP timeout when proxying to downstream agent"
     )
+
+    @model_validator(mode="after")
+    def validate_production_secrets(self) -> "Settings":
+        """Enforce strict secret entropy in production to prevent hardcoded key exploits."""
+        if self.APP_ENV.lower() == "production":
+            insecure_defaults = [
+                "Enterprise-gxp-clinical-vault-super-secure-hmac-sha256-key-2026",
+                "secret",
+                "changeme",
+                "default",
+                "test",
+            ]
+            if not self.JWT_SECRET or self.JWT_SECRET in insecure_defaults or len(self.JWT_SECRET) < 32:
+                raise ValueError(
+                    "CRITICAL GxP SECURITY VIOLATION: Default or weak JWT_SECRET cannot be used in production! "
+                    "Configure a strong cryptographic secret (>= 32 characters) via JWT_SECRET environment variable."
+                )
+        return self
 
 
 settings = Settings()

@@ -235,6 +235,22 @@ async def compile_drawio_xml_to_a2a_dag(request: DiagramCompileRequest):
     if not xml_content:
         raise HTTPException(status_code=400, detail="Missing Draw.io XML payload in request (expected 'drawio_xml' or 'xml').")
 
+    # XML DoS Guard: Enforce maximum payload size of 10MB
+    MAX_XML_BYTES = 10 * 1024 * 1024
+    if len(raw_input.encode("utf-8")) > MAX_XML_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail="XML payload exceeds maximum permitted size of 10MB (XML DoS Protection).",
+        )
+
+    # XXE & Entity Expansion Bomb Guard: Reject DOCTYPE, ENTITY, and SYSTEM references
+    raw_lower = raw_input.lower()
+    if "<!doctype" in raw_lower or "<!entity" in raw_lower or ("system" in raw_lower and "<!" in raw_input):
+        raise HTTPException(
+            status_code=400,
+            detail="Forbidden XML structure: DOCTYPE and ENTITY declarations are not permitted (XXE/DoS Protection).",
+        )
+
     if not xml_content.startswith("<mxGraphModel"):
         # Handle wrapping in <mxfile> if exported from draw.io full editor
         match = re.search(r"<mxGraphModel.*?</mxGraphModel>", xml_content, re.DOTALL)

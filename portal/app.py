@@ -55,7 +55,15 @@ app = FastAPI(title="Enterprise A2A Enterprise Gateway Test Console")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "http://localhost:8090",
+        "http://127.0.0.1:8090",
+    ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://.*\.run\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -114,7 +122,7 @@ async def trigger_live_benchmark_run():
     bench_file = ROOT_DIR / "benchmarks" / "live_empirical_results.json"
     if bench_file.exists():
         data = json.loads(bench_file.read_text(encoding="utf-8"))
-        return {"status": "SUCCESS", "data": data, "timestamp": "2026-09-03T19:15:00Z"}
+        return {"status": "SUCCESS", "data": data, "timestamp": datetime.now(timezone.utc).isoformat()}
     return {"status": "ERROR", "message": "Benchmark results unavailable"}
 
 
@@ -227,7 +235,7 @@ async def option1_test_action(request: Request):
             "cohort": claims.get("cohort"),
             "claims": claims,
             "audit": {
-                "verifiedAt": "2026-09-03T18:50:00Z",
+                "verifiedAt": datetime.now(timezone.utc).isoformat(),
                 "gxPCompliant": True,
                 "signatureType": "21 CFR Part 11 Electronic Signature",
             },
@@ -673,7 +681,7 @@ async def acknowledge_alert(request: Request):
         if alt["id"] == alert_id:
             alt["status"] = "ACKNOWLEDGED"
             alt["acknowledgedBy"] = body.get("userId", "dr.patel@enterprise.internal")
-            alt["acknowledgedAt"] = "2026-09-03T19:25:00Z"
+            alt["acknowledgedAt"] = datetime.now(timezone.utc).isoformat()
             return {"success": True, "alert": alt}
     return JSONResponse(status_code=404, content={"success": False, "error": "Alert not found"})
 
@@ -685,7 +693,7 @@ async def submit_user_feedback(request: Request):
     fb_id = f"fb-{uuid.uuid4().hex[:6]}"
     new_fb = {
         "id": fb_id,
-        "timestamp": "2026-09-03T19:28:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "userId": body.get("userId", "clinician@enterprise.internal"),
         "role": body.get("role", "Clinical Pharmacologist"),
         "rating": body.get("rating", 5),
@@ -910,7 +918,7 @@ async def sso_login_simulation(request: Request):
                 "gxPSignatureEligible": True
             },
             "disclaimerAccepted": True,
-            "loginTimestamp": "2026-09-03T19:30:00Z"
+            "loginTimestamp": datetime.now(timezone.utc).isoformat()
         }
     }
 

@@ -71,18 +71,109 @@ def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str,
         )
 
 
+import ipaddress
+import socket
 import threading
+import urllib.parse
 import uuid
 
-# Thread-safe atomic Idempotency Registry for 21 CFR Part 11 Action State Tokens
-CONSUMED_JTI_REGISTRY = set()
+# Thread-safe bounded Idempotency Registry with TTL-based pruning for 21 CFR Part 11 Action State Tokens
+CONSUMED_JTI_REGISTRY: Dict[str, float] = {}  # jti -> exp timestamp
+MAX_JTI_CACHE_SIZE = 50_000
 _jti_lock = threading.Lock()
+
+
+def _prune_expired_jtis(now_ts: float):
+    """Prune expired JTI nonces from the registry to prevent memory leaks."""
+    expired = [k for k, exp in CONSUMED_JTI_REGISTRY.items() if exp < now_ts]
+    for k in expired:
+        CONSUMED_JTI_REGISTRY.pop(k, None)
+    # If still above capacity (e.g. DoS with valid future timestamps), evict earliest expiring
+    if len(CONSUMED_JTI_REGISTRY) > MAX_JTI_CACHE_SIZE:
+        sorted_keys = sorted(CONSUMED_JTI_REGISTRY.items(), key=lambda x: x[1])
+        excess = len(CONSUMED_JTI_REGISTRY) - MAX_JTI_CACHE_SIZE
+        for k, _ in sorted_keys[:excess]:
+            CONSUMED_JTI_REGISTRY.pop(k, None)
 
 
 def reset_jti_registry():
     """Reset the consumed JTI nonce registry (primarily for test automation)."""
     with _jti_lock:
         CONSUMED_JTI_REGISTRY.clear()
+
+
+def is_safe_webhook_url(url: str, allow_localhost: Optional[bool] = None) -> Tuple[bool, str]:
+    """Validate webhook URL against SSRF attacks (metadata IP, private IPs, non-http schemes).
+
+    Blocks AWS/GCP link-local metadata (169.254.169.254), internal cloud domains,
+    and private RFC 1918 subnets in production environments.
+    """
+    if not url or not isinstance(url, str):
+        return False, "URL is missing or invalid"
+
+    if allow_localhost is None:
+        allow_localhost = settings.APP_ENV.lower() != "production"
+
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception as exc:
+        return False, f"Malformed URL: {exc}"
+
+    if parsed.scheme not in ("http", "https"):
+        return False, f"Invalid scheme '{parsed.scheme}': only http and https are permitted"
+
+    if not allow_localhost and parsed.scheme != "https":
+        return False, "Production webhooks must use secure HTTPS scheme"
+
+    hostname = parsed.hostname
+    if not hostname:
+        return False, "URL contains no valid hostname"
+
+    # Block cloud metadata addresses immediately by hostname
+    blocked_hostnames = {
+        "metadata.google.internal",
+        "metadata.internal",
+        "169.254.169.254",
+        "instance-data",
+        "169.254.169.254.xip.io",
+        "169.254.169.254.nip.io",
+    }
+    if hostname.lower() in blocked_hostnames:
+        return False, f"Access to cloud metadata hostname '{hostname}' is strictly prohibited (SSRF Protection)"
+
+    # Resolve hostname to check IP addresses against link-local, loopback, and private ranges
+    try:
+        addr_info = socket.getaddrinfo(hostname, parsed.port or (443 if parsed.scheme == "https" else 80))
+    except socket.gaierror as exc:
+        if allow_localhost:
+            # In development/test mode, allow synthetic/mock domain names (e.g. *.internal, *.test)
+            return True, "Mock domain permitted in development"
+        return False, f"DNS resolution failed for hostname '{hostname}': {exc}"
+
+    for item in addr_info:
+        ip_str = item[4][0]
+        try:
+            ip = ipaddress.ip_address(ip_str)
+        except ValueError:
+            return False, f"Invalid IP address resolved: {ip_str}"
+
+        # Link-local addresses (169.254.0.0/16, fe80::/10) - ALWAYS BLOCKED
+        if ip.is_link_local:
+            return False, f"Target IP {ip_str} is in blocked link-local range (cloud metadata defense)"
+
+        # Special/reserved/multicast addresses - ALWAYS BLOCKED
+        if ip.is_multicast or ip.is_reserved or ip.is_unspecified:
+            return False, f"Target IP {ip_str} is in blocked special-use range"
+
+        # Loopback addresses (127.0.0.0/8, ::1)
+        if ip.is_loopback and not allow_localhost:
+            return False, f"Target IP {ip_str} is a loopback address (prohibited in production)"
+
+        # RFC 1918 private subnets (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+        if ip.is_private and not allow_localhost:
+            return False, f"Target IP {ip_str} is an internal private network address (prohibited in production)"
+
+    return True, "OK"
 
 
 def create_state_token(payload: Dict[str, Any], ttl_hours: Optional[int] = None, jti: Optional[str] = None) -> str:
@@ -135,13 +226,16 @@ def verify_state_token(token: str, enforce_idempotency: bool = False) -> Dict[st
         if enforce_idempotency:
             jti = claims.get("jti")
             if jti:
+                now_ts = datetime.now(timezone.utc).timestamp()
+                exp_ts = float(claims.get("exp", now_ts + settings.STATE_TOKEN_TTL_HOURS * 3600))
                 with _jti_lock:
+                    _prune_expired_jtis(now_ts)
                     if jti in CONSUMED_JTI_REGISTRY:
                         raise HTTPException(
                             status_code=status.HTTP_409_CONFLICT,
                             detail=f"Action Already Executed: State Token JTI '{jti}' has already been consumed. (Idempotency Guard Active)",
                         )
-                    CONSUMED_JTI_REGISTRY.add(jti)
+                    CONSUMED_JTI_REGISTRY[jti] = exp_ts
 
         return claims
     except jwt.ExpiredSignatureError:
