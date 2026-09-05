@@ -4,13 +4,18 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${SCRIPT_DIR}"
 
+PYTHON="${SCRIPT_DIR}/../.venv/bin/python"
+if [ ! -f "${PYTHON}" ]; then
+    PYTHON="python3"
+fi
+
 echo "Compiling Protobuf definitions for a2a.v1..."
 
 mkdir -p a2a/v1
 touch a2a/__init__.py
 touch a2a/v1/__init__.py
 
-python3 -m grpc_tools.protoc \
+"${PYTHON}" -m grpc_tools.protoc \
     -Iprotos \
     --python_out=. \
     --grpc_python_out=. \

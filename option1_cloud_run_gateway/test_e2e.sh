@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "${SCRIPT_DIR}"
+
+PYTHON="${SCRIPT_DIR}/../.venv/bin/python"
+if [ ! -f "${PYTHON}" ]; then
+    PYTHON="python3"
+fi
+
 PORT=8088
 GATEWAY_URL="http://127.0.0.1:${PORT}"
 
@@ -8,11 +16,11 @@ echo "=========================================================="
 echo " Starting Option 1: Cloud Run Interceptor Gateway E2E Test"
 echo "=========================================================="
 
-# Start server in background using project virtualenv if active or python3
+# Start server in background using project virtualenv
 export APP_ENV="development"
 export PORT="${PORT}"
 
-python3 -m uvicorn app.main:app --host 127.0.0.1 --port ${PORT} &
+"${PYTHON}" -m uvicorn app.main:app --host 127.0.0.1 --port ${PORT} &
 SERVER_PID=$!
 
 cleanup() {
@@ -34,7 +42,7 @@ echo ""
 echo "--- Step 1: Testing A2A Discovery Endpoint ---"
 DISCOVERY_RESP=$(curl -s -X GET "${GATEWAY_URL}/.well-known/agent.json")
 echo "Discovery Response:"
-echo "${DISCOVERY_RESP}" | python3 -m json.tool
+echo "${DISCOVERY_RESP}" | "${PYTHON}" -m json.tool
 
 echo ""
 echo "--- Step 2: Testing Task Dispatch with ADK Contamination ---"
@@ -63,10 +71,10 @@ TASK_RESP=$(curl -s -X POST "${GATEWAY_URL}/a2a/tasks" \
   -d "${TASK_PAYLOAD}")
 
 echo "Task Dispatch Response (Sanitized & Sealed A2UI Artifact):"
-echo "${TASK_RESP}" | python3 -m json.tool
+echo "${TASK_RESP}" | "${PYTHON}" -m json.tool
 
 # Extract stateToken from Approve action
-APPROVE_TOKEN=$(echo "${TASK_RESP}" | python3 -c "import sys, json; data=json.load(sys.stdin); actions=data['result']['artifact']['a2ui']['actions']; print(next(a['stateToken'] for a in actions if a['id']=='action_approve'))")
+APPROVE_TOKEN=$(echo "${TASK_RESP}" | "${PYTHON}" -c "import sys, json; data=json.load(sys.stdin); actions=data['result']['artifact']['a2ui']['actions']; print(next(a['stateToken'] for a in actions if a['id']=='action_approve'))")
 
 echo ""
 echo "Extracted HMAC-SHA256 State Token:"
@@ -74,7 +82,7 @@ echo "${APPROVE_TOKEN}"
 
 echo ""
 echo "--- Step 3: Simulating 48-Hour Stateless User Sign-off (UI Action Callback) ---"
-ACTION_PAYLOAD=$(python3 -c "import json; print(json.dumps({'jsonrpc': '2.0', 'method': 'a2a.ui.action', 'params': {'stateToken': '${APPROVE_TOKEN}'}, 'id': 'e2e-action-1'}))")
+ACTION_PAYLOAD=$("${PYTHON}" -c "import json; print(json.dumps({'jsonrpc': '2.0', 'method': 'a2a.ui.action', 'params': {'stateToken': '${APPROVE_TOKEN}'}, 'id': 'e2e-action-1'}))")
 
 ACTION_RESP=$(curl -s -X POST "${GATEWAY_URL}/a2a/ui/action" \
   -H "Authorization: Bearer mock-dev-token" \
@@ -82,12 +90,12 @@ ACTION_RESP=$(curl -s -X POST "${GATEWAY_URL}/a2a/ui/action" \
   -d "${ACTION_PAYLOAD}")
 
 echo "UI Action Response (Audit Trail & Verification):"
-echo "${ACTION_RESP}" | python3 -m json.tool
+echo "${ACTION_RESP}" | "${PYTHON}" -m json.tool
 
 echo ""
 echo "--- Step 4: Tampered State Token Security Guard Verification ---"
 TAMPERED_TOKEN="${APPROVE_TOKEN%????}xxxx"
-TAMPERED_PAYLOAD=$(python3 -c "import json; print(json.dumps({'jsonrpc': '2.0', 'method': 'a2a.ui.action', 'params': {'stateToken': '${TAMPERED_TOKEN}'}, 'id': 'e2e-action-tamper'}))")
+TAMPERED_PAYLOAD=$("${PYTHON}" -c "import json; print(json.dumps({'jsonrpc': '2.0', 'method': 'a2a.ui.action', 'params': {'stateToken': '${TAMPERED_TOKEN}'}, 'id': 'e2e-action-tamper'}))")
 
 TAMPER_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${GATEWAY_URL}/a2a/ui/action" \
   -H "Authorization: Bearer mock-dev-token" \

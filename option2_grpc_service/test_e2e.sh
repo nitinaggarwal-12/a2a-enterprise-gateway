@@ -4,6 +4,11 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${SCRIPT_DIR}"
 
+PYTHON="${SCRIPT_DIR}/../.venv/bin/python"
+if [ ! -f "${PYTHON}" ]; then
+    PYTHON="python3"
+fi
+
 GRPC_PORT=50055
 export GRPC_PORT="${GRPC_PORT}"
 export GRPC_HOST="127.0.0.1"
@@ -17,7 +22,7 @@ echo "Step 1: Compiling Protobufs..."
 
 echo ""
 echo "Step 2: Starting gRPC Server in background on port ${GRPC_PORT}..."
-python3 -m server.server &
+"${PYTHON}" -m server.server &
 SERVER_PID=$!
 
 cleanup() {
@@ -30,7 +35,7 @@ sleep 1.5
 
 echo ""
 echo "Step 3: Running gRPC Client Demo & Integration Tests..."
-python3 -m client.client_example "127.0.0.1:${GRPC_PORT}"
+"${PYTHON}" -m client.client_example "127.0.0.1:${GRPC_PORT}"
 
 echo ""
 echo "=========================================================="
