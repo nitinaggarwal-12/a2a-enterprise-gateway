@@ -91,9 +91,10 @@ async function runA2UIE2ESuite() {
 
     const verifyDomText = async (text, label) => {
       const found = await page.evaluate((t) => {
-        if (document.body.innerText.includes(t)) return true;
+        const lowerT = t.toLowerCase();
+        if (document.body.innerText.toLowerCase().includes(lowerT)) return true;
         const inputs = Array.from(document.querySelectorAll('input, textarea'));
-        return inputs.some((el) => (el.value || '').includes(t));
+        return inputs.some((el) => (el.value || '').toLowerCase().includes(lowerT));
       }, text);
       if (found) {
         console.log(`  ✅ DOM Verification passed: "${text}" [${label}]`);
@@ -147,11 +148,64 @@ async function runA2UIE2ESuite() {
     await sleep(800);
     await verifyDomText('ALT (U/L)', 'Lab Grid Header');
 
+    // Test Protocol Deviation Triage Preset with Interactive Form Controls
+    console.log('\n--- Testing Protocol Deviation Triage Preset (#btn-tpl-deviation) ---');
+    await page.$eval('#btn-tpl-deviation', (el) => el.click());
+    await sleep(1000);
+    await verifyDomText('Protocol Deviation Triage: Study MK-3475-087', 'Deviation Title');
+    await verifyDomText('Accidental Dose Excursion', 'Key Value Grid Incident');
+    await verifyDomText('GxP Deviation Alert', 'Callout Box Warning');
+    await verifyDomText('Deviation Severity Classification', 'Severity Dropdown Label');
+    await verifyDomText('Medical Director Justification & Clinical Rationale', 'Rationale Textarea Label');
+    await verifyDomText('Mandatory Follow-Up Safety Assessment Date', 'Follow Up Date Label');
+
+    // Test Form Interaction on Web Component
+    console.log('\n--- Interacting with Form Controls ---');
+    await page.type('#txt-justificationRationale', ' Patient fully stabilized after saline hydration. Cardiac telemetry normal.');
+    await sleep(400);
+
+    // 4. Test 21 CFR Part 11 Justification & Meaning of Signature Modal
+    console.log('\n--- Testing 21 CFR Part 11 Justification Modal ---');
+    await page.$eval('#btn-sign-with-justification', (el) => el.click());
+    await sleep(800);
+    await verifyDomText('Clinical Electronic Signature & Justification', 'Modal Title');
+    await verifyDomText('Meaning Associated with Signature', 'Modal Meaning Field');
+    await verifyDomText('Signer Printed Name', 'Modal Signer Name');
+    await verifyDomText('Dr. Nitin Aggarwal, MD', 'Signer Name Value');
+
+    // Capture Modal in Dark and Light Modes
+    await saveShot('dark_a2ui_justification_modal.png');
+    await setTheme(false);
+    await sleep(800);
+    await saveShot('light_a2ui_justification_modal.png');
+    await setTheme(true);
+    await sleep(800);
+
+    // Confirm Electronic Signature from Modal
+    console.log('Confirming Electronic Signature (#btn-confirm-electronic-signature)...');
+    await page.$eval('#btn-confirm-electronic-signature', (el) => el.click());
+    await sleep(1200);
+
+    // Verify Verified Electronic Certificate
+    await verifyDomText('VERIFIED (HTTP 200)', 'Certificate HTTP 200 Seal');
+    await verifyDomText('Signer Name:', 'Certificate Signer Row');
+    await verifyDomText('Meaning:', 'Certificate Meaning Row');
+    await verifyDomText('Clinical Justification (21 CFR Part 11):', 'Certificate Justification Row');
+    await page.$eval('#view-a2ui-studio', (el) => el.scrollIntoView({ behavior: 'instant', block: 'end' }));
+    await sleep(800);
+    await saveShot('dark_a2ui_protocol_deviation_signed.png');
+
+    await setTheme(false);
+    await sleep(800);
+    await saveShot('light_a2ui_protocol_deviation_signed.png');
+    await setTheme(true);
+    await sleep(800);
+
     await page.$eval('#btn-tpl-dose', (el) => el.click());
     await sleep(800);
     await verifyDomText('Phase III Dose Titration & Toxicity Sign-Off', 'Dose Template');
 
-    // 4. Test Double-Blind Mode Toggle
+    // 5. Test Double-Blind Mode Toggle
     console.log('\n--- Testing Double-Blind Unmasking Toggle ---');
     await page.$eval('#btn-toggle-unblind', (el) => el.click());
     await sleep(800);

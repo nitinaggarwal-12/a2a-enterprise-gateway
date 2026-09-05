@@ -73,6 +73,22 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
         "role": "QA Director",
     })
 
+    task_dev = f"task-dev-{uuid.uuid4().hex[:8]}"
+    token_dev_approve = create_state_token({
+        "taskId": task_dev,
+        "studyId": "MK-3475-087",
+        "subjectId": "US-101-0014",
+        "decision": "APPROVE_DEVIATION_ACTION",
+        "role": "Medical Safety Director",
+    })
+    token_dev_escalate = create_state_token({
+        "taskId": task_dev,
+        "studyId": "MK-3475-087",
+        "subjectId": "US-101-0014",
+        "decision": "ESCALATE_SAFETY_BOARD",
+        "role": "Medical Safety Director",
+    })
+
     return {
         "dose_titration": {
             "id": "dose_titration",
@@ -323,6 +339,99 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
                 ],
             },
         },
+        "protocol_deviation_triage": {
+            "id": "protocol_deviation_triage",
+            "name": "Clinical Protocol Deviation & Overdose Triage",
+            "description": "Interactive GxP form controls: text input for medical justification, dropdown for deviation classification, radio buttons for subject action, and scheduled amendment date picker.",
+            "category": "Clinical Operations",
+            "a2ui": {
+                "schemaVersion": "1.0.0",
+                "surfaceType": "a2ui_card",
+                "id": f"card-deviation-{task_dev}",
+                "header": {
+                    "title": "Protocol Deviation Triage: Study MK-3475-087",
+                    "subtitle": "Subject US-101-0014 | Site 101 (Boston Clinical Research) | 21 CFR Part 11",
+                    "statusBadge": "DEVIATION_PENDING_REVIEW",
+                    "avatarIcon": "fa-clipboard-check",
+                },
+                "sections": [
+                    {
+                        "type": "key_value_grid",
+                        "title": "Reported Deviation Parameters",
+                        "items": [
+                            {"label": "Study Protocol", "value": "MK-3475-087"},
+                            {"label": "Subject ID", "value": "US-101-0014 (Cohort-B)"},
+                            {"label": "Site Location", "value": "Site 101 - Boston Clinical"},
+                            {"label": "Incident Nature", "value": "Accidental Dose Excursion (450mg vs 300mg assigned)"},
+                        ],
+                    },
+                    {
+                        "type": "callout_box",
+                        "severity": "WARNING",
+                        "text": "GxP Deviation Alert: Subject received 150mg excess dose during Cycle 2 Day 1 administration. Vital signs stable; immediate medical monitor disposition required within 24h per ICH GCP E6(R2).",
+                    },
+                    {
+                        "type": "dropdown_select",
+                        "id": "deviation_severity",
+                        "name": "deviationSeverity",
+                        "label": "Deviation Severity Classification",
+                        "placeholder": "Select severity tier...",
+                        "defaultValue": "Major",
+                        "options": [
+                            {"label": "Minor (No Subject Safety Impact)", "value": "Minor"},
+                            {"label": "Major (Potential Safety Impact)", "value": "Major"},
+                            {"label": "Critical (ICH GCP Integrity Breach)", "value": "Critical"},
+                        ],
+                    },
+                    {
+                        "type": "radio_group",
+                        "id": "recommended_action",
+                        "name": "recommendedAction",
+                        "label": "Clinical Trial Committee Recommended Action",
+                        "defaultValue": "Maintain Patient on Reduced Dose",
+                        "options": [
+                            {"label": "Maintain Patient on Reduced Dose (250mg)", "value": "Maintain Patient on Reduced Dose"},
+                            {"label": "Temporarily Hold Treatment Pending PK Labs", "value": "Hold Treatment"},
+                            {"label": "Discontinue Subject from Investigational Product", "value": "Discontinue Subject"},
+                        ],
+                    },
+                    {
+                        "type": "text_input",
+                        "id": "justification_rationale",
+                        "name": "justificationRationale",
+                        "label": "Medical Director Justification & Clinical Rationale (21 CFR Part 11 § 11.50)",
+                        "multiline": True,
+                        "placeholder": "Enter detailed clinical rationale, safety monitoring plan, and institutional IRB/IEC notification summary...",
+                        "defaultValue": "Subject exhibited transient Grade 1 nausea with normal AST/ALT liver enzymes. Safety profile permits continuation with weekly hepatic biomarker surveillance.",
+                    },
+                    {
+                        "type": "date_picker",
+                        "id": "follow_up_date",
+                        "name": "followUpDate",
+                        "label": "Mandatory Follow-Up Safety Assessment Date",
+                        "defaultValue": "2026-09-12",
+                    },
+                ],
+                "actions": [
+                    {
+                        "id": "action_approve_deviation",
+                        "label": "Sign & Submit GxP Deviation Triage",
+                        "style": "PRIMARY",
+                        "actionType": "SUBMIT_STATE",
+                        "targetUrl": "/a2a/ui/action",
+                        "stateToken": token_dev_approve,
+                    },
+                    {
+                        "id": "action_escalate_safety",
+                        "label": "Escalate to Global Safety Board",
+                        "style": "DESTRUCTIVE",
+                        "actionType": "SUBMIT_STATE",
+                        "targetUrl": "/a2a/ui/action",
+                        "stateToken": token_dev_escalate,
+                    },
+                ],
+            },
+        },
     }
 
 
@@ -416,6 +525,61 @@ def transpile_a2ui_to_google_card_v2(a2ui_card: Dict[str, Any], unblind: bool = 
                         "text": f"Status: <b>{step.get('status')}</b> | Stamp: <code>{step.get('hash')}</code>",
                     }
                 })
+
+        elif sec_type == "text_input":
+            is_multiline = sec.get("multiline", False)
+            widgets.append({
+                "textInput": {
+                    "name": sec.get("name", sec.get("id", "text_input")),
+                    "label": sec.get("label", "Enter value"),
+                    "type": "MULTIPLE_LINE" if is_multiline else "SINGLE_LINE",
+                    "hintText": sec.get("placeholder", ""),
+                    "value": sec.get("defaultValue", ""),
+                }
+            })
+
+        elif sec_type == "dropdown_select":
+            items = []
+            for opt in sec.get("options", []):
+                items.append({
+                    "text": opt.get("label", opt.get("text", "")),
+                    "value": opt.get("value", ""),
+                    "selected": opt.get("value") == sec.get("defaultValue", ""),
+                })
+            widgets.append({
+                "selectionInput": {
+                    "name": sec.get("name", sec.get("id", "select_input")),
+                    "label": sec.get("label", "Select an option"),
+                    "type": "DROPDOWN",
+                    "items": items,
+                }
+            })
+
+        elif sec_type == "radio_group":
+            items = []
+            for opt in sec.get("options", []):
+                items.append({
+                    "text": opt.get("label", opt.get("text", "")),
+                    "value": opt.get("value", ""),
+                    "selected": opt.get("value") == sec.get("defaultValue", ""),
+                })
+            widgets.append({
+                "selectionInput": {
+                    "name": sec.get("name", sec.get("id", "radio_input")),
+                    "label": sec.get("label", "Choose option"),
+                    "type": "RADIO_BUTTON",
+                    "items": items,
+                }
+            })
+
+        elif sec_type == "date_picker":
+            widgets.append({
+                "dateTimePicker": {
+                    "name": sec.get("name", sec.get("id", "date_input")),
+                    "label": sec.get("label", "Select Date"),
+                    "type": "DATE_ONLY",
+                }
+            })
 
         if widgets:
             g_sec = {"widgets": widgets}
@@ -556,6 +720,73 @@ def transpile_a2ui_to_slack_block_kit(a2ui_card: Dict[str, Any], unblind: bool =
                 ms_text += f"{icon} *{s.get('role')}* ({s.get('name')}): `{s.get('status')}`\n"
             blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": ms_text}})
 
+        elif sec_type == "text_input":
+            is_multiline = sec.get("multiline", False)
+            blocks.append({
+                "type": "input",
+                "block_id": f"block_{sec.get('id', 'text')}",
+                "label": {"type": "plain_text", "text": sec.get("label", "Input")[:75]},
+                "element": {
+                    "type": "plain_text_input",
+                    "action_id": sec.get("name", sec.get("id", "input_field")),
+                    "multiline": is_multiline,
+                    "placeholder": {"type": "plain_text", "text": sec.get("placeholder", "Enter text")[:75]},
+                },
+                "optional": sec.get("optional", True),
+            })
+
+        elif sec_type == "dropdown_select":
+            options = []
+            for opt in sec.get("options", []):
+                options.append({
+                    "text": {"type": "plain_text", "text": opt.get("label", opt.get("text", ""))[:75]},
+                    "value": opt.get("value", ""),
+                })
+            blocks.append({
+                "type": "input",
+                "block_id": f"block_{sec.get('id', 'select')}",
+                "label": {"type": "plain_text", "text": sec.get("label", "Select Option")[:75]},
+                "element": {
+                    "type": "static_select",
+                    "action_id": sec.get("name", sec.get("id", "select_field")),
+                    "placeholder": {"type": "plain_text", "text": sec.get("placeholder", "Choose option")[:75]},
+                    "options": options[:100],
+                },
+                "optional": sec.get("optional", True),
+            })
+
+        elif sec_type == "radio_group":
+            options = []
+            for opt in sec.get("options", []):
+                options.append({
+                    "text": {"type": "plain_text", "text": opt.get("label", opt.get("text", ""))[:75]},
+                    "value": opt.get("value", ""),
+                })
+            blocks.append({
+                "type": "input",
+                "block_id": f"block_{sec.get('id', 'radio')}",
+                "label": {"type": "plain_text", "text": sec.get("label", "Options")[:75]},
+                "element": {
+                    "type": "radio_buttons",
+                    "action_id": sec.get("name", sec.get("id", "radio_field")),
+                    "options": options[:100],
+                },
+                "optional": sec.get("optional", True),
+            })
+
+        elif sec_type == "date_picker":
+            blocks.append({
+                "type": "input",
+                "block_id": f"block_{sec.get('id', 'date')}",
+                "label": {"type": "plain_text", "text": sec.get("label", "Select Date")[:75]},
+                "element": {
+                    "type": "datepicker",
+                    "action_id": sec.get("name", sec.get("id", "date_field")),
+                    "placeholder": {"type": "plain_text", "text": "Select a date"},
+                },
+                "optional": sec.get("optional", True),
+            })
+
     if actions:
         elements = []
         for act in actions:
@@ -694,6 +925,57 @@ def transpile_a2ui_to_teams_adaptive_card(a2ui_card: Dict[str, Any], unblind: bo
                 for s in sec.get("steps", [])
             ]
             body.append({"type": "FactSet", "facts": ms_facts})
+
+        elif sec_type == "text_input":
+            body.append({
+                "type": "Input.Text",
+                "id": sec.get("name", sec.get("id", "textInput")),
+                "label": sec.get("label", "Text Input"),
+                "placeholder": sec.get("placeholder", ""),
+                "isMultiline": sec.get("multiline", False),
+                "value": sec.get("defaultValue", ""),
+                "isRequired": not sec.get("optional", True),
+            })
+
+        elif sec_type == "dropdown_select":
+            choices = [
+                {"title": opt.get("label", opt.get("text", "")), "value": opt.get("value", "")}
+                for opt in sec.get("options", [])
+            ]
+            body.append({
+                "type": "Input.ChoiceSet",
+                "id": sec.get("name", sec.get("id", "dropdownSelect")),
+                "label": sec.get("label", "Select Option"),
+                "placeholder": sec.get("placeholder", "Choose option"),
+                "style": "compact",
+                "value": sec.get("defaultValue", ""),
+                "choices": choices,
+                "isRequired": not sec.get("optional", True),
+            })
+
+        elif sec_type == "radio_group":
+            choices = [
+                {"title": opt.get("label", opt.get("text", "")), "value": opt.get("value", "")}
+                for opt in sec.get("options", [])
+            ]
+            body.append({
+                "type": "Input.ChoiceSet",
+                "id": sec.get("name", sec.get("id", "radioGroup")),
+                "label": sec.get("label", "Select Option"),
+                "style": "expanded",
+                "value": sec.get("defaultValue", ""),
+                "choices": choices,
+                "isRequired": not sec.get("optional", True),
+            })
+
+        elif sec_type == "date_picker":
+            body.append({
+                "type": "Input.Date",
+                "id": sec.get("name", sec.get("id", "datePicker")),
+                "label": sec.get("label", "Select Date"),
+                "value": sec.get("defaultValue", ""),
+                "isRequired": not sec.get("optional", True),
+            })
 
     teams_actions = []
     for act in actions:

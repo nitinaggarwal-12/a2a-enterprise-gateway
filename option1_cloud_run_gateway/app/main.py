@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 from .config import settings
 from .sanitizer import sanitize_headers, sanitize_payload
-from .security import verify_google_oidc, verify_state_token
+from .security import consume_state_token, verify_google_oidc, verify_state_token
 from .a2ui_builder import build_clinical_review_surface
 
 
@@ -298,8 +298,22 @@ async def handle_ui_action(
             detail="Missing required stateToken in action payload",
         )
 
-    # Verify signature and unpack claims statelessly
-    state_claims = verify_state_token(state_token)
+    # Extract form inputs & clinical justifications if provided in A2UI action
+    form_inputs = (
+        cleaned_payload.get("formInputs")
+        or params.get("formInputs")
+        or cleaned_payload.get("inputs")
+        or {}
+    )
+    justification = (
+        cleaned_payload.get("justification")
+        or params.get("justification")
+        or (form_inputs.get("justificationRationale") if isinstance(form_inputs, dict) else "")
+        or ""
+    )
+
+    # Atomically verify signature and consume JTI nonce statelessly (guards against replay attacks)
+    state_claims = consume_state_token(state_token)
 
     task_id = state_claims.get("taskId", "unknown-task")
     study_id = state_claims.get("studyId", "unknown-study")
@@ -334,12 +348,21 @@ async def handle_ui_action(
             "studyId": study_id,
             "cohort": cohort,
             "stateVerified": True,
+            "jti": state_claims.get("jti"),
+            "formInputs": form_inputs,
+            "justification": justification,
             "audit": {
                 "tokenIssuer": state_claims.get("iss"),
                 "tokenIssuedAt": state_claims.get("iat"),
                 "tokenExpiresAt": state_claims.get("exp"),
+                "jtiNonce": state_claims.get("jti"),
                 "verifiedAt": "2026-09-03T18:05:00Z",
                 "gxPCompliant": True,
+                "electronicSignature": {
+                    "meaning": "I verify that I am the authorized clinical investigator and have reviewed all patient safety data.",
+                    "timestamp": "2026-09-03T18:05:00Z",
+                    "cbfPart11Compliant": True,
+                },
             },
         },
     }

@@ -1884,6 +1884,10 @@
               <i class="fa-solid fa-vial-circle-check text-xs"></i>
               <span>GMP Batch CAPA Release</span>
             </button>
+            <button id="btn-tpl-deviation" @click="selectA2UITemplate('protocol_deviation_triage')" :class="a2uiActiveTemplateKey === 'protocol_deviation_triage' ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 font-black shadow' : 'font-semibold hover:border-amber-400'" :style="a2uiActiveTemplateKey !== 'protocol_deviation_triage' ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl border text-xs transition-all flex items-center space-x-1.5">
+              <i class="fa-solid fa-clipboard-check text-xs"></i>
+              <span>Protocol Deviation (Forms)</span>
+            </button>
           </div>
         </div>
 
@@ -2043,6 +2047,29 @@
                           <!-- Text Paragraph Widget -->
                           <div x-show="widget.textParagraph" class="p-3 rounded-xl border leading-relaxed" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" x-html="widget.textParagraph?.text"></div>
 
+                          <!-- Text Input Widget (Google Workspace Card v2) -->
+                          <div x-show="widget.textInput" class="p-3 rounded-xl border space-y-1.5" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                            <span class="font-bold text-xs" style="color: var(--color-text-secondary);" x-text="widget.textInput?.label"></span>
+                            <div class="p-2.5 rounded-lg border font-sans text-xs leading-relaxed" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);" x-text="widget.textInput?.value || widget.textInput?.placeholder || 'Enter text...'"></div>
+                          </div>
+
+                          <!-- Selection Input Widget (Dropdown / Radio) -->
+                          <div x-show="widget.selectionInput" class="p-3 rounded-xl border space-y-1.5" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                            <div class="flex justify-between items-center">
+                              <span class="font-bold text-xs" style="color: var(--color-text-secondary);" x-text="widget.selectionInput?.label"></span>
+                              <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-blue-500/20 text-blue-400" x-text="widget.selectionInput?.type"></span>
+                            </div>
+                            <div class="p-2 rounded-lg border text-xs font-semibold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                              <span x-text="widget.selectionInput?.items?.find(it => it.selected)?.text || widget.selectionInput?.items?.[0]?.text || 'Select option...'"></span>
+                            </div>
+                          </div>
+
+                          <!-- Date Time Picker Widget -->
+                          <div x-show="widget.dateTimePicker" class="p-3 rounded-xl border flex justify-between items-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                            <span class="font-bold text-xs" style="color: var(--color-text-secondary);" x-text="widget.dateTimePicker?.label"></span>
+                            <span class="px-3 py-1 rounded-lg border font-mono text-xs font-bold text-cyan-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">2026-09-12 (Assigned)</span>
+                          </div>
+
                           <!-- Button List Widget -->
                           <div x-show="widget.buttonList" class="pt-2 flex flex-wrap items-center gap-2">
                             <template x-for="(btn, bIdx) in widget.buttonList?.buttons || []" :key="bIdx">
@@ -2175,15 +2202,88 @@
                 </div>
               </template>
 
+              <!-- Key Value Grid (if present in sections) -->
+              <template x-for="(sec, kvIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.sections?.filter(s => s.type === 'key_value_grid') || []" :key="'kv-' + kvIdx">
+                <div class="p-4 rounded-2xl border space-y-2.5" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <div x-show="sec.title" class="text-xs font-bold" style="color: var(--color-text-primary);" x-text="sec.title"></div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <template x-for="(it, iIdx) in sec.items || []" :key="iIdx">
+                      <div class="p-2.5 rounded-xl border flex flex-col justify-between" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                        <span class="text-[10px] font-mono" style="color: var(--color-text-muted);" x-text="it.label"></span>
+                        <span class="text-xs font-bold" style="color: var(--color-text-primary);" x-text="it.value"></span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Callout Box (if present in sections) -->
+              <template x-for="(sec, cbIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.sections?.filter(s => s.type === 'callout_box') || []" :key="'cb-' + cbIdx">
+                <div class="p-3.5 rounded-2xl border flex items-start space-x-3 text-xs" :class="sec.severity === 'WARNING' || sec.severity === 'CRITICAL' ? 'bg-amber-500/10 text-amber-300 border-amber-500/40' : 'bg-teal-500/10 text-teal-300 border-teal-500/40'">
+                  <i class="fa-solid mt-0.5" :class="sec.severity === 'WARNING' || sec.severity === 'CRITICAL' ? 'fa-triangle-exclamation text-amber-400' : 'fa-circle-info text-teal-400'"></i>
+                  <div class="space-y-0.5 flex-1">
+                    <div class="text-[10px] font-mono font-black uppercase tracking-wider" :class="sec.severity === 'WARNING' || sec.severity === 'CRITICAL' ? 'text-amber-400' : 'text-teal-400'" x-text="'[' + (sec.severity || 'NOTICE') + ']'"></div>
+                    <div class="leading-relaxed font-sans" x-text="sec.text"></div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Dropdown Select (if present in sections) -->
+              <template x-for="(sec, dsIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.sections?.filter(s => s.type === 'dropdown_select') || []" :key="'ds-' + dsIdx">
+                <div class="p-4 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <label class="block text-xs font-bold" style="color: var(--color-text-primary);" x-text="sec.label"></label>
+                  <select :id="'sel-' + (sec.name || sec.id)" x-model="a2uiFormInputs[sec.name || sec.id]" class="w-full p-2.5 rounded-xl text-xs border focus:ring-2 focus:ring-teal-500 outline-none font-medium" style="background-color: var(--color-bg-terminal); color: var(--color-text-primary); border-color: var(--color-border-subtle);">
+                    <template x-for="(opt, oIdx) in sec.options || []" :key="oIdx">
+                      <option :value="opt.value" x-text="opt.label || opt.text"></option>
+                    </template>
+                  </select>
+                </div>
+              </template>
+
+              <!-- Radio Group (if present in sections) -->
+              <template x-for="(sec, rgIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.sections?.filter(s => s.type === 'radio_group') || []" :key="'rg-' + rgIdx">
+                <div class="p-4 rounded-2xl border space-y-2.5" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <label class="block text-xs font-bold" style="color: var(--color-text-primary);" x-text="sec.label"></label>
+                  <div class="space-y-2">
+                    <template x-for="(opt, oIdx) in sec.options || []" :key="oIdx">
+                      <label class="flex items-center space-x-2.5 text-xs p-2.5 rounded-xl border cursor-pointer hover:border-teal-500/50 transition-colors" :class="a2uiFormInputs[sec.name || sec.id] === opt.value ? 'bg-teal-500/10 border-teal-500/50' : ''" style="border-color: var(--color-border-subtle);">
+                        <input type="radio" :name="sec.name || sec.id" :value="opt.value" x-model="a2uiFormInputs[sec.name || sec.id]" class="accent-teal-500">
+                        <span class="font-medium" style="color: var(--color-text-primary);" x-text="opt.label || opt.text"></span>
+                      </label>
+                    </template>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Text Input / Clinical Rationale (if present in sections) -->
+              <template x-for="(sec, tiIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.sections?.filter(s => s.type === 'text_input') || []" :key="'ti-' + tiIdx">
+                <div class="p-4 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <label class="block text-xs font-bold" style="color: var(--color-text-primary);" x-text="sec.label"></label>
+                  <textarea :id="'txt-' + (sec.name || sec.id)" x-model="a2uiFormInputs[sec.name || sec.id]" :placeholder="sec.placeholder" rows="3" class="w-full p-3 rounded-xl text-xs font-sans border focus:ring-2 focus:ring-teal-500 outline-none resize-y leading-relaxed" style="background-color: var(--color-bg-terminal); color: var(--color-text-primary); border-color: var(--color-border-subtle);"></textarea>
+                </div>
+              </template>
+
+              <!-- Date Picker (if present in sections) -->
+              <template x-for="(sec, dpIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.sections?.filter(s => s.type === 'date_picker') || []" :key="'dp-' + dpIdx">
+                <div class="p-4 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <label class="block text-xs font-bold" style="color: var(--color-text-primary);" x-text="sec.label"></label>
+                  <input :id="'date-' + (sec.name || sec.id)" type="date" x-model="a2uiFormInputs[sec.name || sec.id]" class="w-full p-2.5 rounded-xl text-xs border focus:ring-2 focus:ring-teal-500 outline-none font-mono" style="background-color: var(--color-bg-terminal); color: var(--color-text-primary); border-color: var(--color-border-subtle);">
+                </div>
+              </template>
+
               <!-- Web Card Actions -->
               <div class="pt-3 border-t flex flex-wrap items-center justify-between gap-3" style="border-color: var(--color-border-subtle);">
-                <div class="flex items-center space-x-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <template x-for="(act, aIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.actions || []" :key="aIdx">
                     <button @click="executeA2UIAction(act.stateToken, act.id)" :class="act.style === 'PRIMARY' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black shadow-md' : 'bg-rose-600 hover:bg-rose-500 text-white font-bold'" class="px-4 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 group">
                       <i class="fa-solid fa-signature text-xs"></i>
                       <span x-text="act.label"></span>
                     </button>
                   </template>
+                  <button id="btn-sign-with-justification" @click="openJustificationModal(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'action_signed_with_justification')" class="px-3.5 py-2 rounded-xl border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-stamp text-xs"></i>
+                    <span>21 CFR Part 11 Justification Modal</span>
+                  </button>
                 </div>
                 <div class="text-[10px] font-mono" style="color: var(--color-text-muted);">
                   Status: <span class="font-bold text-emerald-400">Validated 21 CFR Part 11</span>
@@ -2237,6 +2337,15 @@
 
                         <!-- Section standard mrkdwn -->
                         <div x-show="blk.type === 'section' && blk.text" class="leading-relaxed" style="color: var(--color-text-primary);" x-html="blk.text?.text?.replace(/\*(.*?)\*/g, '<b>$1</b>')"></div>
+
+                        <!-- Input block (Slack Block Kit) -->
+                        <div x-show="blk.type === 'input'" class="p-3 rounded-xl border space-y-1.5 my-1" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                          <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs" style="color: var(--color-text-primary);" x-text="blk.label?.text"></span>
+                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-400" x-text="blk.element?.type"></span>
+                          </div>
+                          <div class="p-2 rounded-lg border text-xs leading-relaxed" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);" x-text="blk.element?.placeholder?.text || blk.element?.options?.[0]?.text?.text || 'Input value...'"></div>
+                        </div>
 
                         <!-- Divider -->
                         <hr x-show="blk.type === 'divider'" class="my-2 border-slate-700/40">
@@ -2299,6 +2408,27 @@
                     <!-- Warning Container -->
                     <div x-show="item.type === 'Container' && item.style === 'warning'" class="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300">
                       <span x-text="item.items?.[0]?.text"></span>
+                    </div>
+
+                    <!-- Input.Text (Teams Adaptive Card) -->
+                    <div x-show="item.type === 'Input.Text'" class="p-3 rounded-xl border space-y-1" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                      <label class="block font-bold text-xs" style="color: var(--color-text-primary);" x-text="item.label"></label>
+                      <div class="p-2 rounded-lg border text-xs leading-relaxed" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);" x-text="item.value || item.placeholder || 'Enter text...'"></div>
+                    </div>
+
+                    <!-- Input.ChoiceSet (Dropdown / Radio) -->
+                    <div x-show="item.type === 'Input.ChoiceSet'" class="p-3 rounded-xl border space-y-1" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                      <div class="flex justify-between items-center">
+                        <label class="block font-bold text-xs" style="color: var(--color-text-primary);" x-text="item.label"></label>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400" x-text="item.style || 'compact'"></span>
+                      </div>
+                      <div class="p-2 rounded-lg border text-xs font-medium" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);" x-text="item.value || item.choices?.[0]?.title || 'Select...'"></div>
+                    </div>
+
+                    <!-- Input.Date (Teams) -->
+                    <div x-show="item.type === 'Input.Date'" class="p-3 rounded-xl border flex justify-between items-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                      <label class="block font-bold text-xs" style="color: var(--color-text-primary);" x-text="item.label"></label>
+                      <span class="font-mono text-xs font-bold text-indigo-400" x-text="item.value || '2026-09-12'"></span>
                     </div>
 
                     <!-- TextBlock -->
@@ -2373,32 +2503,44 @@
             </div>
 
             <div x-show="a2uiLastActionResult" class="space-y-2 text-xs font-mono">
-              <div class="flex justify-between border-b border-emerald-500/20 pb-1">
-                <span class="text-slate-400">Action ID:</span>
-                <span class="font-bold text-white" x-text="a2uiLastActionResult?.actionId"></span>
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-secondary);">Action ID:</span>
+                <span class="font-bold" style="color: var(--color-text-primary);" x-text="a2uiLastActionResult?.actionId"></span>
               </div>
-              <div class="flex justify-between border-b border-emerald-500/20 pb-1">
-                <span class="text-slate-400">Decision:</span>
-                <span class="font-bold text-emerald-400" x-text="a2uiLastActionResult?.decision"></span>
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-secondary);">Decision:</span>
+                <span class="font-bold" style="color: var(--color-badge-emerald-text);" x-text="a2uiLastActionResult?.decision"></span>
               </div>
-              <div class="flex justify-between border-b border-emerald-500/20 pb-1">
-                <span class="text-slate-400">Consumed JTI Nonce:</span>
-                <span class="font-bold text-cyan-300" x-text="a2uiLastActionResult?.jti"></span>
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);" x-show="a2uiLastActionResult?.electronicSignature?.signerName">
+                <span style="color: var(--color-text-secondary);">Signer Name:</span>
+                <span class="font-bold" style="color: var(--color-text-primary);" x-text="a2uiLastActionResult?.electronicSignature?.signerName"></span>
               </div>
-              <div class="flex justify-between border-b border-emerald-500/20 pb-1">
-                <span class="text-slate-400">Regulatory Standard:</span>
-                <span class="text-white" x-text="a2uiLastActionResult?.audit?.signatureType"></span>
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);" x-show="a2uiLastActionResult?.electronicSignature?.meaning">
+                <span style="color: var(--color-text-secondary);">Meaning:</span>
+                <span class="font-bold text-[10px]" style="color: var(--color-badge-cyan-text);" x-text="a2uiLastActionResult?.electronicSignature?.meaning"></span>
               </div>
-              <div class="text-[10px] text-emerald-400 pt-1">
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-secondary);">Consumed JTI Nonce:</span>
+                <span class="font-bold font-mono" style="color: var(--color-badge-cyan-text);" x-text="a2uiLastActionResult?.jti"></span>
+              </div>
+              <div class="border-b pb-1" style="border-color: var(--color-border-subtle);" x-show="a2uiLastActionResult?.justification">
+                <span class="block text-[10px] font-bold" style="color: var(--color-text-secondary);">Clinical Justification (21 CFR Part 11):</span>
+                <span class="text-[11px] italic font-sans" style="color: var(--color-text-primary);" x-text="a2uiLastActionResult?.justification"></span>
+              </div>
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-secondary);">Regulatory Standard:</span>
+                <span class="font-medium" style="color: var(--color-text-primary);" x-text="a2uiLastActionResult?.audit?.signatureType"></span>
+              </div>
+              <div class="text-[10px] font-bold pt-1" style="color: var(--color-badge-emerald-text);">
                 ✓ Nonce marked as consumed in gateway memory. Any subsequent submission with this token will be rejected with HTTP 409 Conflict.
               </div>
             </div>
           </div>
 
           <!-- Replay Attack 409 Conflict Alert -->
-          <div class="p-5 rounded-2xl border space-y-3" :class="a2uiLastActionError ? 'bg-rose-500/10 border-rose-500/40 text-rose-300' : 'opacity-60'" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+          <div class="p-5 rounded-2xl border space-y-3" :class="a2uiLastActionError ? 'border-rose-500/40' : 'opacity-60'" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 text-rose-400">
+              <span class="text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 text-rose-500 dark:text-rose-400">
                 <i class="fa-solid fa-shield-halved"></i>
                 <span>Idempotency Replay Guard Status</span>
               </span>
@@ -2412,15 +2554,15 @@
             </div>
 
             <div x-show="a2uiLastActionError" class="space-y-2 text-xs font-mono">
-              <div class="p-3 rounded-xl bg-rose-950/60 border border-rose-500/30 text-rose-200">
-                <div class="font-bold text-rose-400">HTTP 409 Conflict Rejection:</div>
-                <div class="text-xs mt-1" x-text="a2uiLastActionError?.error || 'Action Already Executed: State Token JTI has already been consumed.'"></div>
+              <div class="p-3 rounded-xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                <div class="font-bold text-rose-500 dark:text-rose-400">HTTP 409 Conflict Rejection:</div>
+                <div class="text-xs mt-1" style="color: var(--color-text-secondary);" x-text="a2uiLastActionError?.error || 'Action Already Executed: State Token JTI has already been consumed.'"></div>
               </div>
-              <div class="flex justify-between border-b border-rose-500/20 pb-1">
-                <span class="text-slate-400">Replay Attempts Blocked:</span>
-                <span class="font-bold text-amber-400" x-text="a2uiIdempotencyBlockCount"></span>
+              <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-secondary);">Replay Attempts Blocked:</span>
+                <span class="font-bold text-amber-500 dark:text-amber-400" x-text="a2uiIdempotencyBlockCount"></span>
               </div>
-              <div class="text-[10px] text-slate-400 pt-1">
+              <div class="text-[10px] pt-1" style="color: var(--color-text-muted);">
                 Guarantees zero duplicate clinical dosing or duplicate regulatory filings in distributed multi-agent swarms.
               </div>
             </div>
@@ -4360,6 +4502,89 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   </div>
 
   <!-- ========================================================================= -->
+  <!-- 21 CFR PART 11 JUSTIFICATION & MEANING OF SIGNATURE MODAL                 -->
+  <!-- ========================================================================= -->
+  <div id="modal-justification" x-show="a2uiJustificationModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
+    <div class="glass-card p-6 md:p-8 rounded-3xl max-w-2xl w-full space-y-5 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="a2uiJustificationModalOpen = false">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-start border-b pb-4" style="border-color: var(--color-border-subtle);">
+        <div class="space-y-1">
+          <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30">
+              21 CFR Part 11 § 11.50
+            </span>
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              Cryptographic JTI Seal
+            </span>
+          </div>
+          <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
+            Clinical Electronic Signature & Justification
+          </h3>
+          <p class="text-xs font-medium" style="color: var(--color-text-secondary);">
+            Legally binding electronic signature pursuant to FDA 21 CFR Part 11 and ICH GCP E6(R2).
+          </p>
+        </div>
+        <button @click="a2uiJustificationModalOpen = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="space-y-4 text-xs overflow-y-auto custom-scrollbar pr-1">
+        
+        <!-- Signer Identity Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3.5 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+          <div>
+            <label class="block text-[10px] font-mono uppercase font-bold" style="color: var(--color-text-muted);">Signer Printed Name</label>
+            <input id="input-signer-name" type="text" x-model="a2uiSignerName" class="w-full mt-1 p-2 rounded-xl text-xs font-bold border focus:ring-2 focus:ring-teal-500 outline-none" style="background-color: var(--color-bg-card); color: var(--color-text-primary); border-color: var(--color-border-subtle);">
+          </div>
+          <div>
+            <label class="block text-[10px] font-mono uppercase font-bold" style="color: var(--color-text-muted);">Signer Regulatory Role</label>
+            <input id="input-signer-role" type="text" x-model="a2uiSignerRole" class="w-full mt-1 p-2 rounded-xl text-xs font-bold border focus:ring-2 focus:ring-teal-500 outline-none" style="background-color: var(--color-bg-card); color: var(--color-text-primary); border-color: var(--color-border-subtle);">
+          </div>
+        </div>
+
+        <!-- Meaning of Signature Select -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold" style="color: var(--color-text-primary);">Meaning Associated with Signature (§ 11.50(a)(3))</label>
+          <select id="select-signature-meaning" x-model="a2uiSignatureMeaning" class="w-full p-2.5 rounded-xl text-xs border focus:ring-2 focus:ring-teal-500 outline-none font-medium" style="background-color: var(--color-bg-terminal); color: var(--color-text-primary); border-color: var(--color-border-subtle);">
+            <option value="Approval of Clinical Protocol Amendment & Patient Disposition (21 CFR Part 11 § 11.50)">Approval of Clinical Protocol Amendment & Patient Disposition</option>
+            <option value="Review and Concurrence with Investigational Deviation Triage">Review and Concurrence with Investigational Deviation Triage</option>
+            <option value="Formal Escalation to Institutional Review Board (IRB/IEC) & Safety Board">Formal Escalation to Institutional Review Board (IRB/IEC) & Safety Board</option>
+            <option value="Authoritative Batch Release & CAPA Execution (GMP Annex 11)">Authoritative Batch Release & CAPA Execution (GMP Annex 11)</option>
+          </select>
+        </div>
+
+        <!-- Justification & Clinical Rationale -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold" style="color: var(--color-text-primary);">Medical Director Justification & Clinical Notes</label>
+          <textarea id="modal-justification-notes" x-model="a2uiFormInputs.justificationRationale" rows="3" placeholder="Enter clinical rationale, safety evaluation, or regulatory citation..." class="w-full p-3 rounded-xl text-xs border focus:ring-2 focus:ring-teal-500 outline-none resize-y font-sans leading-relaxed" style="background-color: var(--color-bg-terminal); color: var(--color-text-primary); border-color: var(--color-border-subtle);"></textarea>
+        </div>
+
+        <!-- Identity Verification Checkbox -->
+        <label class="flex items-start space-x-3 p-3 rounded-2xl border cursor-pointer hover:border-emerald-500/40 transition-colors" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+          <input type="checkbox" id="chk-signature-affirmation" checked class="mt-0.5 accent-emerald-500 rounded">
+          <span class="text-[11px] leading-relaxed" style="color: var(--color-text-secondary);">
+            I hereby certify under penalty of perjury that this electronic signature is executed under my sole control and constitutes the legally binding equivalent of my traditional handwritten signature per 21 CFR Part 11.
+          </span>
+        </label>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-between items-center pt-3 border-t" style="border-color: var(--color-border-subtle);">
+        <button id="btn-cancel-signature" @click="a2uiJustificationModalOpen = false" class="px-4 py-2 rounded-xl border text-xs font-bold hover:border-rose-400 transition-all" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-secondary);">
+          Cancel
+        </button>
+        <button id="btn-confirm-electronic-signature" @click="confirmJustificationAndSign()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-lg transition-all flex items-center space-x-2">
+          <i class="fa-solid fa-signature"></i>
+          <span>Affirm & Execute Electronic Signature</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- TRAINING SCREENSHOT FULLSCREEN ZOOM MODAL                                 -->
   <!-- ========================================================================= -->
   <div x-show="trainingZoomModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
@@ -4664,6 +4889,18 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         },
         a2uiUnblinded: false,
         a2uiSliderValue: 300,
+        a2uiFormInputs: {
+          deviationSeverity: 'Major',
+          recommendedAction: 'Maintain Patient on Reduced Dose',
+          justificationRationale: 'Subject exhibited transient Grade 1 nausea with normal AST/ALT liver enzymes. Safety profile permits continuation with weekly hepatic biomarker surveillance.',
+          followUpDate: '2026-09-12'
+        },
+        a2uiJustificationModalOpen: false,
+        a2uiPendingActionToken: null,
+        a2uiPendingActionId: null,
+        a2uiSignerName: 'Dr. Nitin Aggarwal, MD (Principal Investigator)',
+        a2uiSignerRole: 'Global Medical Monitor & Clinical Safety Chair',
+        a2uiSignatureMeaning: 'Approval of Clinical Protocol Amendment & Patient Disposition (21 CFR Part 11 § 11.50)',
         a2uiActionExecuting: false,
         a2uiLastActionResult: null,
         a2uiLastActionError: null,
@@ -5324,6 +5561,19 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           this.triggerSparkleCelebration();
         },
 
+        openJustificationModal(token, actionId = 'action_signed_with_justification') {
+          this.a2uiPendingActionToken = token || 
+            this.a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken ||
+            this.a2uiTranspiledOutputs?.canonicalA2UI?.a2ui?.actions?.[0]?.stateToken;
+          this.a2uiPendingActionId = actionId;
+          this.a2uiJustificationModalOpen = true;
+        },
+
+        async confirmJustificationAndSign() {
+          this.a2uiJustificationModalOpen = false;
+          await this.executeA2UIAction(this.a2uiPendingActionToken, this.a2uiPendingActionId);
+        },
+
         async executeA2UIAction(token, actionId = 'action_approve') {
           const actionToken = token || 
             this.a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken ||
@@ -5342,7 +5592,12 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 stateToken: actionToken,
-                actionId: actionId
+                actionId: actionId,
+                formInputs: this.a2uiFormInputs,
+                justification: this.a2uiFormInputs?.justificationRationale || '',
+                signerName: this.a2uiSignerName,
+                signerRole: this.a2uiSignerRole,
+                signatureMeaning: this.a2uiSignatureMeaning
               })
             });
 
