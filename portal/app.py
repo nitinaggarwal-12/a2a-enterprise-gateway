@@ -49,6 +49,7 @@ from option3_dual_plane.mock_services.mock_clinical_db import (
 from portal.advanced_a2a_router import router as advanced_a2a_router
 from portal.cloud_connect_router import router as cloud_connect_router
 from portal.category_killer_router import router as category_killer_router
+from portal.promptcanvas_bridge_router import router as promptcanvas_router
 
 app = FastAPI(title="Enterprise A2A Enterprise Gateway Test Console")
 
@@ -71,6 +72,11 @@ app.include_router(cloud_connect_router, prefix="/api")
 # Mount Flagship Category-Killer Router (FDA eCTD & In-Silico Digital Twins)
 app.include_router(category_killer_router, prefix="/api/flagship")
 app.include_router(category_killer_router, prefix="/api")
+
+# Mount PromptCanvas Visual Architecture Bridge Router
+app.include_router(promptcanvas_router, prefix="/api/promptcanvas")
+app.include_router(promptcanvas_router, prefix="/api")
+
 
 # Mount static directory for screenshots and assets
 static_dir = Path(__file__).resolve().parent / "static"
