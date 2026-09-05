@@ -224,7 +224,19 @@ async function runTrainingE2ESuite() {
     await verifyDomText('roles/run.invoker', 'Dark Step 3 GCP Invoker Role');
     await saveShot('dark_training_03c_gcp_console_iam.png');
 
-    // Step 3d: Gemini Enterprise Workspace Admin Registration
+    // Step 3d: Google Cloud Console - Live Agent Execution Trace (#1-#7)
+    await setGcpTab('execution');
+    await verifyDomText('Live Agent Execution & Subagent Chain', 'Dark Step 3 Execution');
+    await verifyDomText('Completed Multi-Agent Chain', 'Dark Step 3 Chain Card');
+    await saveShot('dark_training_03d_gcp_console_execution.png');
+
+    // Step 3e: Google Cloud Console - 21 CFR Part 11 Python Signer Code
+    await setGcpTab('code');
+    await verifyDomText('Generated 21 CFR Part 11 Python Signer', 'Dark Step 3 Code');
+    await verifyDomText('hmac.compare_digest', 'Dark Step 3 Compare Digest');
+    await saveShot('dark_training_03e_gcp_console_code.png');
+
+    // Step 3f: Gemini Enterprise Workspace Admin Registration
     await setRegistrationMode('workspace');
     await registerExt();
     await verifyDomText('@clinical-gateway', 'Dark Step 3 Mention');
@@ -309,7 +321,19 @@ async function runTrainingE2ESuite() {
     await verifyDomText('Target Service: a2a-gateway', 'Light Step 3 GCP Cloud Run');
     await saveShot('light_training_03c_gcp_console_iam.png');
 
-    // Step 3d: Gemini Enterprise Workspace Admin Registration
+    // Step 3d: Google Cloud Console - Live Agent Execution Trace (#1-#7)
+    await setGcpTab('execution');
+    await verifyDomText('Live Agent Execution & Subagent Chain', 'Light Step 3 Execution');
+    await verifyDomText('Completed Multi-Agent Chain', 'Light Step 3 Chain Card');
+    await saveShot('light_training_03d_gcp_console_execution.png');
+
+    // Step 3e: Google Cloud Console - 21 CFR Part 11 Python Signer Code
+    await setGcpTab('code');
+    await verifyDomText('Generated 21 CFR Part 11 Python Signer', 'Light Step 3 Code');
+    await verifyDomText('hmac.compare_digest', 'Light Step 3 Compare Digest');
+    await saveShot('light_training_03e_gcp_console_code.png');
+
+    // Step 3f: Gemini Enterprise Workspace Admin Registration
     await setRegistrationMode('workspace');
     await registerExt();
     await verifyDomText('@clinical-gateway', 'Light Step 3 Mention');

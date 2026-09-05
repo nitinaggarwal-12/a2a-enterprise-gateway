@@ -46,6 +46,10 @@ from option3_dual_plane.mock_services.mock_clinical_db import (
     compute_adverse_event_variance,
 )
 
+from portal.advanced_a2a_router import router as advanced_a2a_router
+from portal.cloud_connect_router import router as cloud_connect_router
+from portal.category_killer_router import router as category_killer_router
+
 app = FastAPI(title="Enterprise A2A Enterprise Gateway Test Console")
 
 app.add_middleware(
@@ -55,6 +59,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount Advanced A2A Protocol Lab Router
+app.include_router(advanced_a2a_router, prefix="/api/advanced")
+app.include_router(advanced_a2a_router, prefix="/api")
+
+# Mount Cloud Connect & Onboarding Router
+app.include_router(cloud_connect_router, prefix="/api/connect")
+app.include_router(cloud_connect_router, prefix="/api")
+
+# Mount Flagship Category-Killer Router (FDA eCTD & In-Silico Digital Twins)
+app.include_router(category_killer_router, prefix="/api/flagship")
+app.include_router(category_killer_router, prefix="/api")
 
 # Mount static directory for screenshots and assets
 static_dir = Path(__file__).resolve().parent / "static"
