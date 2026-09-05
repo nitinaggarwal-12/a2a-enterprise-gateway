@@ -11,6 +11,7 @@ Welcome to the **Enterprise A2A Gateway** agent workspace. This document provide
 3. **Stateless 21 CFR Part 11 Electronic Signatures**: Use 48-hour HMAC-SHA256 signed state tokens for human-in-the-loop (HITL) dose titration workflows. Never introduce relational database write-locks into approval flows.
 4. **Strict Dual-Theme WCAG AAA Contrast**: All frontend modifications in `portal/static/portal.html` must render cleanly in both Dark Mode (`.dark`) and Light Mode (`.light`).
 5. **Google Signed Chrome E2E Verification**: Every UI transition must be verified using `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` with mandatory 800ms settling delays (`await sleep(800)`).
+6. **Autonomous Issue Remediation (Fix Without Asking)**: To fix an issue, **NEVER ask for approval**. Just fix it, evaluate it, and if the same or other issues are found, fix those and keep doing it continuously until the goal is achieved and verified.
 
 ---
 
