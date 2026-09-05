@@ -292,7 +292,7 @@
   <!-- ========================================================================= -->
   <header class="flex md:hidden sticky top-0 z-40 w-full glass-card border-b backdrop-blur-2xl px-4 py-2.5 items-center justify-between shadow-md">
     <div class="flex items-center space-x-2.5">
-      <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Toggle Sidebar">
+      <button id="btn-sidebarcollapsed-sidebarcollapsed" @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Toggle Sidebar">
         <i class="fa-solid fa-bars text-sm text-cyan-400"></i>
       </button>
       <div class="flex items-center space-x-2 cursor-pointer" @click="triggerSparkleCelebration()">
@@ -303,10 +303,10 @@
       </div>
     </div>
     <div class="flex items-center space-x-1.5">
-      <button @click="toggleTheme()" class="p-2 rounded-xl border text-xs" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
+      <button id="btn-toggletheme" @click="toggleTheme()" class="p-2 rounded-xl border text-xs" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
         <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
       </button>
-      <button @click="assistantOpen = true" class="p-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-xs font-black shadow-md" title="Dr. A2A Copilot">
+      <button id="btn-assistantopen-true" @click="assistantOpen = true" class="p-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-xs font-black shadow-md" title="Dr. A2A Copilot">
         <i class="fa-solid fa-robot"></i>
       </button>
     </div>
@@ -370,10 +370,10 @@
 
             <!-- Collapse / Expand Toggle Button (Desktop) & Mobile Close Button -->
             <div class="flex items-center space-x-1">
-              <button x-show="!isMobile" @click="sidebarCollapsed = !sidebarCollapsed" class="p-1.5 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shrink-0 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" :title="sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
+              <button id="btn-sidebarcollapsed-sidebarcollapsed-1" x-show="!isMobile" @click="sidebarCollapsed = !sidebarCollapsed" class="p-1.5 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shrink-0 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" :title="sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
                 <i class="fa-solid text-xs transition-transform duration-300" :class="sidebarCollapsed ? 'fa-angles-right text-cyan-400' : 'fa-angles-left text-slate-400'"></i>
               </button>
-              <button x-show="isMobile" @click="sidebarCollapsed = true" class="p-1.5 rounded-xl border hover:border-rose-400 transition-all md:hidden flex items-center justify-center shrink-0 shadow-sm text-slate-400 hover:text-rose-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Close Menu">
+              <button id="btn-sidebarcollapsed-true" x-show="isMobile" @click="sidebarCollapsed = true" class="p-1.5 rounded-xl border hover:border-rose-400 transition-all md:hidden flex items-center justify-center shrink-0 shadow-sm text-slate-400 hover:text-rose-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Close Menu">
                 <i class="fa-solid fa-xmark text-xs"></i>
               </button>
             </div>
@@ -397,7 +397,7 @@
         <!-- 2. Omni Search (Cmd+K) & Dr. A2A Copilot -->
         <div class="space-y-2">
           <!-- Command Palette Trigger -->
-          <button @click="openCommandPalette()" class="w-full p-2.5 rounded-xl border text-xs font-bold flex items-center transition-all shadow-sm hover:border-cyan-400 group" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Command Palette (Cmd+K)">
+          <button id="btn-opencommandpalette" @click="openCommandPalette()" class="w-full p-2.5 rounded-xl border text-xs font-bold flex items-center transition-all shadow-sm hover:border-cyan-400 group" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Command Palette (Cmd+K)">
             <div class="flex items-center space-x-2">
               <i class="fa-solid fa-magnifying-glass text-cyan-400 text-xs group-hover:scale-110 transition-transform"></i>
               <span x-show="!sidebarCollapsed" class="text-[11px] font-semibold" style="color: var(--color-text-secondary);">Actions & Search...</span>
@@ -406,7 +406,7 @@
           </button>
 
           <!-- Dr. A2A Virtual Assistant Spotlight -->
-          <button @click="assistantOpen = true" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-teal-500 via-cyan-500 to-emerald-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-black flex items-center transition-all shadow-md shadow-teal-500/20 active:scale-95 group" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'" title="Ask Dr. A2A Copilot">
+          <button id="btn-assistantopen-true-1" @click="assistantOpen = true" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-teal-500 via-cyan-500 to-emerald-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-black flex items-center transition-all shadow-md shadow-teal-500/20 active:scale-95 group" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'" title="Ask Dr. A2A Copilot">
             <div class="flex items-center space-x-2">
               <i class="fa-solid fa-robot text-sm group-hover:scale-110 transition-transform"></i>
               <span x-show="!sidebarCollapsed" class="text-xs font-black">Dr. A2A Copilot</span>
@@ -423,19 +423,19 @@
 
           <!-- Expanded 2x2 Grid -->
           <div x-show="!sidebarCollapsed" class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
-            <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-cyan-600'" :style="activePersona !== 'architect' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+            <button id="btn-selectpersona" @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-cyan-600'" :style="activePersona !== 'architect' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
               <span>🏛️</span>
               <span class="truncate">Architect</span>
             </button>
-            <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-emerald-600'" :style="activePersona !== 'clinician' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+            <button id="btn-selectpersona-1" @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-emerald-600'" :style="activePersona !== 'clinician' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
               <span>🩺</span>
               <span class="truncate">Clinician</span>
             </button>
-            <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-sm' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+            <button id="btn-selectpersona-2" @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-sm' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
               <span>⚖️</span>
               <span class="truncate">Compliance</span>
             </button>
-            <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+            <button id="btn-selectpersona-3" @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
               <span>💻</span>
               <span class="truncate">Developer</span>
             </button>
@@ -443,10 +443,10 @@
 
           <!-- Collapsed Icon Stack -->
           <div x-show="sidebarCollapsed" class="space-y-1">
-            <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-teal-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Architect Persona">🏛️</button>
-            <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Clinician Persona">🩺</button>
-            <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-purple-500 text-white' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Compliance Persona">⚖️</button>
-            <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Developer Persona">💻</button>
+            <button id="btn-selectpersona-4" @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-teal-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Architect Persona">🏛️</button>
+            <button id="btn-selectpersona-5" @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Clinician Persona">🩺</button>
+            <button id="btn-selectpersona-6" @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-purple-500 text-white' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Compliance Persona">⚖️</button>
+            <button id="btn-selectpersona-7" @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Developer Persona">💻</button>
           </div>
         </div>
 
@@ -641,7 +641,7 @@
         <!-- SSO User Profile & BYOK Key Cards (When Expanded) -->
         <div x-show="!sidebarCollapsed" class="space-y-1.5 animate-fade-in">
           <!-- SSO Login / Profile Card -->
-          <button @click="ssoModalOpen = true" class="w-full p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between transition-all shadow-sm hover:border-teal-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+          <button id="btn-ssomodalopen-true" @click="ssoModalOpen = true" class="w-full p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between transition-all shadow-sm hover:border-teal-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
             <div class="flex items-center space-x-2.5 min-w-0">
               <div class="w-6 h-6 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-500 shrink-0 text-xs font-black">
                 <i class="fa-solid fa-user-shield"></i>
@@ -655,7 +655,7 @@
           </button>
 
           <!-- BYOK API Keys & Credentials -->
-          <button @click="byokDrawerOpen = true" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-between transition-all shadow-sm hover:border-amber-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+          <button id="btn-byokdraweropen-true" @click="byokDrawerOpen = true" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-between transition-all shadow-sm hover:border-amber-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
             <div class="flex items-center space-x-2 text-[11px]">
               <i class="fa-solid fa-key text-amber-500 text-xs"></i>
               <span>BYOK Key Management</span>
@@ -666,10 +666,10 @@
 
         <!-- When Collapsed: SSO & BYOK Icon buttons -->
         <div x-show="sidebarCollapsed" class="space-y-1">
-          <button @click="ssoModalOpen = true" class="w-full py-2 rounded-xl border flex items-center justify-center text-xs hover:border-teal-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="SSO Login / Profile">
+          <button id="btn-ssomodalopen-true-1" @click="ssoModalOpen = true" class="w-full py-2 rounded-xl border flex items-center justify-center text-xs hover:border-teal-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="SSO Login / Profile">
             <i class="fa-solid fa-user-shield text-teal-500"></i>
           </button>
-          <button @click="byokDrawerOpen = true" class="w-full py-2 rounded-xl border flex items-center justify-center text-xs hover:border-amber-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="BYOK Keys">
+          <button id="btn-byokdraweropen-true-1" @click="byokDrawerOpen = true" class="w-full py-2 rounded-xl border flex items-center justify-center text-xs hover:border-amber-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="BYOK Keys">
             <i class="fa-solid fa-key text-amber-500"></i>
           </button>
         </div>
@@ -678,17 +678,17 @@
         <div class="grid grid-cols-4 gap-1 p-1 rounded-xl border text-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
           
           <!-- Theme Toggle -->
-          <button @click="toggleTheme()" class="p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+          <button id="btn-toggletheme-1" @click="toggleTheme()" class="p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
             <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
           </button>
 
           <!-- Information Density -->
-          <button @click="compactMode = !compactMode" class="p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" :title="compactMode ? 'Switch to Comfortable Spacing' : 'Switch to Compact Spacing'">
+          <button id="btn-compactmode-compactmode" @click="compactMode = !compactMode" class="p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" :title="compactMode ? 'Switch to Comfortable Spacing' : 'Switch to Compact Spacing'">
             <i class="fa-solid text-xs" :class="compactMode ? 'fa-compress text-cyan-400' : 'fa-expand text-slate-400'"></i>
           </button>
 
           <!-- Alerts Bell -->
-          <button @click="currentTab = 'alerts_feedback'" class="relative p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" title="Alerts & Feedback">
+          <button id="btn-currenttab-alerts_feedback" @click="currentTab = 'alerts_feedback'" class="relative p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" title="Alerts & Feedback">
             <i class="fa-solid fa-bell text-rose-500 text-xs"></i>
             <span x-show="unreadAlertsCount > 0" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
           </button>
@@ -701,7 +701,7 @@
         </div>
 
         <!-- Collapse / Expand Toggle Button -->
-        <button @click="sidebarCollapsed = !sidebarCollapsed" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all hover:border-cyan-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+        <button id="btn-sidebarcollapsed-sidebarcollapsed-2" @click="sidebarCollapsed = !sidebarCollapsed" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all hover:border-cyan-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
           <i class="fa-solid" :class="sidebarCollapsed ? 'fa-angles-right text-cyan-400' : 'fa-angles-left'"></i>
           <span x-show="!sidebarCollapsed" class="text-[11px]">Collapse Sidebar</span>
         </button>
@@ -726,11 +726,11 @@
           <span class="hidden sm:inline font-mono uppercase text-[10px]" style="color: var(--color-text-muted);">Translate v3:</span>
         </div>
         <div class="flex items-center space-x-1 p-0.5 rounded-xl border" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card);">
-          <button @click="setRegulatoryLang('en')" :class="currentLang === 'en' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="US FDA (English)">🇺🇸 EN</button>
-          <button @click="setRegulatoryLang('ja')" :class="currentLang === 'ja' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="Japan PMDA (日本語)">🇯🇵 JA</button>
-          <button @click="setRegulatoryLang('de')" :class="currentLang === 'de' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="Germany BfArM (Deutsch)">🇩🇪 DE</button>
-          <button @click="setRegulatoryLang('fr')" :class="currentLang === 'fr' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="France ANSM (Français)">🇫🇷 FR</button>
-          <button @click="setRegulatoryLang('zh')" :class="currentLang === 'zh' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="China NMPA (中文)">🇨🇳 ZH</button>
+          <button id="btn-setregulatorylang" @click="setRegulatoryLang('en')" :class="currentLang === 'en' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="US FDA (English)">🇺🇸 EN</button>
+          <button id="btn-setregulatorylang-1" @click="setRegulatoryLang('ja')" :class="currentLang === 'ja' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="Japan PMDA (日本語)">🇯🇵 JA</button>
+          <button id="btn-setregulatorylang-2" @click="setRegulatoryLang('de')" :class="currentLang === 'de' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="Germany BfArM (Deutsch)">🇩🇪 DE</button>
+          <button id="btn-setregulatorylang-3" @click="setRegulatoryLang('fr')" :class="currentLang === 'fr' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="France ANSM (Français)">🇫🇷 FR</button>
+          <button id="btn-setregulatorylang-4" @click="setRegulatoryLang('zh')" :class="currentLang === 'zh' ? 'bg-cyan-500 text-slate-950 font-black shadow-sm' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950') + ' font-bold'" class="px-2 py-1 rounded-lg text-[11px] transition-all" title="China NMPA (中文)">🇨🇳 ZH</button>
         </div>
         <span class="text-[10px] font-mono px-2 py-0.5 rounded-full border hidden lg:inline" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);" x-text="regulatoryAgencyTitle"></span>
       </div>
@@ -770,7 +770,7 @@
         </button>
 
         <!-- Live Dr. A2A Omni Copilot Launcher -->
-        <button @click="assistantOpen = true" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-md flex items-center space-x-1.5 active:scale-95 transition-all" title="Launch Gemini Omni Voice & Multimodal Assistant">
+        <button id="btn-assistantopen-true-2" @click="assistantOpen = true" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-md flex items-center space-x-1.5 active:scale-95 transition-all" title="Launch Gemini Omni Voice & Multimodal Assistant">
           <i class="fa-solid fa-robot text-xs"></i>
           <span class="hidden sm:inline">Dr. A2A Omni</span>
         </button>
@@ -842,39 +842,31 @@
 
             <!-- Primary CTAs & Interactive Buttons -->
             <div class="flex flex-wrap items-center gap-3 pt-2">
-              <button 
-                @click="currentTab = 'dag_studio'" 
-                class="px-6 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all flex items-center space-x-2.5 group"
-              >
+              <button id="btn-currenttab-dag_studio" @click="currentTab = 'dag_studio'" 
+                class="px-6 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all flex items-center space-x-2.5 group">
                 <i class="fa-solid fa-diagram-project group-hover:rotate-12 transition-transform"></i>
                 <span>Launch Swarm DAG Studio</span>
                 <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
               </button>
 
-              <button 
-                @click="triggerLandingSim(false)" 
+              <button id="btn-triggerlandingsim" @click="triggerLandingSim(false)" 
                 :disabled="landingSimActive"
                 class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black border transition-all flex items-center space-x-2 hover:scale-105 shadow-md"
-                :class="landingSimActive ? 'opacity-60 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'text-cyan-400 border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 hover:border-cyan-400 shadow-cyan-500/10'"
-              >
+                :class="landingSimActive ? 'opacity-60 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'text-cyan-400 border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 hover:border-cyan-400 shadow-cyan-500/10'">
                 <i class="fa-solid fa-bolt" :class="{ 'animate-bounce text-amber-400': landingSimActive }"></i>
                 <span x-text="landingSimActive ? 'Simulating Swarm...' : '⚡ Fire Quantum Simulation'"></span>
               </button>
 
-              <button 
-                @click="currentTab = 'training'" 
+              <button id="btn-currenttab-training" @click="currentTab = 'training'" 
                 class="px-4 py-3 rounded-2xl text-xs font-bold border hover:border-purple-400 hover:text-purple-400 transition-all flex items-center space-x-2"
-                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
-              >
+                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
                 <i class="fa-solid fa-graduation-cap text-purple-400"></i>
                 <span>Gemini Training</span>
               </button>
 
-              <button 
-                @click="currentTab = 'veo_studio'" 
+              <button id="btn-currenttab-veo_studio" @click="currentTab = 'veo_studio'" 
                 class="px-4 py-3 rounded-2xl text-xs font-bold border hover:border-rose-400 hover:text-rose-400 transition-all flex items-center space-x-2"
-                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
-              >
+                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
                 <i class="fa-solid fa-clapperboard text-rose-400"></i>
                 <span>Veo 2 Studio</span>
               </button>
@@ -920,18 +912,14 @@
 
                 <!-- 3D Stage Camera & Mode Controls -->
                 <div class="absolute bottom-3 right-3 z-20 flex items-center space-x-1.5">
-                  <button 
-                    @click="toggleLandingWireframe()" 
+                  <button id="btn-togglelandingwireframe" @click="toggleLandingWireframe()" 
                     class="px-2 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
-                    title="Toggle Wireframe Shell"
-                  >
+                    title="Toggle Wireframe Shell">
                     <i class="fa-solid fa-cube"></i> Wireframe
                   </button>
-                  <button 
-                    @click="resetLandingCamera()" 
+                  <button id="btn-resetlandingcamera" @click="resetLandingCamera()" 
                     class="px-2 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
-                    title="Reset Core Orientation"
-                  >
+                    title="Reset Core Orientation">
                     <i class="fa-solid fa-rotate-right"></i> Reset
                   </button>
                 </div>
@@ -1003,31 +991,25 @@
 
           <!-- Interactive Triggers -->
           <div class="flex flex-wrap items-center gap-2.5">
-            <button 
-              @click="triggerLandingSim(false)" 
+            <button id="btn-triggerlandingsim-1" @click="triggerLandingSim(false)" 
               :disabled="landingSimActive"
               class="px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center space-x-2 shadow-sm"
-              :class="landingSimActive ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400'"
-            >
+              :class="landingSimActive ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400'">
               <i class="fa-solid fa-paper-plane"></i>
               <span>1. Normal EDC Packet</span>
             </button>
 
-            <button 
-              @click="triggerLandingSim(true)" 
+            <button id="btn-triggerlandingsim-2" @click="triggerLandingSim(true)" 
               :disabled="landingSimActive"
               class="px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center space-x-2 shadow-sm"
-              :class="landingSimActive ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-400'"
-            >
+              :class="landingSimActive ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-400'">
               <i class="fa-solid fa-virus-slash"></i>
               <span>2. Prompt Injection Attack</span>
             </button>
 
-            <button 
-              @click="triggerSparkleCelebration(); addLandingTerminalLog('SYSTEM', 'Cleared packet buffers. Ready for next transaction.', 'info')" 
+            <button id="btn-triggersparklecelebration" @click="triggerSparkleCelebration(); addLandingTerminalLog('SYSTEM', 'Cleared packet buffers. Ready for next transaction.', 'info')" 
               class="px-3 py-2 rounded-xl text-xs font-bold border hover:border-slate-400 transition-all flex items-center space-x-1.5"
-              style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
-            >
+              style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
               <i class="fa-solid fa-arrows-rotate"></i>
               <span>Reset</span>
             </button>
@@ -1212,10 +1194,8 @@
               Production-tested mechanisms engineered for high-throughput enterprise pharmaceutical swarms.
             </p>
           </div>
-          <button 
-            @click="currentTab = 'overview'" 
-            class="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
-          >
+          <button id="btn-currenttab-overview" @click="currentTab = 'overview'" 
+            class="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center space-x-1">
             <span>View MECE Matrix</span>
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
@@ -1315,11 +1295,9 @@
             </p>
           </div>
 
-          <button 
-            @click="currentTab = 'dose_curve'" 
+          <button id="btn-currenttab-dose_curve" @click="currentTab = 'dose_curve'" 
             class="px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center space-x-1.5 hover:border-emerald-400 hover:text-emerald-400"
-            style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
-          >
+            style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
             <span>Full Curve Analysis</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
           </button>
@@ -1380,19 +1358,15 @@
 
             <!-- Sign Action Button -->
             <div class="flex items-center space-x-3">
-              <button 
-                @click="signLandingDose()" 
-                class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all flex items-center space-x-2"
-              >
+              <button id="btn-signlandingdose" @click="signLandingDose()" 
+                class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all flex items-center space-x-2">
                 <i class="fa-solid fa-signature"></i>
                 <span>1-Click 21 CFR Part 11 Electronic Sign-off</span>
               </button>
 
-              <button 
-                @click="resetLandingDose()" 
+              <button id="btn-resetlandingdose" @click="resetLandingDose()" 
                 class="px-4 py-3 rounded-2xl text-xs font-bold border hover:border-slate-400 transition-all flex items-center space-x-1.5"
-                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
-              >
+                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
                 <i class="fa-solid fa-rotate-left"></i>
                 <span>Reset</span>
               </button>
@@ -1473,10 +1447,8 @@
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
               <span>1,240 PACKETS/SEC</span>
             </span>
-            <button 
-              @click="addLandingTerminalLog('SYSTEM', 'Manual telemetry snapshot executed.', 'info')" 
-              class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700"
-            >
+            <button id="btn-addlandingterminallog" @click="addLandingTerminalLog('SYSTEM', 'Manual telemetry snapshot executed.', 'info')" 
+              class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700">
               <i class="fa-solid fa-plus"></i> Snapshot
             </button>
           </div>
@@ -1611,7 +1583,7 @@
         </div>
 
         <div class="flex items-center space-x-3">
-          <button @click="resetDagCanvas()" class="px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all flex items-center space-x-2 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+          <button id="btn-resetdagcanvas" @click="resetDagCanvas()" class="px-4 py-2.5 rounded-2xl border text-xs font-bold transition-all flex items-center space-x-2 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
             <i class="fa-solid fa-rotate-left"></i>
             <span>Reset Canvas</span>
           </button>
@@ -1683,7 +1655,7 @@
                         </div>
                         <span class="font-black text-[9.5px] font-mono truncate max-w-[70px]" style="color: var(--color-text-primary);" x-text="node.label"></span>
                       </div>
-                      <button @click="removeDagNode(idx)" class="hover:text-rose-500 text-xs transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+                      <button id="btn-removedagnode" @click="removeDagNode(idx)" class="hover:text-rose-500 text-xs transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <p class="text-[9px] font-medium leading-tight line-clamp-2" style="color: var(--color-text-secondary);" x-text="node.desc"></p>
                     <div class="flex items-center justify-between text-[9px] font-mono border-t pt-1" style="border-color: var(--color-border-subtle); color: var(--color-text-muted);">
@@ -1734,7 +1706,7 @@
           <span class="font-black uppercase" x-text="'Omni Active Layout: ' + omniLayoutMode.replace('_', ' ')"></span>
           <span class="hidden md:inline" :class="isDark ? 'text-slate-400' : 'text-slate-600'">• Dynamically compiled view based on user readiness and task focus</span>
         </div>
-        <button @click="setOmniLayoutMode('standard')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-all" :class="isDark ? 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300 shadow-sm'">
+        <button id="btn-setomnilayoutmode" @click="setOmniLayoutMode('standard')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-all" :class="isDark ? 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border-slate-700' : 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300 shadow-sm'">
           Reset Standard View
         </button>
       </div>
@@ -1821,14 +1793,14 @@
                   <i class="fa-solid fa-lock text-[9px]"></i>
                   <span>Tamper-evident envelope locked</span>
                 </span>
-                <button @click="revokeHitlSignature()" class="text-[10px] font-bold text-rose-400 hover:text-rose-300 underline transition-colors">
+                <button id="btn-revokehitlsignature" @click="revokeHitlSignature()" class="text-[10px] font-bold text-rose-400 hover:text-rose-300 underline transition-colors">
                   Revoke / Re-sign
                 </button>
               </div>
             </div>
 
             <!-- Tamper Attack Simulation Button -->
-            <button @click="triggerTamperAlert()" class="w-full py-3 rounded-2xl border font-bold text-xs flex items-center justify-center space-x-2 transition-all hover:opacity-90" style="background-color: var(--color-badge-rose-bg); color: var(--color-badge-rose-text); border-color: var(--color-badge-rose-border);">
+            <button id="btn-triggertamperalert" @click="triggerTamperAlert()" class="w-full py-3 rounded-2xl border font-bold text-xs flex items-center justify-center space-x-2 transition-all hover:opacity-90" style="background-color: var(--color-badge-rose-bg); color: var(--color-badge-rose-text); border-color: var(--color-badge-rose-border);">
               <i class="fa-solid fa-shield-virus"></i>
               <span>Simulate Cyber Tamper Attack (401 Shield)</span>
             </button>
@@ -1960,10 +1932,10 @@
             </div>
 
             <div class="absolute bottom-4 right-4 flex items-center space-x-1.5 pointer-events-auto">
-              <button @click="toggleAlphafoldWireframe()" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-mono font-bold backdrop-blur-md transition-all">
+              <button id="btn-togglealphafoldwireframe" @click="toggleAlphafoldWireframe()" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-mono font-bold backdrop-blur-md transition-all">
                 <i class="fa-solid fa-network-wired mr-1 text-cyan-400"></i>Wireframe
               </button>
-              <button @click="resetAlphafoldCamera()" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-mono font-bold backdrop-blur-md transition-all">
+              <button id="btn-resetalphafoldcamera" @click="resetAlphafoldCamera()" class="px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-mono font-bold backdrop-blur-md transition-all">
                 <i class="fa-solid fa-arrows-rotate mr-1 text-teal-400"></i>Reset 3D
               </button>
             </div>
@@ -2068,13 +2040,13 @@
 
             <!-- Quick Symptom Chips -->
             <div class="flex items-center space-x-2 overflow-x-auto custom-scrollbar text-[10px] font-bold">
-              <button @click="setPvPreset('transaminase')" class="px-2.5 py-1 rounded-xl border hover:border-cyan-400 transition-all shrink-0" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+              <button id="btn-setpvpreset" @click="setPvPreset('transaminase')" class="px-2.5 py-1 rounded-xl border hover:border-cyan-400 transition-all shrink-0" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
                 🧪 Grade 3 ALT
               </button>
-              <button @click="setPvPreset('thrombocytopenia')" class="px-2.5 py-1 rounded-xl border hover:border-cyan-400 transition-all shrink-0" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+              <button id="btn-setpvpreset-1" @click="setPvPreset('thrombocytopenia')" class="px-2.5 py-1 rounded-xl border hover:border-cyan-400 transition-all shrink-0" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
                 🩸 Platelet Drop
               </button>
-              <button @click="setPvPreset('neuropathy')" class="px-2.5 py-1 rounded-xl border hover:border-cyan-400 transition-all shrink-0" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+              <button id="btn-setpvpreset-2" @click="setPvPreset('neuropathy')" class="px-2.5 py-1 rounded-xl border hover:border-cyan-400 transition-all shrink-0" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
                 ⚡ Paresthesia
               </button>
             </div>
@@ -2123,7 +2095,7 @@
                 <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
                 <span>Action: Titrate dose to 250mg &amp; enforce Day 7 liver panel</span>
               </div>
-              <button @click="workflowParams.doseMg = 250; updateDynamicCalculations(); triggerSparkleCelebration();" class="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px]">
+              <button id="btn-workflowparams-dosemg-250-updatedynamiccalculations" @click="workflowParams.doseMg = 250; updateDynamicCalculations(); triggerSparkleCelebration();" class="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px]">
                 Auto-Apply
               </button>
             </div>
@@ -2160,7 +2132,7 @@
           <h3 class="text-xs font-black uppercase tracking-wider border-b pb-3 pt-2" style="border-color: var(--color-border-subtle); color: var(--color-badge-cyan-text);">Git Repository Bridge</h3>
           <div class="space-y-3 text-xs">
             <input type="text" value="https://github.com/enterprise/clinical-mesh.git" class="w-full px-3.5 py-2.5 rounded-xl border text-xs font-mono font-bold" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-            <button @click="triggerSparkleCelebration()" class="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md">
+            <button id="btn-triggersparklecelebration-1" @click="triggerSparkleCelebration()" class="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md">
               Sync Repository & Verify Webhooks
             </button>
           </div>
@@ -2324,16 +2296,16 @@
 
             <!-- Add Component Dropdown / Chips -->
             <div class="flex items-center space-x-1">
-              <button @click="insertA2UIComponent('slider')" title="Add Dose Slider" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-emerald-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+              <button id="btn-inserta2uicomponent" @click="insertA2UIComponent('slider')" title="Add Dose Slider" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-emerald-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 + Slider
               </button>
-              <button @click="insertA2UIComponent('data_grid')" title="Add Lab Grid" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-cyan-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+              <button id="btn-inserta2uicomponent-1" @click="insertA2UIComponent('data_grid')" title="Add Lab Grid" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-cyan-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 + Grid
               </button>
-              <button @click="insertA2UIComponent('clock')" title="Add Regulatory Clock" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-rose-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+              <button id="btn-inserta2uicomponent-2" @click="insertA2UIComponent('clock')" title="Add Regulatory Clock" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-rose-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 + Clock
               </button>
-              <button @click="insertA2UIComponent('multisig')" title="Add Multi-Sig Chain" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-purple-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+              <button id="btn-inserta2uicomponent-3" @click="insertA2UIComponent('multisig')" title="Add Multi-Sig Chain" class="px-2 py-1 rounded-lg border text-[11px] font-mono font-bold hover:border-purple-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 + Multi-Sig
               </button>
             </div>
@@ -2443,7 +2415,7 @@
                           <!-- Button List Widget -->
                           <div x-show="widget.buttonList" class="pt-2 flex flex-wrap items-center gap-2">
                             <template x-for="(btn, bIdx) in widget.buttonList?.buttons || []" :key="bIdx">
-                              <button @click="executeA2UIAction(btn.onClick?.action?.parameters?.find(p => p.key === 'stateToken')?.value, btn.onClick?.action?.parameters?.find(p => p.key === 'actionId')?.value || 'action_' + bIdx)" :class="btn.color ? (btn.color.red > 0.5 ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white') : 'bg-slate-700 text-white'" class="px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all flex items-center space-x-1.5 group">
+                              <button id="btn-executea2uiaction" @click="executeA2UIAction(btn.onClick?.action?.parameters?.find(p => p.key === 'stateToken')?.value, btn.onClick?.action?.parameters?.find(p => p.key === 'actionId')?.value || 'action_' + bIdx)" :class="btn.color ? (btn.color.red > 0.5 ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white') : 'bg-slate-700 text-white'" class="px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all flex items-center space-x-1.5 group">
                                 <i class="fa-solid fa-signature text-xs"></i>
                                 <span x-text="btn.text"></span>
                               </button>
@@ -2645,7 +2617,7 @@
               <div class="pt-3 border-t flex flex-wrap items-center justify-between gap-3" style="border-color: var(--color-border-subtle);">
                 <div class="flex flex-wrap items-center gap-2">
                   <template x-for="(act, aIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.actions || []" :key="aIdx">
-                    <button @click="executeA2UIAction(act.stateToken, act.id)" :class="act.style === 'PRIMARY' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black shadow-md' : 'bg-rose-600 hover:bg-rose-500 text-white font-bold'" class="px-4 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 group">
+                    <button id="btn-executea2uiaction-1" @click="executeA2UIAction(act.stateToken, act.id)" :class="act.style === 'PRIMARY' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black shadow-md' : 'bg-rose-600 hover:bg-rose-500 text-white font-bold'" class="px-4 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 group">
                       <i class="fa-solid fa-signature text-xs"></i>
                       <span x-text="act.label"></span>
                     </button>
@@ -2723,7 +2695,7 @@
                         <!-- Actions block -->
                         <div x-show="blk.type === 'actions'" class="flex flex-wrap items-center gap-2 pt-1">
                           <template x-for="(elm, eIdx) in blk.elements || []" :key="eIdx">
-                            <button @click="executeA2UIAction(elm.value, elm.action_id)" :class="elm.style === 'primary' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (elm.style === 'danger' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-slate-700 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
+                            <button id="btn-executea2uiaction-2" @click="executeA2UIAction(elm.value, elm.action_id)" :class="elm.style === 'primary' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (elm.style === 'danger' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-slate-700 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
                               <span x-text="elm.text?.text"></span>
                             </button>
                           </template>
@@ -2810,7 +2782,7 @@
               <!-- Teams Action.Submit Buttons -->
               <div class="pt-2 border-t flex flex-wrap items-center gap-2" style="border-color: var(--color-border-subtle);">
                 <template x-for="(tAct, taIdx) in a2uiTranspiledOutputs?.teamsAdaptiveCard?.actions || []" :key="taIdx">
-                  <button @click="executeA2UIAction(tAct.data?.stateToken, tAct.data?.actionId)" :class="tAct.style === 'positive' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (tAct.style === 'destructive' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-indigo-600 hover:bg-indigo-500 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
+                  <button id="btn-executea2uiaction-3" @click="executeA2UIAction(tAct.data?.stateToken, tAct.data?.actionId)" :class="tAct.style === 'positive' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (tAct.style === 'destructive' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-indigo-600 hover:bg-indigo-500 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
                     <span x-text="tAct.title"></span>
                   </button>
                 </template>
@@ -3208,7 +3180,7 @@
             <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
             <span>4K HDR • 60 FPS</span>
           </div>
-          <button @click="generateVeoVideo()" :disabled="veoGenerating" class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white text-xs font-black shadow-xl shadow-purple-500/25 transition-all flex items-center space-x-2 active:scale-95">
+          <button id="btn-generateveovideo" @click="generateVeoVideo()" :disabled="veoGenerating" class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-rose-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white text-xs font-black shadow-xl shadow-purple-500/25 transition-all flex items-center space-x-2 active:scale-95">
             <i class="fa-solid" :class="veoGenerating ? 'fa-spinner fa-spin' : 'fa-clapperboard'"></i>
             <span x-text="veoGenerating ? 'Rendering Veo 2 Video...' : 'Synthesize 5-Act 4K Briefing'"></span>
           </button>
@@ -3252,19 +3224,19 @@
               <span>Veo 2 Generative Camera Control</span>
             </h4>
             <div class="grid grid-cols-2 gap-2 text-xs">
-              <button @click="veoCameraAngle = 'orbital_3d'" :class="veoCameraAngle === 'orbital_3d' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+              <button id="btn-veocameraangle-orbital_3d" @click="veoCameraAngle = 'orbital_3d'" :class="veoCameraAngle === 'orbital_3d' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
                 <i class="fa-solid fa-cube block mb-1"></i>
                 <span class="text-[11px]">Orbital 3D Mesh</span>
               </button>
-              <button @click="veoCameraAngle = 'microscopic_ast'" :class="veoCameraAngle === 'microscopic_ast' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+              <button id="btn-veocameraangle-microscopic_ast" @click="veoCameraAngle = 'microscopic_ast'" :class="veoCameraAngle === 'microscopic_ast' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
                 <i class="fa-solid fa-microscope block mb-1"></i>
                 <span class="text-[11px]">Microscopic AST</span>
               </button>
-              <button @click="veoCameraAngle = 'isometric_cutaway'" :class="veoCameraAngle === 'isometric_cutaway' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+              <button id="btn-veocameraangle-isometric_cutaway" @click="veoCameraAngle = 'isometric_cutaway'" :class="veoCameraAngle === 'isometric_cutaway' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
                 <i class="fa-solid fa-network-wired block mb-1"></i>
                 <span class="text-[11px]">Cloud Cutaway</span>
               </button>
-              <button @click="veoCameraAngle = 'frontal_dolly'" :class="veoCameraAngle === 'frontal_dolly' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
+              <button id="btn-veocameraangle-frontal_dolly" @click="veoCameraAngle = 'frontal_dolly'" :class="veoCameraAngle === 'frontal_dolly' ? 'border-cyan-400 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-700 text-slate-400'" class="p-2.5 rounded-xl border text-left transition-all">
                 <i class="fa-solid fa-camera block mb-1"></i>
                 <span class="text-[11px]">Frontal Dolly</span>
               </button>
@@ -3335,18 +3307,18 @@
                 <!-- Video Scrub Bar & Player Controls -->
                 <div class="flex items-center justify-between text-xs font-mono text-slate-400 pt-2 border-t border-slate-800">
                   <div class="flex items-center space-x-3">
-                    <button @click="toggleVeoPlay()" class="w-7 h-7 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center font-black transition-all">
+                    <button id="btn-toggleveoplay" @click="toggleVeoPlay()" class="w-7 h-7 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center font-black transition-all">
                       <i class="fa-solid" :class="veoIsPlaying ? 'fa-pause' : 'fa-play text-[10px] ml-0.5'"></i>
                     </button>
                     <span x-text="veoActs[veoActiveAct - 1].timeRange"></span>
                   </div>
                   
                   <div class="flex items-center space-x-3">
-                    <button @click="veoAudioEnabled = !veoAudioEnabled" class="hover:text-white transition-colors" :class="veoAudioEnabled ? 'text-teal-400' : 'text-slate-600'">
+                    <button id="btn-veoaudioenabled-veoaudioenabled" @click="veoAudioEnabled = !veoAudioEnabled" class="hover:text-white transition-colors" :class="veoAudioEnabled ? 'text-teal-400' : 'text-slate-600'">
                       <i class="fa-solid" :class="veoAudioEnabled ? 'fa-volume-high' : 'fa-volume-xmark'"></i>
                     </button>
-                    <button @click="triggerSparkleCelebration()" class="hover:text-white transition-colors"><i class="fa-solid fa-download"></i> MP4</button>
-                    <button @click="toggleVeoFullscreen()" class="hover:text-white transition-colors" title="Toggle Fullscreen Stage"><i class="fa-solid fa-expand"></i></button>
+                    <button id="btn-triggersparklecelebration-2" @click="triggerSparkleCelebration()" class="hover:text-white transition-colors"><i class="fa-solid fa-download"></i> MP4</button>
+                    <button id="btn-toggleveofullscreen" @click="toggleVeoFullscreen()" class="hover:text-white transition-colors" title="Toggle Fullscreen Stage"><i class="fa-solid fa-expand"></i></button>
                   </div>
                 </div>
               </div>
@@ -3407,13 +3379,13 @@
           <div class="relative w-full md:w-96">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
             <input type="text" x-model="faqSearchQuery" placeholder="Search questions, protocols, regex, AST, HMAC..." class="w-full pl-9 pr-8 py-2 rounded-xl border text-xs focus:outline-none focus:border-cyan-500 font-medium" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card); color: var(--color-text-primary);">
-            <button x-show="faqSearchQuery" @click="faqSearchQuery = ''" class="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
+            <button id="btn-faqsearchquery" x-show="faqSearchQuery" @click="faqSearchQuery = ''" class="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
           <!-- Category Chips -->
           <div class="flex items-center space-x-1.5 overflow-x-auto w-full md:w-auto custom-scrollbar pb-1 md:pb-0">
             <template x-for="cat in faqCategories" :key="cat.id">
-              <button @click="faqCategory = cat.id" :class="faqCategory === cat.id ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="faqCategory !== cat.id ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl border text-[11px] whitespace-nowrap transition-all flex items-center space-x-1.5">
+              <button id="btn-faqcategory-cat-id" @click="faqCategory = cat.id" :class="faqCategory === cat.id ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="faqCategory !== cat.id ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl border text-[11px] whitespace-nowrap transition-all flex items-center space-x-1.5">
                 <i :class="cat.icon"></i>
                 <span x-text="cat.name"></span>
               </button>
@@ -3428,7 +3400,7 @@
           <div class="glass-card rounded-2xl border overflow-hidden transition-all duration-200 shadow-sm" :style="'border-color: ' + (openFaqId === faq.id ? 'var(--color-border-hover)' : 'var(--color-border-card)') + '; background-color: var(--color-bg-card);'">
             
             <!-- Accordion Header Button -->
-            <button @click="openFaqId = (openFaqId === faq.id ? null : faq.id)" class="w-full p-5 text-left flex items-start justify-between space-x-4 focus:outline-none group">
+            <button id="btn-openfaqid" @click="openFaqId = (openFaqId === faq.id ? null : faq.id)" class="w-full p-5 text-left flex items-start justify-between space-x-4 focus:outline-none group">
               <div class="flex items-start space-x-3.5">
                 <div class="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 font-mono text-xs font-black transition-all" :class="openFaqId === faq.id ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'">
                   <span x-text="idx + 1"></span>
@@ -3460,7 +3432,7 @@
                       <i class="fa-solid fa-code text-cyan-400"></i>
                       <span x-text="faq.codeLanguage || 'protobuf'"></span>
                     </span>
-                    <button @click="copyCode(faq.codeSnippet)" class="hover:text-white transition-colors flex items-center space-x-1">
+                    <button id="btn-copycode" @click="copyCode(faq.codeSnippet)" class="hover:text-white transition-colors flex items-center space-x-1">
                       <i class="fa-regular fa-copy"></i>
                       <span>Copy Snippet</span>
                     </button>
@@ -3477,7 +3449,7 @@
                     <i class="fa-solid fa-check-double mr-1"></i> VERIFIED (IQ/OQ/PQ 100%)
                   </span>
                 </div>
-                <button @click="executeQuickPrompt('Explain ' + faq.question + ' in the context of our GxP gateway')" class="px-3 py-1.5 rounded-xl border text-[11px] font-bold hover:border-cyan-400 transition-all flex items-center space-x-1.5" style="border-color: var(--color-border-subtle); color: var(--color-text-primary); background-color: var(--color-bg-card);">
+                <button id="btn-executequickprompt" @click="executeQuickPrompt('Explain ' + faq.question + ' in the context of our GxP gateway')" class="px-3 py-1.5 rounded-xl border text-[11px] font-bold hover:border-cyan-400 transition-all flex items-center space-x-1.5" style="border-color: var(--color-border-subtle); color: var(--color-text-primary); background-color: var(--color-bg-card);">
                   <i class="fa-solid fa-robot text-teal-400"></i>
                   <span>Ask Dr. A2A Omni Co-Pilot</span>
                 </button>
@@ -3494,7 +3466,7 @@
           <p class="text-xs max-w-md mx-auto" style="color: var(--color-text-secondary);">
             No FAQ entries matched "<span class="font-bold text-cyan-400" x-text="faqSearchQuery"></span>". Try searching for "AST", "Protobuf", "HMAC", "Veo 2", "CDISC", or "gRPC".
           </p>
-          <button @click="faqSearchQuery = ''; faqCategory = 'all'" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-black shadow-md">Reset Search Filters</button>
+          <button id="btn-faqsearchquery-faqcategory-all" @click="faqSearchQuery = ''; faqCategory = 'all'" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-black shadow-md">Reset Search Filters</button>
         </div>
       </div>
 
@@ -4528,9 +4500,9 @@
               <h2 class="text-lg font-black mt-1" style="color: var(--color-text-primary);">Infrastructure-as-Code</h2>
             </div>
             <div class="flex items-center space-x-1.5">
-              <button @click="connectIacTab = 'terraform'" :class="connectIacTab === 'terraform' ? 'bg-cyan-500 text-slate-950 font-black' : 'hover:text-cyan-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Terraform</button>
-              <button @click="connectIacTab = 'helm'" :class="connectIacTab === 'helm' ? 'bg-cyan-500 text-slate-950 font-black' : 'hover:text-cyan-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Helm</button>
-              <button @click="connectIacTab = 'gcloud'" :class="connectIacTab === 'gcloud' ? 'bg-cyan-500 text-slate-950 font-black' : 'hover:text-cyan-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">gcloud</button>
+              <button id="btn-connectiactab-terraform" @click="connectIacTab = 'terraform'" :class="connectIacTab === 'terraform' ? 'bg-cyan-500 text-slate-950 font-black' : 'hover:text-cyan-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Terraform</button>
+              <button id="btn-connectiactab-helm" @click="connectIacTab = 'helm'" :class="connectIacTab === 'helm' ? 'bg-cyan-500 text-slate-950 font-black' : 'hover:text-cyan-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Helm</button>
+              <button id="btn-connectiactab-gcloud" @click="connectIacTab = 'gcloud'" :class="connectIacTab === 'gcloud' ? 'bg-cyan-500 text-slate-950 font-black' : 'hover:text-cyan-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">gcloud</button>
             </div>
           </div>
 
@@ -4635,9 +4607,9 @@
               <h2 class="text-lg font-black mt-1" style="color: var(--color-text-primary);">CDISC SDTM Sandbox & Zero-PHI Check</h2>
             </div>
             <div class="flex items-center space-x-1.5">
-              <button @click="connectCdiscDomain = 'AE'" :class="connectCdiscDomain === 'AE' ? 'bg-purple-500 text-white font-black' : 'hover:text-purple-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">AE</button>
-              <button @click="connectCdiscDomain = 'LB'" :class="connectCdiscDomain === 'LB' ? 'bg-purple-500 text-white font-black' : 'hover:text-purple-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">LB</button>
-              <button @click="connectCdiscDomain = 'DM'" :class="connectCdiscDomain === 'DM' ? 'bg-purple-500 text-white font-black' : 'hover:text-purple-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">DM</button>
+              <button id="btn-connectcdiscdomain-ae" @click="connectCdiscDomain = 'AE'" :class="connectCdiscDomain === 'AE' ? 'bg-purple-500 text-white font-black' : 'hover:text-purple-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">AE</button>
+              <button id="btn-connectcdiscdomain-lb" @click="connectCdiscDomain = 'LB'" :class="connectCdiscDomain === 'LB' ? 'bg-purple-500 text-white font-black' : 'hover:text-purple-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">LB</button>
+              <button id="btn-connectcdiscdomain-dm" @click="connectCdiscDomain = 'DM'" :class="connectCdiscDomain === 'DM' ? 'bg-purple-500 text-white font-black' : 'hover:text-purple-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">DM</button>
             </div>
           </div>
 
@@ -4681,9 +4653,9 @@
               <h2 class="text-lg font-black mt-1" style="color: var(--color-text-primary);">Slack / Google Chat / Teams Webhook Switchboard</h2>
             </div>
             <div class="flex items-center space-x-1.5">
-              <button @click="connectWebhookChannel = 'google_chat'" :class="connectWebhookChannel === 'google_chat' ? 'bg-teal-500 text-slate-950 font-black' : 'hover:text-teal-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Google Chat</button>
-              <button @click="connectWebhookChannel = 'slack'" :class="connectWebhookChannel === 'slack' ? 'bg-teal-500 text-slate-950 font-black' : 'hover:text-teal-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Slack</button>
-              <button @click="connectWebhookChannel = 'ms_teams'" :class="connectWebhookChannel === 'ms_teams' ? 'bg-teal-500 text-slate-950 font-black' : 'hover:text-teal-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">MS Teams</button>
+              <button id="btn-connectwebhookchannel-google_chat" @click="connectWebhookChannel = 'google_chat'" :class="connectWebhookChannel === 'google_chat' ? 'bg-teal-500 text-slate-950 font-black' : 'hover:text-teal-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Google Chat</button>
+              <button id="btn-connectwebhookchannel-slack" @click="connectWebhookChannel = 'slack'" :class="connectWebhookChannel === 'slack' ? 'bg-teal-500 text-slate-950 font-black' : 'hover:text-teal-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">Slack</button>
+              <button id="btn-connectwebhookchannel-ms_teams" @click="connectWebhookChannel = 'ms_teams'" :class="connectWebhookChannel === 'ms_teams' ? 'bg-teal-500 text-slate-950 font-black' : 'hover:text-teal-400'" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all" style="color: var(--color-text-secondary);">MS Teams</button>
             </div>
           </div>
 
@@ -4942,7 +4914,7 @@
           <div class="relative">
             <div class="flex items-center justify-between p-2.5 rounded-t-xl bg-slate-900 border-x border-t border-slate-800 text-xs">
               <span class="font-mono text-[11px] text-slate-400">index.xml (eCTD Root)</span>
-              <button @click="copyEctdXml()" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-orange-400 text-[11px] font-mono font-bold transition-all flex items-center space-x-1">
+              <button id="btn-copyectdxml" @click="copyEctdXml()" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-orange-400 text-[11px] font-mono font-bold transition-all flex items-center space-x-1">
                 <i class="fa-solid fa-copy"></i>
                 <span x-text="ectdXmlCopied ? 'Copied!' : 'Copy XML'"></span>
               </button>
@@ -5084,7 +5056,7 @@
                   <div class="font-bold" style="color: var(--color-text-primary);">Prophylactic Hepatic Protectant</div>
                   <div class="text-[11px]" style="color: var(--color-text-muted);">58% reduction in serum transaminase spikes</div>
                 </div>
-                <button @click="insilicoProtectant = !insilicoProtectant; runInsilicoSimulation()" :class="insilicoProtectant ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400 font-bold'" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                <button id="btn-insilicoprotectant-insilicoprotectant-runinsilicosimulation" @click="insilicoProtectant = !insilicoProtectant; runInsilicoSimulation()" :class="insilicoProtectant ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400 font-bold'" class="px-3 py-1.5 rounded-xl text-xs transition-all">
                   <span x-text="insilicoProtectant ? 'ON (Buffered)' : 'OFF (Raw)'"></span>
                 </button>
               </div>
@@ -5288,11 +5260,11 @@
       <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
         <div class="flex items-center space-x-2">
           <span class="text-xs font-bold" style="color: var(--color-text-secondary);">Architecture Preset:</span>
-          <button @click="loadPromptcanvasPreset('option3_dual_plane')" :class="promptcanvasActivePreset === 'option3_dual_plane' ? 'bg-pink-500 text-slate-950 font-black shadow-md' : 'border font-semibold hover:border-pink-400'" :style="promptcanvasActivePreset !== 'option3_dual_plane' ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center space-x-1.5">
+          <button id="btn-loadpromptcanvaspreset" @click="loadPromptcanvasPreset('option3_dual_plane')" :class="promptcanvasActivePreset === 'option3_dual_plane' ? 'bg-pink-500 text-slate-950 font-black shadow-md' : 'border font-semibold hover:border-pink-400'" :style="promptcanvasActivePreset !== 'option3_dual_plane' ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center space-x-1.5">
             <i class="fa-solid fa-shield-halved"></i>
             <span>Option 3: Dual-Plane PSC (Sovereign Enclave)</span>
           </button>
-          <button @click="loadPromptcanvasPreset('option1_cloud_run')" :class="promptcanvasActivePreset === 'option1_cloud_run' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'border font-semibold hover:border-cyan-400'" :style="promptcanvasActivePreset !== 'option1_cloud_run' ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center space-x-1.5">
+          <button id="btn-loadpromptcanvaspreset-1" @click="loadPromptcanvasPreset('option1_cloud_run')" :class="promptcanvasActivePreset === 'option1_cloud_run' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'border font-semibold hover:border-cyan-400'" :style="promptcanvasActivePreset !== 'option1_cloud_run' ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center space-x-1.5">
             <i class="fa-solid fa-cloud"></i>
             <span>Option 1: Cloud Run Proxy Interceptor</span>
           </button>
@@ -5735,13 +5707,13 @@
             <div class="lg:col-span-7 glass-card rounded-3xl p-6 border space-y-4" style="border-color: var(--color-border-card);">
               <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--color-border-subtle);">
                 <div class="flex items-center space-x-1.5">
-                  <button @click="trainingCodeTab = 'manifest'" :class="trainingCodeTab === 'manifest' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'manifest' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                  <button id="btn-trainingcodetab-manifest" @click="trainingCodeTab = 'manifest'" :class="trainingCodeTab === 'manifest' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'manifest' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
                     agent.json (Manifest)
                   </button>
-                  <button @click="trainingCodeTab = 'curl'" :class="trainingCodeTab === 'curl' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'curl' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                  <button id="btn-trainingcodetab-curl" @click="trainingCodeTab = 'curl'" :class="trainingCodeTab === 'curl' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'curl' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
                     cURL Handshake
                   </button>
-                  <button @click="trainingCodeTab = 'proto'" :class="trainingCodeTab === 'proto' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'proto' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                  <button id="btn-trainingcodetab-proto" @click="trainingCodeTab = 'proto'" :class="trainingCodeTab === 'proto' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'proto' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
                     a2a.proto Schema
                   </button>
                 </div>
@@ -6047,19 +6019,19 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   <!-- Sub-Navigation Bar in GCP Console -->
                   <div class="px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs overflow-x-auto">
                     <div class="flex items-center space-x-1.5 shrink-0">
-                      <button @click="trainingGcpConsoleTab = 'wizard'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'wizard' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:text-slate-200'">
+                      <button id="btn-traininggcpconsoletab-wizard" @click="trainingGcpConsoleTab = 'wizard'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'wizard' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:text-slate-200'">
                         <i class="fa-solid fa-user-plus mr-1"></i> 1. Setup & Node
                       </button>
-                      <button @click="trainingGcpConsoleTab = 'execution'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'execution' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'">
+                      <button id="btn-traininggcpconsoletab-execution" @click="trainingGcpConsoleTab = 'execution'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'execution' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-slate-400 hover:text-slate-200'">
                         <i class="fa-solid fa-network-wired mr-1"></i> 2. Execution (#1–#7)
                       </button>
-                      <button @click="trainingGcpConsoleTab = 'code'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'code' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-400 hover:text-slate-200'">
+                      <button id="btn-traininggcpconsoletab-code" @click="trainingGcpConsoleTab = 'code'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'code' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-400 hover:text-slate-200'">
                         <i class="fa-solid fa-code mr-1"></i> 3. 21 CFR Part 11 Code
                       </button>
-                      <button @click="trainingGcpConsoleTab = 'catalog'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'catalog' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-slate-200'">
+                      <button id="btn-traininggcpconsoletab-catalog" @click="trainingGcpConsoleTab = 'catalog'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'catalog' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-slate-200'">
                         <i class="fa-solid fa-list-check mr-1"></i> 4. Swarms Catalog
                       </button>
-                      <button @click="trainingGcpConsoleTab = 'iam'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'iam' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-slate-400 hover:text-slate-200'">
+                      <button id="btn-traininggcpconsoletab-iam" @click="trainingGcpConsoleTab = 'iam'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'iam' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-slate-400 hover:text-slate-200'">
                         <i class="fa-solid fa-shield-halved mr-1"></i> 5. IAM & Cloud Run
                       </button>
                     </div>
@@ -6647,7 +6619,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   <i class="fa-solid fa-rotate-left"></i>
                   <span>Reset Live Chat Simulation</span>
                 </button>
-                <button @click="trainingViewMode = 'gallery'" class="w-full py-2.5 rounded-xl border border-cyan-500/40 hover:border-cyan-400 bg-cyan-500/10 text-cyan-400 text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-sm">
+                <button id="btn-trainingviewmode-gallery" @click="trainingViewMode = 'gallery'" class="w-full py-2.5 rounded-xl border border-cyan-500/40 hover:border-cyan-400 bg-cyan-500/10 text-cyan-400 text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-sm">
                   <i class="fa-solid fa-images"></i>
                   <span>View All Steps in Screenshot Carousel &rarr;</span>
                 </button>
@@ -6881,7 +6853,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               </div>
 
               <!-- Quick Link to Full Studio -->
-              <button @click="currentTab = 'a2ui_studio'" class="w-full py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center space-x-2">
+              <button id="btn-currenttab-a2ui_studio" @click="currentTab = 'a2ui_studio'" class="w-full py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center space-x-2">
                 <i class="fa-solid fa-up-right-from-square"></i>
                 <span>Launch Full Universal A2UI Studio</span>
               </button>
@@ -6915,7 +6887,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                       <div class="text-[10px]" style="color: var(--color-text-secondary);">4-Dialect Synchronized Transpilation Active</div>
                     </div>
                   </div>
-                  <button @click="toggleDoubleBlindMasking()" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all" :class="a2uiUnblinded ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'">
+                  <button id="btn-toggledoubleblindmasking" @click="toggleDoubleBlindMasking()" class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all" :class="a2uiUnblinded ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40'">
                     <span x-text="a2uiUnblinded ? '🔓 Unblinded' : '🔒 Blinded'"></span>
                   </button>
                 </div>
@@ -6941,13 +6913,13 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     <span class="text-[10px] font-mono text-slate-400">Atomic Check-and-Set</span>
                   </div>
                   <div class="flex flex-wrap items-center gap-2">
-                    <button @click="executeA2UIAction(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'training_approve')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow">
+                    <button id="btn-executea2uiaction-4" @click="executeA2UIAction(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'training_approve')" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow">
                       Execute Sign-off (1st Click)
                     </button>
-                    <button @click="executeA2UIAction(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'training_replay')" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-all shadow">
+                    <button id="btn-executea2uiaction-5" @click="executeA2UIAction(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'training_replay')" class="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-all shadow">
                       Replay Attack (2nd Click)
                     </button>
-                    <button @click="resetA2UIIdempotency()" class="px-2.5 py-1.5 rounded-xl border text-[11px] hover:border-amber-400 text-slate-300" style="border-color: var(--color-border-subtle);">
+                    <button id="btn-reseta2uiidempotency" @click="resetA2UIIdempotency()" class="px-2.5 py-1.5 rounded-xl border text-[11px] hover:border-amber-400 text-slate-300" style="border-color: var(--color-border-subtle);">
                       Reset Lock
                     </button>
                   </div>
@@ -7032,7 +7004,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               </div>
 
               <!-- Fullscreen Zoom Button -->
-              <button @click="openGalleryZoom(trainingGallerySlides[trainingGalleryIndex])" class="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black shadow-md transition-all flex items-center space-x-1.5">
+              <button id="btn-opengalleryzoom" @click="openGalleryZoom(trainingGallerySlides[trainingGalleryIndex])" class="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black shadow-md transition-all flex items-center space-x-1.5">
                 <i class="fa-solid fa-maximize"></i>
                 <span>Inspect Fullscreen</span>
               </button>
@@ -7055,7 +7027,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <!-- Thumbnails Strip -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2.5 pt-2">
           <template x-for="(slide, sIdx) in trainingGallerySlides" :key="sIdx">
-            <button @click="trainingGalleryIndex = sIdx" :class="trainingGalleryIndex === sIdx ? 'ring-2 ring-cyan-400 border-cyan-400 shadow-lg' : 'opacity-70 hover:opacity-100'" class="p-2 rounded-2xl border text-left transition-all space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+            <button id="btn-traininggalleryindex-sidx" @click="trainingGalleryIndex = sIdx" :class="trainingGalleryIndex === sIdx ? 'ring-2 ring-cyan-400 border-cyan-400 shadow-lg' : 'opacity-70 hover:opacity-100'" class="p-2 rounded-2xl border text-left transition-all space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <div class="aspect-video rounded-xl bg-slate-950 overflow-hidden border border-slate-800 flex items-center justify-center relative">
                 <img :src="isDark ? slide.darkImg : slide.lightImg" class="w-full h-full object-cover">
                 <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-slate-950/80 text-cyan-400" x-text="(sIdx + 1 < 10 ? '0' : '') + (sIdx + 1)"></span>
@@ -7084,10 +7056,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
       </div>
 
       <div class="flex items-center space-x-6 font-bold" style="color: var(--color-text-secondary);">
-        <button @click="legalModal = 'disclaimer'" class="hover:text-teal-600 transition-colors">Clinical Disclaimer</button>
-        <button @click="legalModal = 'privacy'" class="hover:text-teal-600 transition-colors">Privacy & Sovereignty</button>
-        <button @click="legalModal = 'cookies'" class="hover:text-teal-600 transition-colors">Cookie Settings</button>
-        <button @click="legalModal = 'copyright'" class="hover:text-teal-600 transition-colors">Copyright & OSS</button>
+        <button id="btn-legalmodal-disclaimer" @click="legalModal = 'disclaimer'" class="hover:text-teal-600 transition-colors">Clinical Disclaimer</button>
+        <button id="btn-legalmodal-privacy" @click="legalModal = 'privacy'" class="hover:text-teal-600 transition-colors">Privacy & Sovereignty</button>
+        <button id="btn-legalmodal-cookies" @click="legalModal = 'cookies'" class="hover:text-teal-600 transition-colors">Cookie Settings</button>
+        <button id="btn-legalmodal-copyright" @click="legalModal = 'copyright'" class="hover:text-teal-600 transition-colors">Copyright & OSS</button>
       </div>
     </div>
   </footer>
@@ -7095,7 +7067,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- OMNI COMMAND PALETTE MODAL (Cmd+K / Ctrl+K)                               -->
   <!-- ========================================================================= -->
-  <div x-show="commandPaletteOpen" class="fixed inset-0 z-50 flex items-start justify-center pt-16 md:pt-24 p-4 modal-backdrop-scrim" style="display: none;" @keydown.escape.window="commandPaletteOpen = false">
+  <div id="modal-command-palette" x-show="commandPaletteOpen" class="fixed inset-0 z-50 flex items-start justify-center pt-16 md:pt-24 p-4 modal-backdrop-scrim" style="display: none;" @keydown.escape.window="commandPaletteOpen = false">
     <div class="glass-card w-full max-w-2xl rounded-3xl shadow-2xl border-2 overflow-hidden flex flex-col command-modal-anim" style="border-color: var(--color-border-card); background-color: var(--color-bg-card);" @click.outside="commandPaletteOpen = false">
       
       <!-- Command Input Bar with ⌘K Badge and Search Icon -->
@@ -7112,7 +7084,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         >
         <div class="flex items-center space-x-1.5 shrink-0">
           <kbd class="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[10px] font-bold">ESC</kbd>
-          <button @click="commandPaletteOpen = false" class="hover:text-rose-500 text-slate-400 p-1 transition-colors">
+          <button id="btn-commandpaletteopen-false" @click="commandPaletteOpen = false" class="hover:text-rose-500 text-slate-400 p-1 transition-colors">
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
@@ -7121,11 +7093,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
       <!-- Category Filter Chips -->
       <div class="px-4 py-2 flex items-center space-x-2 overflow-x-auto custom-scrollbar border-b text-[10px] font-bold" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle);">
         <span class="text-slate-400 font-mono">Filter:</span>
-        <button @click="commandCategoryFilter = 'all'" :class="commandCategoryFilter === 'all' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'all' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">All Actions</button>
-        <button @click="commandCategoryFilter = 'navigation'" :class="commandCategoryFilter === 'navigation' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'navigation' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Studios & Tabs</button>
-        <button @click="commandCategoryFilter = 'persona'" :class="commandCategoryFilter === 'persona' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'persona' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Personas</button>
-        <button @click="commandCategoryFilter = 'action'" :class="commandCategoryFilter === 'action' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'action' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Quick Triggers</button>
-        <button @click="commandCategoryFilter = 'faq'" :class="commandCategoryFilter === 'faq' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'faq' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">FAQ Search</button>
+        <button id="btn-commandcategoryfilter-all" @click="commandCategoryFilter = 'all'" :class="commandCategoryFilter === 'all' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'all' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">All Actions</button>
+        <button id="btn-commandcategoryfilter-navigation" @click="commandCategoryFilter = 'navigation'" :class="commandCategoryFilter === 'navigation' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'navigation' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Studios & Tabs</button>
+        <button id="btn-commandcategoryfilter-persona" @click="commandCategoryFilter = 'persona'" :class="commandCategoryFilter === 'persona' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'persona' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Personas</button>
+        <button id="btn-commandcategoryfilter-action" @click="commandCategoryFilter = 'action'" :class="commandCategoryFilter === 'action' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'action' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">Quick Triggers</button>
+        <button id="btn-commandcategoryfilter-faq" @click="commandCategoryFilter = 'faq'" :class="commandCategoryFilter === 'faq' ? 'bg-cyan-500 text-slate-950 font-black' : 'border hover:border-cyan-400'" :style="commandCategoryFilter !== 'faq' ? 'border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg whitespace-nowrap transition-all">FAQ Search</button>
       </div>
 
       <!-- Command List Results -->
@@ -7179,14 +7151,14 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- SSO SIGN-IN MODAL (WITH DARK TINTED SCRIM) -->
   <!-- ========================================================================= -->
-  <div x-show="ssoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop-scrim" style="display: none;">
+  <div id="modal-sso-login" x-show="ssoModalOpen" @keydown.escape.window="ssoModalOpen = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop-scrim" style="display: none;">
     <div class="glass-card p-7 rounded-3xl max-w-md w-full space-y-5 shadow-2xl border-2" style="border-color: var(--color-border-card);" @click.outside="ssoModalOpen = false">
       <div class="flex justify-between items-center border-b pb-3" style="border-color: var(--color-border-subtle);">
         <h3 class="text-base font-black flex items-center space-x-2.5" style="color: var(--color-text-primary);">
           <i class="fa-solid fa-building-shield text-teal-500"></i>
           <span>Enterprise Single Sign-On (SSO)</span>
         </h3>
-        <button @click="ssoModalOpen = false" class="hover:text-rose-500 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark text-sm"></i></button>
+        <button id="btn-ssomodalopen-false" @click="ssoModalOpen = false" class="hover:text-rose-500 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark text-sm"></i></button>
       </div>
 
       <p class="text-xs leading-relaxed font-medium" style="color: var(--color-text-secondary);">
@@ -7194,26 +7166,26 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
       </p>
 
       <div class="space-y-3">
-        <button @click="loginWithSso('google')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+        <button id="btn-loginwithsso" @click="loginWithSso('google')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
           <span class="flex items-center space-x-3"><i class="fa-brands fa-google text-rose-500 text-base"></i><span>Google Workspace Enterprise</span></span>
           <i class="fa-solid fa-arrow-right text-xs text-teal-500 group-hover:translate-x-1 transition-transform"></i>
         </button>
-        <button @click="loginWithSso('microsoft')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+        <button id="btn-loginwithsso-1" @click="loginWithSso('microsoft')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
           <span class="flex items-center space-x-3"><i class="fa-brands fa-microsoft text-sky-500 text-base"></i><span>Microsoft Entra ID (Azure AD)</span></span>
           <i class="fa-solid fa-arrow-right text-xs text-teal-500 group-hover:translate-x-1 transition-transform"></i>
         </button>
-        <button @click="loginWithSso('okta')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+        <button id="btn-loginwithsso-2" @click="loginWithSso('okta')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
           <span class="flex items-center space-x-3"><i class="fa-solid fa-id-badge text-blue-500 text-base"></i><span>Okta Verify SAML 2.0</span></span>
           <i class="fa-solid fa-arrow-right text-xs text-teal-500 group-hover:translate-x-1 transition-transform"></i>
         </button>
-        <button @click="loginWithSso('ping')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+        <button id="btn-loginwithsso-3" @click="loginWithSso('ping')" class="w-full p-3.5 rounded-2xl border hover:border-teal-500 text-xs font-bold flex items-center justify-between transition-all shadow-sm group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
           <span class="flex items-center space-x-3"><i class="fa-solid fa-key text-amber-500 text-base"></i><span>PingFederate OIDC</span></span>
           <i class="fa-solid fa-arrow-right text-xs text-teal-500 group-hover:translate-x-1 transition-transform"></i>
         </button>
       </div>
 
       <div class="flex justify-end pt-3 border-t" style="border-color: var(--color-border-subtle);">
-        <button @click="ssoModalOpen = false" class="px-5 py-2 rounded-xl border text-xs font-bold transition-all" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-secondary);">Cancel</button>
+        <button id="btn-ssomodalopen-false-1" @click="ssoModalOpen = false" class="px-5 py-2 rounded-xl border text-xs font-bold transition-all" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-secondary);">Cancel</button>
       </div>
     </div>
   </div>
@@ -7228,7 +7200,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           <i class="fa-solid fa-scale-balanced text-teal-500"></i>
           <span x-text="legalModal === 'disclaimer' ? 'Clinical Decision Support Disclaimer' : (legalModal === 'privacy' ? 'Data Sovereignty & Zero Training Policy' : (legalModal === 'cookies' ? 'Enterprise Cookie Settings' : 'Copyright & Open-Source Attributions'))"></span>
         </h3>
-        <button @click="legalModal = null" class="hover:text-rose-500 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+        <button id="btn-legalmodal-null" @click="legalModal = null" class="hover:text-rose-500 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <div class="text-xs space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar leading-relaxed" style="color: var(--color-text-secondary);">
@@ -7247,7 +7219,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
       </div>
 
       <div class="flex justify-end pt-3 border-t" style="border-color: var(--color-border-subtle);">
-        <button @click="legalModal = null" class="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs">Close</button>
+        <button id="btn-legalmodal-null-1" @click="legalModal = null" class="px-5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs">Close</button>
       </div>
     </div>
   </div>
@@ -7276,7 +7248,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             Legally binding electronic signature pursuant to FDA 21 CFR Part 11 and ICH GCP E6(R2).
           </p>
         </div>
-        <button @click="a2uiJustificationModalOpen = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
+        <button id="btn-a2uijustificationmodalopen-false" @click="a2uiJustificationModalOpen = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -7358,7 +7330,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- 1-CLICK FDA 21 CFR PART 11 REGULATORY INSPECTION DOSSIER MODAL (GEMINI 2.5 PRO) -->
   <!-- ========================================================================= -->
-  <div id="modal-fda-dossier" x-show="fdaDossierModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
+  <div id="modal-fda-dossier" x-show="fdaDossierModalOpen" @keydown.escape.window="fdaDossierModalOpen = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
     <div class="glass-card p-6 md:p-8 rounded-3xl max-w-4xl w-full space-y-5 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="fdaDossierModalOpen = false">
       
       <!-- Modal Header -->
@@ -7511,7 +7483,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
       </div>
     </div>
     <div class="flex items-center space-x-2 shrink-0">
-      <button @click="dismissOmniNarration()" class="p-1.5 hover:text-rose-400 transition-colors text-xs" style="color: var(--color-text-muted);" title="Dismiss">
+      <button id="btn-dismissomninarration" @click="dismissOmniNarration()" class="p-1.5 hover:text-rose-400 transition-colors text-xs" style="color: var(--color-text-muted);" title="Dismiss">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -7520,7 +7492,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- AUTONOMOUS USER READINESS MATRIX MODAL (GEMINI OMNI)                      -->
   <!-- ========================================================================= -->
-  <div id="modal-omni-readiness" x-show="omniReadinessModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
+  <div id="modal-omni-readiness" x-show="omniReadinessModalOpen" @keydown.escape.window="omniReadinessModalOpen = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
     <div class="glass-card p-6 md:p-8 rounded-3xl max-w-3xl w-full space-y-6 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="omniReadinessModalOpen = false">
       
       <!-- Modal Header -->
@@ -7560,7 +7532,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             </div>
             <p class="text-[11px]" style="color: var(--color-text-secondary);" x-text="omniPrimaryDirective"></p>
           </div>
-          <button @click="autoRemediateReadiness()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs shadow-md shrink-0 flex items-center space-x-1.5 transition-all">
+          <button id="btn-autoremediatereadiness" @click="autoRemediateReadiness()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs shadow-md shrink-0 flex items-center space-x-1.5 transition-all">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Auto-Clear Remaining Gates</span>
           </button>
@@ -7599,7 +7571,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <button id="btn-close-omni-readiness-footer" @click="omniReadinessModalOpen = false" class="px-4 py-2 rounded-xl border text-xs font-bold hover:border-rose-400 transition-all" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-secondary);">
           Close
         </button>
-        <button @click="omniReadinessModalOpen = false; omniDirectorDrawerOpen = true" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs shadow-lg transition-all flex items-center space-x-2">
+        <button id="btn-omnireadinessmodalopen-false-omnidirectordraweropen-true" @click="omniReadinessModalOpen = false; omniDirectorDrawerOpen = true" class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs shadow-lg transition-all flex items-center space-x-2">
           <i class="fa-solid fa-compass"></i>
           <span>Launch Omni Navigation Orchestrator</span>
         </button>
@@ -7610,7 +7582,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- OMNI GENERATIVE LAYOUT DESIGNER & VOICE ORCHESTRATOR DRAWER              -->
   <!-- ========================================================================= -->
-  <div id="drawer-omni-director" x-show="omniDirectorDrawerOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+  <div id="drawer-omni-director" x-show="omniDirectorDrawerOpen" @keydown.escape.window="omniDirectorDrawerOpen = false" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
     <div class="absolute inset-0 modal-backdrop-scrim transition-opacity" @click="omniDirectorDrawerOpen = false"></div>
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-xl glass-card border-l shadow-2xl flex flex-col justify-between" style="border-color: var(--color-border-card);">
@@ -7653,7 +7625,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           <div class="space-y-2">
             <span class="text-[10px] font-mono uppercase font-bold" style="color: var(--color-text-secondary);">One-Click Experience Directives:</span>
             <div class="space-y-1.5">
-              <button @click="executeOmniPreset('split_focus')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <button id="btn-executeomnipreset" @click="executeOmniPreset('split_focus')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                 <div class="flex items-center space-x-2.5">
                   <i class="fa-solid fa-table-columns" style="color: var(--color-badge-cyan-text);"></i>
                   <div>
@@ -7664,7 +7636,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 <i class="fa-solid fa-chevron-right text-xs opacity-0 group-hover:opacity-100 transition-opacity" style="color: var(--color-badge-cyan-text);"></i>
               </button>
 
-              <button @click="executeOmniPreset('pmda')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <button id="btn-executeomnipreset-1" @click="executeOmniPreset('pmda')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                 <div class="flex items-center space-x-2.5">
                   <i class="fa-solid fa-language" style="color: var(--color-badge-purple-text);"></i>
                   <div>
@@ -7675,7 +7647,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 <i class="fa-solid fa-chevron-right text-xs opacity-0 group-hover:opacity-100 transition-opacity" style="color: var(--color-badge-purple-text);"></i>
               </button>
 
-              <button @click="executeOmniPreset('fda_dossier')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <button id="btn-executeomnipreset-2" @click="executeOmniPreset('fda_dossier')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                 <div class="flex items-center space-x-2.5">
                   <i class="fa-solid fa-file-shield" style="color: var(--color-badge-amber-text);"></i>
                   <div>
@@ -7686,7 +7658,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 <i class="fa-solid fa-chevron-right text-xs opacity-0 group-hover:opacity-100 transition-opacity" style="color: var(--color-badge-amber-text);"></i>
               </button>
 
-              <button @click="executeOmniPreset('electronic_sign')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <button id="btn-executeomnipreset-3" @click="executeOmniPreset('electronic_sign')" class="w-full text-left p-3 rounded-2xl border hover:border-cyan-400 transition-all flex items-center justify-between group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                 <div class="flex items-center space-x-2.5">
                   <i class="fa-solid fa-signature" style="color: var(--color-badge-emerald-text);"></i>
                   <div>
@@ -7703,19 +7675,19 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           <div class="space-y-2">
             <span class="text-[10px] font-mono uppercase font-bold" style="color: var(--color-text-secondary);">Active Viewport Layout Mode:</span>
             <div class="grid grid-cols-2 gap-2">
-              <button @click="setOmniLayoutMode('standard')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'standard' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
+              <button id="btn-setomnilayoutmode-1" @click="setOmniLayoutMode('standard')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'standard' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
                 <i class="fa-solid fa-border-all text-sm mb-1 block" :class="omniLayoutMode === 'standard' ? (isDark ? 'text-cyan-400' : 'text-cyan-700') : (isDark ? 'text-slate-500' : 'text-slate-500')"></i>
                 <span>Standard Grid</span>
               </button>
-              <button @click="setOmniLayoutMode('split_focus')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'split_focus' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
+              <button id="btn-setomnilayoutmode-2" @click="setOmniLayoutMode('split_focus')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'split_focus' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
                 <i class="fa-solid fa-table-columns text-sm mb-1 block" :class="omniLayoutMode === 'split_focus' ? (isDark ? 'text-cyan-400' : 'text-cyan-700') : (isDark ? 'text-slate-500' : 'text-slate-500')"></i>
                 <span>Split Focus</span>
               </button>
-              <button @click="setOmniLayoutMode('high_density')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'high_density' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
+              <button id="btn-setomnilayoutmode-3" @click="setOmniLayoutMode('high_density')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'high_density' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
                 <i class="fa-solid fa-list-check text-sm mb-1 block" :class="omniLayoutMode === 'high_density' ? (isDark ? 'text-cyan-400' : 'text-cyan-700') : (isDark ? 'text-slate-500' : 'text-slate-500')"></i>
                 <span>High Density</span>
               </button>
-              <button @click="setOmniLayoutMode('guided_step')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'guided_step' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
+              <button id="btn-setomnilayoutmode-4" @click="setOmniLayoutMode('guided_step')" class="p-3 rounded-2xl border text-center transition-all" :class="omniLayoutMode === 'guided_step' ? (isDark ? 'border-cyan-400 bg-cyan-500/10 text-cyan-300 font-black' : 'border-cyan-500 bg-cyan-50 text-cyan-950 font-black shadow-sm') : (isDark ? 'border-slate-800 hover:border-slate-700 text-slate-400 font-bold' : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 font-bold')">
                 <i class="fa-solid fa-shoe-prints text-sm mb-1 block" :class="omniLayoutMode === 'guided_step' ? (isDark ? 'text-cyan-400' : 'text-cyan-700') : (isDark ? 'text-slate-500' : 'text-slate-500')"></i>
                 <span>Guided Step</span>
               </button>
@@ -7753,7 +7725,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           <i class="fa-solid fa-expand text-cyan-400"></i>
           <span class="text-sm font-black" style="color: var(--color-text-primary);" x-text="trainingZoomTitle"></span>
         </div>
-        <button @click="trainingZoomModal = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
+        <button id="btn-trainingzoommodal-false" @click="trainingZoomModal = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -7764,7 +7736,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
       <div class="flex justify-between items-center pt-2 border-t" style="border-color: var(--color-border-subtle);">
         <span class="text-xs font-mono" style="color: var(--color-text-muted);">Google Signed Chrome Automated Capture</span>
-        <button @click="trainingZoomModal = false" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs">Close Inspection</button>
+        <button id="btn-trainingzoommodal-false-1" @click="trainingZoomModal = false" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs">Close Inspection</button>
       </div>
     </div>
   </div>
@@ -7772,7 +7744,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- SLIDE-OVER DRAWER: "DR. A2A" GEMINI OMNI MULTIMODAL COPILOT -->
   <!-- ========================================================================= -->
-  <div x-show="assistantOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+  <div id="drawer-dr-a2a-copilot" x-show="assistantOpen" @keydown.escape.window="assistantOpen = false" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
     <div class="absolute inset-0 modal-backdrop-scrim transition-opacity" @click="assistantOpen = false"></div>
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-xl glass-card border-l shadow-2xl flex flex-col justify-between" style="border-color: var(--color-border-card);">
@@ -7797,11 +7769,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           
           <div class="flex items-center space-x-2">
             <!-- Voice Mode Toggle -->
-            <button @click="toggleOmniVoice()" :class="omniVoiceActive ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-800 text-slate-300 hover:text-white'" class="p-2 rounded-xl text-xs transition-all border border-slate-700 flex items-center space-x-1.5" title="Toggle Live Voice Stream">
+            <button id="btn-toggleomnivoice" @click="toggleOmniVoice()" :class="omniVoiceActive ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-800 text-slate-300 hover:text-white'" class="p-2 rounded-xl text-xs transition-all border border-slate-700 flex items-center space-x-1.5" title="Toggle Live Voice Stream">
               <i class="fa-solid" :class="omniVoiceActive ? 'fa-microphone-lines' : 'fa-microphone'"></i>
               <span class="text-[10px] font-bold" x-text="omniVoiceActive ? 'LIVE' : 'Voice'"></span>
             </button>
-            <button @click="assistantOpen = false" class="hover:text-rose-500 p-2 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+            <button id="btn-assistantopen-false" @click="assistantOpen = false" class="hover:text-rose-500 p-2 transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
           </div>
         </div>
 
@@ -7842,15 +7814,15 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <!-- Quick "Prompt-to-DAG" Action Chips -->
         <div class="px-4 py-2 flex items-center space-x-2 overflow-x-auto custom-scrollbar border-b text-[10px] font-bold" style="border-color: var(--color-border-subtle); background-color: var(--color-bg-card-subtle);">
           <span class="text-slate-400 font-mono">Prompt-to-DAG:</span>
-          <button @click="executeQuickPrompt('Assemble an SDTM pipeline and auto-sanitize with AST in 28us')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+          <button id="btn-executequickprompt-1" @click="executeQuickPrompt('Assemble an SDTM pipeline and auto-sanitize with AST in 28us')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
             <i class="fa-solid fa-bolt text-amber-400"></i>
             <span>SDTM Pipeline</span>
           </button>
-          <button @click="executeQuickPrompt('Strip Case 74980079 ADK envelope contamination')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+          <button id="btn-executequickprompt-2" @click="executeQuickPrompt('Strip Case 74980079 ADK envelope contamination')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
             <i class="fa-solid fa-shield-virus text-rose-400"></i>
             <span>Case 74980079 Filter</span>
           </button>
-          <button @click="executeQuickPrompt('Simulate clinical dose titration to 200mg')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
+          <button id="btn-executequickprompt-3" @click="executeQuickPrompt('Simulate clinical dose titration to 200mg')" class="px-2.5 py-1 rounded-lg border hover:border-cyan-400 whitespace-nowrap transition-all flex items-center space-x-1" style="border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
             <i class="fa-solid fa-sliders text-teal-400"></i>
             <span>Titrate to 200mg</span>
           </button>
@@ -7875,10 +7847,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <div class="p-4 border-t sub-navbar space-y-2" style="border-color: var(--color-border-subtle);">
           <form @submit.prevent="sendAssistantMessage()" class="flex gap-2">
             <input type="text" x-model="chatInput" placeholder="Ask Dr. A2A or speak instructions to auto-compose DAG..." class="flex-1 px-4 py-2.5 rounded-2xl border text-xs focus:outline-none focus:border-teal-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-            <button type="button" @click="simulateOmniVisionScan()" class="p-2.5 rounded-2xl border hover:border-cyan-400 transition-all text-cyan-400" title="Multimodal Vision: Upload Clinical Protocol / Architecture Scan" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+            <button id="btn-simulateomnivisionscan" type="button" @click="simulateOmniVisionScan()" class="p-2.5 rounded-2xl border hover:border-cyan-400 transition-all text-cyan-400" title="Multimodal Vision: Upload Clinical Protocol / Architecture Scan" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
               <i class="fa-solid fa-camera"></i>
             </button>
-            <button type="submit" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-md">Send</button>
+            <button id="btn" type="submit" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-md">Send</button>
           </form>
         </div>
       </div>
@@ -7888,18 +7860,18 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <!-- ========================================================================= -->
   <!-- SLIDE-OVER DRAWER: BYOK API KEY -->
   <!-- ========================================================================= -->
-  <div x-show="byokDrawerOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+  <div id="drawer-byok-settings" x-show="byokDrawerOpen" @keydown.escape.window="byokDrawerOpen = false" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
     <div class="absolute inset-0 modal-backdrop-scrim" @click="byokDrawerOpen = false"></div>
     <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
       <div class="w-screen max-w-md glass-card border-l shadow-2xl p-6 flex flex-col justify-between" style="border-color: var(--color-border-card);">
         <div class="space-y-4">
           <div class="flex justify-between items-center border-b pb-3" style="border-color: var(--color-border-subtle);">
             <h3 class="text-base font-bold" style="color: var(--color-text-primary);">30-Second BYOK API Key Drawer</h3>
-            <button @click="byokDrawerOpen = false" class="hover:text-rose-500" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+            <button id="btn-byokdraweropen-false" @click="byokDrawerOpen = false" class="hover:text-rose-500" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
           </div>
           <p class="text-xs font-medium" style="color: var(--color-text-secondary);">Enter your enterprise LLM API key for instant testing:</p>
           <input type="password" x-model="byokApiKey" class="w-full px-3.5 py-2.5 rounded-2xl border text-xs font-mono font-bold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card); color: var(--color-text-primary);">
-          <button @click="triggerSparkleCelebration(); byokDrawerOpen = false" class="w-full py-3 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs shadow-lg">Test Live Latency Ping</button>
+          <button id="btn-triggersparklecelebration-3" @click="triggerSparkleCelebration(); byokDrawerOpen = false" class="w-full py-3 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs shadow-lg">Test Live Latency Ping</button>
         </div>
       </div>
     </div>
@@ -10154,7 +10126,55 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         handleHashNavigation() {
           const rawHash = window.location.hash;
           if (!rawHash) return;
-          let cleaned = rawHash.replace(/^#\/?(tab-)?/, '').trim().toLowerCase();
+          const hash = rawHash.replace(/^#\/?/, '').trim();
+          
+          // 1. Direct Modal & Drawer Deep-Linking
+          if (hash.includes('modal-fda-dossier') || hash.includes('fda-dossier') || hash === 'dossier') {
+            this.openFdaDossierModal();
+            return;
+          }
+          if (hash.includes('drawer-director') || hash.includes('omni-director')) {
+            this.omniDirectorDrawerOpen = true;
+            return;
+          }
+          if (hash.includes('drawer-copilot') || hash === 'copilot') {
+            this.assistantOpen = true;
+            return;
+          }
+          if (hash.includes('drawer-byok') || hash === 'byok') {
+            this.byokDrawerOpen = true;
+            return;
+          }
+          if (hash.includes('modal-sso') || hash === 'sso') {
+            this.ssoModalOpen = true;
+            return;
+          }
+          if (hash.includes('modal-readiness') || hash.includes('omni-readiness') || hash === 'readiness') {
+            this.omniReadinessModalOpen = true;
+            return;
+          }
+          if (hash.includes('modal-justification') || hash === 'justification') {
+            this.a2uiJustificationModalOpen = true;
+            return;
+          }
+          if (hash.includes('palette') || hash.includes('command-palette')) {
+            this.commandPaletteOpen = true;
+            return;
+          }
+
+          // 2. Sub-View Deep-Linking (e.g. #tab-veo/act-3)
+          const veoActMatch = hash.match(/(?:tab-)?veo\/act-?(\d+)/i);
+          if (veoActMatch) {
+            const actNum = parseInt(veoActMatch[1]);
+            if (actNum >= 1 && actNum <= 5) {
+              this.currentTab = 'veo_studio';
+              this.selectVeoAct(actNum);
+              return;
+            }
+          }
+
+          // 3. Tab Deep-Linking
+          let cleaned = hash.replace(/^tab-/, '').toLowerCase();
           const aliasMap = {
             'dag': 'dag_studio',
             'dose': 'dose_curve',
@@ -10242,22 +10262,54 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             this.handleHashNavigation();
           });
 
-          // Alpine Watcher: Synchronize URL hash whenever currentTab changes & auto-collapse mobile drawer
-          this.$watch('currentTab', (val) => {
-            if (val) {
-              const targetHash = '#tab-' + val;
-              if (window.location.hash !== targetHash && window.location.hash !== '#' + val) {
-                try {
-                  history.replaceState(null, '', targetHash);
-                } catch (e) {
-                  window.location.hash = targetHash;
-                }
-              }
-              if (this.isMobile) {
-                this.sidebarCollapsed = true;
+          // Deep-Linking URL State Synchronizer across Tabs, Modals, and Drawers
+          const syncUrlState = () => {
+            let targetHash = '';
+            if (this.fdaDossierModalOpen) {
+              targetHash = '#modal-fda-dossier';
+            } else if (this.omniDirectorDrawerOpen) {
+              targetHash = '#drawer-director';
+            } else if (this.assistantOpen) {
+              targetHash = '#drawer-copilot';
+            } else if (this.byokDrawerOpen) {
+              targetHash = '#drawer-byok';
+            } else if (this.ssoModalOpen) {
+              targetHash = '#modal-sso';
+            } else if (this.omniReadinessModalOpen) {
+              targetHash = '#modal-readiness';
+            } else if (this.a2uiJustificationModalOpen) {
+              targetHash = '#modal-justification';
+            } else if (this.commandPaletteOpen) {
+              targetHash = '#palette';
+            } else if (this.currentTab === 'veo_studio' && this.veoActiveAct && this.veoActiveAct > 1) {
+              targetHash = `#tab-veo/act-${this.veoActiveAct}`;
+            } else if (this.currentTab) {
+              targetHash = '#tab-' + this.currentTab;
+            }
+            if (targetHash && window.location.hash !== targetHash) {
+              try {
+                history.replaceState(null, '', targetHash);
+              } catch (e) {
+                window.location.hash = targetHash;
               }
             }
+          };
+
+          this.$watch('currentTab', (val) => {
+            if (val && this.isMobile) {
+              this.sidebarCollapsed = true;
+            }
+            syncUrlState();
           });
+          this.$watch('fdaDossierModalOpen', syncUrlState);
+          this.$watch('omniDirectorDrawerOpen', syncUrlState);
+          this.$watch('assistantOpen', syncUrlState);
+          this.$watch('byokDrawerOpen', syncUrlState);
+          this.$watch('ssoModalOpen', syncUrlState);
+          this.$watch('omniReadinessModalOpen', syncUrlState);
+          this.$watch('a2uiJustificationModalOpen', syncUrlState);
+          this.$watch('commandPaletteOpen', syncUrlState);
+          this.$watch('veoActiveAct', syncUrlState);
 
           // Setup keyboard listener for Cmd+K / Ctrl+K and Universal Escape Dismissal
           window.addEventListener('keydown', (e) => {
