@@ -105,46 +105,49 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
             (a2a_pb2.TaskState.INPUT_REQUIRED, "Dossier complete. Human-in-the-Loop review required by Medical Director.", True),
         ]
 
-        for state, msg, is_terminal in events:
-            if self._cancelled_tasks.get(task_id, False):
-                logger.info(f"[StreamTask] Task {task_id} cancelled during stream.")
-                yield a2a_pb2.StreamTaskResponse(
+        try:
+            for state, msg, is_terminal in events:
+                if self._cancelled_tasks.get(task_id, False):
+                    logger.info(f"[StreamTask] Task {task_id} cancelled during stream.")
+                    yield a2a_pb2.StreamTaskResponse(
+                        task_id=task_id,
+                        chunk_text="Task execution was cancelled by client.",
+                        current_state=a2a_pb2.TaskState.CANCELLED,
+                        is_terminal=True,
+                    )
+                    return
+
+                payload_struct = struct_pb2.Struct()
+                if is_terminal:
+                    payload_struct.update({
+                        "studyId": study_id,
+                        "cohort": cohort,
+                        "variancePct": 2.14,
+                        "actionRequired": "SIGN_OFF_AMENDMENT",
+                        "requiresHITL": True,
+                    })
+
+                response = a2a_pb2.StreamTaskResponse(
                     task_id=task_id,
-                    chunk_text="Task execution was cancelled by client.",
-                    current_state=a2a_pb2.TaskState.CANCELLED,
-                    is_terminal=True,
+                    chunk_text=msg,
+                    current_state=state,
+                    is_terminal=is_terminal,
+                    payload=payload_struct,
                 )
-                return
+                yield response
+                await asyncio.sleep(0.3)
 
-            payload_struct = struct_pb2.Struct()
-            if is_terminal:
-                payload_struct.update({
-                    "studyId": study_id,
-                    "cohort": cohort,
-                    "variancePct": 2.14,
-                    "actionRequired": "SIGN_OFF_AMENDMENT",
-                    "requiresHITL": True,
-                })
-
-            response = a2a_pb2.StreamTaskResponse(
-                task_id=task_id,
-                chunk_text=msg,
-                current_state=state,
-                is_terminal=is_terminal,
-                payload=payload_struct,
-            )
-            yield response
-            await asyncio.sleep(0.3)
-
-        # Out-of-band push notification dispatch
-        if request.push_config and request.push_config.url:
-            dispatch_in_background(
-                url=request.push_config.url,
-                task_id=task_id,
-                state="INPUT_REQUIRED",
-                output_data={"studyId": study_id, "cohort": cohort, "variancePct": 2.14},
-                token=request.push_config.token,
-            )
+            # Out-of-band push notification dispatch
+            if request.push_config and request.push_config.url:
+                dispatch_in_background(
+                    url=request.push_config.url,
+                    task_id=task_id,
+                    state="INPUT_REQUIRED",
+                    output_data={"studyId": study_id, "cohort": cohort, "variancePct": 2.14},
+                    token=request.push_config.token,
+                )
+        finally:
+            self._cancelled_tasks.pop(task_id, None)
 
     async def CancelTask(
         self,
@@ -154,5 +157,9 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
         """Cancel an in-flight streaming or background task."""
         task_id = request.task_id
         logger.info(f"[CancelTask] Cancelling task {task_id}. Reason: {request.reason}")
+        if len(self._cancelled_tasks) > 5000:
+            oldest_keys = list(self._cancelled_tasks.keys())[:1000]
+            for k in oldest_keys:
+                self._cancelled_tasks.pop(k, None)
         self._cancelled_tasks[task_id] = True
         return empty_pb2.Empty()

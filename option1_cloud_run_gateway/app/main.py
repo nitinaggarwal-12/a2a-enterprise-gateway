@@ -75,6 +75,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from .rate_limiter import RateLimiterMiddleware
+app.add_middleware(RateLimiterMiddleware)
+
 
 # Background Worker for Out-of-Band Push Notification
 async def dispatch_push_notification(push_url: str, task_id: str, decision: str, study_id: str, cohort: str):
@@ -255,10 +258,87 @@ async def handle_task_dispatch(
     try:
         incoming_json = json.loads(raw_body) if raw_body else {}
     except Exception as exc:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid JSON body: {str(exc)}",
+            content={
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32700,
+                    "message": f"Parse error: Invalid JSON body ({str(exc)})",
+                },
+                "id": None,
+            },
         )
+
+    if not isinstance(incoming_json, dict):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32600,
+                    "message": "Invalid Request: Top-level payload must be a JSON object.",
+                },
+                "id": None,
+            },
+        )
+
+    # JSON-RPC 2.0 Structural Conformance
+    jsonrpc_ver = incoming_json.get("jsonrpc")
+    if jsonrpc_ver is not None and jsonrpc_ver != "2.0":
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32600,
+                    "message": f"Invalid Request: Unsupported JSON-RPC version '{jsonrpc_ver}'. Protocol requires '2.0'.",
+                },
+                "id": incoming_json.get("id"),
+            },
+        )
+
+    method = incoming_json.get("method")
+    if jsonrpc_ver == "2.0" and not method:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32600,
+                    "message": "Invalid Request: Missing or empty 'method' parameter in JSON-RPC request.",
+                },
+                "id": incoming_json.get("id"),
+            },
+        )
+
+    params = incoming_json.get("params")
+    if params is not None and not isinstance(params, dict):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32602,
+                    "message": "Invalid params: 'params' must be a JSON object.",
+                },
+                "id": incoming_json.get("id"),
+            },
+        )
+
+    if method in ("a2a.tasks.send", "tasks.send") and isinstance(params, dict):
+        if not any(k in params for k in ("taskId", "studyId", "input", "task", "pushUrl")):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={
+                    "jsonrpc": "2.0",
+                    "error": {
+                        "code": -32602,
+                        "message": "Invalid params: 'a2a.tasks.send' requires at least one of 'taskId', 'studyId', or 'input'.",
+                    },
+                    "id": incoming_json.get("id"),
+                },
+            )
 
     # 1. Sanitize incoming payload (Drop adk_metadata, _adk, __adk*, ge_context, etc.)
     cleaned_payload = sanitize_payload(incoming_json)
@@ -290,7 +370,12 @@ async def handle_task_dispatch(
             async def event_generator():
                 try:
                     async for chunk in response.aiter_raw():
+                        if await request.is_disconnected():
+                            logger.info("Client disconnected during SSE stream; stopping upstream consumption.")
+                            break
                         yield chunk
+                except Exception as exc:
+                    logger.warning(f"Error during SSE stream passthrough: {exc}")
                 finally:
                     await response.aclose()
                     await client.aclose()
@@ -330,9 +415,16 @@ async def handle_task_dispatch(
     if push_url:
         safe, reason = is_safe_webhook_url(push_url)
         if not safe:
-            raise HTTPException(
+            return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Insecure or prohibited pushUrl (SSRF Guard Active): {reason}",
+                content={
+                    "jsonrpc": "2.0",
+                    "error": {
+                        "code": -32602,
+                        "message": f"Invalid params: Insecure or prohibited pushUrl (SSRF Guard Active): {reason}",
+                    },
+                    "id": cleaned_payload.get("id"),
+                },
             )
 
     # Generate the dual-dialect surface with sealed state tokens

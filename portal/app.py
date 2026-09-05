@@ -51,7 +51,11 @@ from portal.cloud_connect_router import router as cloud_connect_router
 from portal.category_killer_router import router as category_killer_router
 from portal.promptcanvas_bridge_router import router as promptcanvas_router
 
+from option1_cloud_run_gateway.app.rate_limiter import RateLimiterMiddleware
+
 app = FastAPI(title="Enterprise A2A Enterprise Gateway Test Console")
+
+app.add_middleware(RateLimiterMiddleware, default_limit=600, window_seconds=60)
 
 app.add_middleware(
     CORSMiddleware,
@@ -702,6 +706,8 @@ async def submit_user_feedback(request: Request):
         "studyId": body.get("studyId", "MK-3475-087"),
         "gxpHash": f"sha256-{uuid.uuid4().hex[:18]}"
     }
+    if len(FEEDBACK_REGISTRY) >= 500:
+        FEEDBACK_REGISTRY.pop(0)
     FEEDBACK_REGISTRY.append(new_fb)
     return {"success": True, "feedback": new_fb}
 

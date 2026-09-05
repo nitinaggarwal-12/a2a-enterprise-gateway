@@ -4,6 +4,7 @@ Bridges Enterprise's sovereign backend execution plane (Plane 1) with the
 interactive Human-in-the-Loop surface in Gemini Enterprise (Plane 2).
 """
 
+from datetime import datetime, timezone
 import json
 import logging
 import sys
@@ -15,6 +16,7 @@ from jose import jwt, JWTError
 
 from backend.config import config
 from .card_templates import render_approval_card
+from option1_cloud_run_gateway.app.security import is_safe_webhook_url
 
 # Logging setup
 logging.basicConfig(
@@ -30,8 +32,9 @@ app = FastAPI(
     description="Bridge service pushing sovereign A2UI review cards to Gemini Enterprise workspace.",
 )
 
-# In-memory audit log for GxP compliance verification
+# In-memory audit log for GxP compliance verification (bounded)
 AUDIT_TRAIL: List[Dict[str, Any]] = []
+MAX_AUDIT_TRAIL = 1000
 
 
 class DispatchApprovalRequest(BaseModel):
@@ -76,6 +79,14 @@ async def dispatch_approval(req: DispatchApprovalRequest):
     target_ge_url = req.geInboundUrl or f"{config.GE_INBOUND_URL}/api/v1/ge/inbound-webhook"
     logger.info(f"[Bridge] Pushing A2UI card to GE Inbound at: {target_ge_url}")
 
+    # SSRF Guard: Validate target GE webhook URL
+    safe, reason = is_safe_webhook_url(target_ge_url)
+    if not safe:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Insecure or prohibited GE webhook target (SSRF Guard): {reason}",
+        )
+
     delivery_status = "DELIVERED"
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -118,6 +129,7 @@ async def action_callback(req: ActionCallbackRequest):
     amendment = claims.get("amendment")
 
     # 2. Record 21 CFR Part 11 Electronic Signature Audit Event
+    now_utc = datetime.now(timezone.utc).isoformat()
     audit_entry = {
         "auditId": f"audit-{len(AUDIT_TRAIL) + 1:04d}",
         "studyId": study_id,
@@ -126,9 +138,11 @@ async def action_callback(req: ActionCallbackRequest):
         "amendment": amendment,
         "signedBy": req.reviewerEmail,
         "signatureType": "21 CFR Part 11 Validated Digital Signature",
-        "timestamp": "2026-09-03T18:10:00Z",
+        "timestamp": now_utc,
         "gxpVerified": True,
     }
+    if len(AUDIT_TRAIL) >= MAX_AUDIT_TRAIL:
+        AUDIT_TRAIL.pop(0)
     AUDIT_TRAIL.append(audit_entry)
 
     logger.info(f" Audit record logged: Study {study_id} ({cohort}) -> {decision} by {req.reviewerEmail}")

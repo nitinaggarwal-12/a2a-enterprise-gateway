@@ -322,8 +322,13 @@ class CFRPart11Signer:
             "signature": signature,
         }
 
-    def verify_signature(self, signed_envelope: Dict[str, Any]) -> Tuple[bool, str]:
-        """Statelessly verifies the signature integrity of the incoming package."""
+    def verify_signature(
+        self,
+        signed_envelope: Dict[str, Any],
+        document_data: Optional[Any] = None,
+        max_age_hours: Optional[int] = None,
+    ) -> Tuple[bool, str]:
+        """Statelessly verifies the signature integrity of the incoming package (§ 11.50 & § 11.70)."""
         payload = signed_envelope.get("payload")
         provided_signature = signed_envelope.get("signature")
 
@@ -334,6 +339,37 @@ class CFRPart11Signer:
         for field in required_fields:
             if field not in payload:
                 return False, f"Non-compliant envelope: missing § 11.50 attribute '{field}'"
+
+        # § 11.50 Meaning Manifestation Validation
+        meaning = str(payload.get("meaning", "")).strip()
+        if not meaning:
+            return False, "Non-compliant envelope: § 11.50 signature meaning cannot be empty"
+
+        # § 11.70 Optional Document-to-Signature Linking Verification
+        if document_data is not None:
+            if isinstance(document_data, str):
+                doc_bytes = document_data.encode("utf-8")
+            elif not isinstance(document_data, bytes):
+                doc_bytes = json.dumps(document_data, sort_keys=True).encode("utf-8")
+            else:
+                doc_bytes = document_data
+            computed_hash = hashlib.sha256(doc_bytes).hexdigest()
+            if not hmac.compare_digest(computed_hash, payload.get("document_hash", "")):
+                return False, "21 CFR § 11.70 Record Linking Failure: Document content digest does not match signature document_hash"
+
+        # Timestamp Expiration Gate
+        if max_age_hours is not None:
+            ts_str = payload.get("timestamp", "")
+            try:
+                sig_dt = datetime.fromisoformat(ts_str)
+                now_dt = datetime.now(timezone.utc)
+                age_seconds = (now_dt - sig_dt).total_seconds()
+                if age_seconds > max_age_hours * 3600:
+                    return False, f"Signature expired: age of signature ({age_seconds/3600:.1f}h) exceeds maximum allowed age ({max_age_hours}h)"
+                if age_seconds < -300:
+                    return False, "Invalid signature timestamp: signature claims to be signed in the future"
+            except ValueError:
+                return False, f"Invalid ISO-8601 timestamp in envelope: '{ts_str}'"
 
         serialized_payload = json.dumps(payload, sort_keys=True).encode("utf-8")
         expected_signature = hmac.new(self.secret_key, serialized_payload, hashlib.sha256).hexdigest()

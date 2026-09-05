@@ -9,9 +9,12 @@ import hmac
 import hashlib
 import json
 import logging
+import os
 import time
 from typing import Any, Dict, Optional
 import httpx
+
+from option1_cloud_run_gateway.app.security import is_safe_webhook_url
 
 logger = logging.getLogger("grpc_push_dispatcher")
 
@@ -28,6 +31,12 @@ async def deliver_task_push_notification(
     if not url:
         return False
 
+    # SSRF Guard: Validate target URL against link-local, cloud metadata, and internal subnets
+    safe, reason = is_safe_webhook_url(url)
+    if not safe:
+        logger.error(f"[PushDispatcher] SSRF Guard blocked push notification to {url}: {reason}")
+        return False
+
     payload = {
         "taskId": task_id,
         "state": state,
@@ -37,7 +46,8 @@ async def deliver_task_push_notification(
     payload_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
 
     # Generate HMAC-SHA256 signature for payload integrity
-    signature = hmac.new(secret_key.encode("utf-8"), payload_bytes, hashlib.sha256).hexdigest()
+    signing_key = os.getenv("A2A_GRPC_PUSH_SECRET", secret_key)
+    signature = hmac.new(signing_key.encode("utf-8"), payload_bytes, hashlib.sha256).hexdigest()
 
     headers = {
         "Content-Type": "application/json",

@@ -400,7 +400,10 @@ async def export_dag_to_drawio(request: ExportDiagramRequest):
     """
     preset_key = request.architecture_preset
     if preset_key not in ARCHETYPE_XML_TEMPLATES:
-        preset_key = "option3_dual_plane"
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid architecture_preset '{preset_key}'. Valid options: {list(ARCHETYPE_XML_TEMPLATES.keys())}"
+        )
 
     template = ARCHETYPE_XML_TEMPLATES[preset_key]
     return {
