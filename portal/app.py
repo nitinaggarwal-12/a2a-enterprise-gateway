@@ -50,6 +50,7 @@ from portal.advanced_a2a_router import router as advanced_a2a_router
 from portal.cloud_connect_router import router as cloud_connect_router
 from portal.category_killer_router import router as category_killer_router
 from portal.promptcanvas_bridge_router import router as promptcanvas_router
+from portal.google_labs_router import router as google_labs_router
 
 from option1_cloud_run_gateway.app.rate_limiter import RateLimiterMiddleware
 
@@ -88,6 +89,10 @@ app.include_router(category_killer_router, prefix="/api")
 # Mount PromptCanvas Visual Architecture Bridge Router
 app.include_router(promptcanvas_router, prefix="/api/promptcanvas")
 app.include_router(promptcanvas_router, prefix="/api")
+
+# Mount Google Labs & Foundational Models Router
+app.include_router(google_labs_router, prefix="/api/google-labs")
+app.include_router(google_labs_router, prefix="/api")
 
 
 # Mount static directory for screenshots and assets
