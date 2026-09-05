@@ -215,121 +215,150 @@
   <!-- ========================================================================= -->
   <!-- STICKY ENTERPRISE CLEAN HEADER                                            -->
   <!-- ========================================================================= -->
-  <header class="sticky top-0 z-40 w-full glass-card border-b backdrop-blur-2xl shadow-xl">
-    <div class="w-full px-4 md:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
-      
-      <!-- Left: Sidebar Toggle + Brand Logo + Workspace Breadcrumb -->
-      <div class="flex items-center space-x-3">
-        <!-- Sidebar Collapse / Expand Toggle Button -->
-        <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shrink-0 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Toggle Sidebar">
-          <i class="fa-solid text-sm transition-transform duration-300" :class="sidebarCollapsed ? 'fa-bars' : 'fa-bars-staggered text-cyan-400'"></i>
-        </button>
-
-        <!-- Brand Emblem & Title -->
-        <div class="flex items-center space-x-2.5 cursor-pointer group" @click="triggerSparkleCelebration()">
-          <div class="relative w-9 h-9 rounded-xl bg-slate-950 dark:bg-slate-900 flex items-center justify-center border border-teal-400/50 shadow-md group-hover:scale-105 transition-transform">
-            <i class="fa-solid fa-dna text-cyan-400 text-base font-black"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-base md:text-lg font-black tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">Enterprise A2A Gateway</h1>
-              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm hidden sm:inline" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);">v1.0.0</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm hidden md:inline" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">21 CFR Part 11</span>
-            </div>
-            <p class="text-[10px] flex items-center space-x-1.5 font-medium" style="color: var(--color-text-muted);">
-              <span>Sovereign Biopharma Swarm</span>
-              <span>•</span>
-              <span class="font-mono font-bold flex items-center space-x-1" style="color: var(--color-badge-emerald-text);">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>28 µs AST Latency</span>
-              </span>
-            </p>
-          </div>
+  <!-- ========================================================================= -->
+  <!-- SLIM MOBILE-ONLY HEADER (SCREENS < 768px)                                 -->
+  <!-- ========================================================================= -->
+  <header class="flex md:hidden sticky top-0 z-40 w-full glass-card border-b backdrop-blur-2xl px-4 py-2.5 items-center justify-between shadow-md">
+    <div class="flex items-center space-x-2.5">
+      <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-2 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Toggle Sidebar">
+        <i class="fa-solid fa-bars text-sm text-cyan-400"></i>
+      </button>
+      <div class="flex items-center space-x-2 cursor-pointer" @click="triggerSparkleCelebration()">
+        <div class="w-7 h-7 rounded-lg bg-slate-950 dark:bg-slate-900 flex items-center justify-center border border-teal-400/50">
+          <i class="fa-solid fa-dna text-cyan-400 text-xs"></i>
         </div>
-
-        <!-- Active Tab Context Pill -->
-        <div class="hidden xl:flex items-center space-x-2 pl-3 border-l text-xs font-bold" style="border-color: var(--color-border-subtle);">
-          <span style="color: var(--color-text-muted);">Workspace:</span>
-          <span class="px-2.5 py-0.5 rounded-lg font-mono text-cyan-400 border border-cyan-500/20 bg-cyan-500/10" x-text="getTabName(currentTab)"></span>
-        </div>
+        <span class="text-sm font-black bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">Enterprise A2A</span>
       </div>
-
-      <!-- Center / Right: Persona Selector + Quick Controls -->
-      <div class="flex items-center space-x-2 sm:space-x-2.5">
-        
-        <!-- Persona Storyboard Switcher -->
-        <div class="hidden lg:flex items-center space-x-1 p-1 rounded-xl border text-xs shadow-inner sub-navbar">
-          <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-cyan-600'" :style="activePersona !== 'architect' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
-            <span>🏛️ Architect</span>
-          </button>
-          <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-emerald-600'" :style="activePersona !== 'clinician' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
-            <span>🩺 Clinician</span>
-          </button>
-          <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-sm' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
-            <span>⚖️ Compliance</span>
-          </button>
-          <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2.5 py-1 rounded-lg transition-all text-[11px] flex items-center space-x-1">
-            <span>💻 Developer</span>
-          </button>
-        </div>
-
-        <!-- Omni Command Palette Trigger (Cmd+K) -->
-        <button @click="openCommandPalette()" class="px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm hover:border-cyan-400 group" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Open Command Palette (Cmd+K)">
-          <i class="fa-solid fa-magnifying-glass text-cyan-400 text-xs group-hover:scale-110 transition-transform"></i>
-          <span class="hidden xl:inline text-[11px]" style="color: var(--color-text-secondary);">Actions</span>
-          <kbd class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[9px]">⌘K</kbd>
-        </button>
-
-        <!-- Information Density Switcher -->
-        <button @click="compactMode = !compactMode" class="p-2 rounded-xl border hover:border-teal-500 transition-all shadow-sm flex items-center justify-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" :title="compactMode ? 'Switch to Comfortable Spacing' : 'Switch to Compact Spacing'">
-          <i class="fa-solid text-xs" :class="compactMode ? 'fa-compress text-cyan-400' : 'fa-expand text-slate-400'"></i>
-        </button>
-
-        <!-- Theme Toggle -->
-        <button @click="toggleTheme()" class="p-2 rounded-xl border hover:border-teal-500 transition-all shadow-sm flex items-center justify-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
-          <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
-        </button>
-
-        <!-- SSO Login Button -->
-        <button @click="ssoModalOpen = true" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-          <i class="fa-solid fa-user-shield text-teal-500 text-xs"></i>
-          <span class="hidden md:inline text-[11px]" x-text="currentUser ? currentUser.name : 'SSO'"></span>
-        </button>
-
-        <!-- BYOK Key -->
-        <button @click="byokDrawerOpen = true" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
-          <i class="fa-solid fa-key text-amber-500 text-xs"></i>
-          <span class="hidden md:inline text-[11px]">BYOK</span>
-        </button>
-
-        <!-- Live Alerts Counter -->
-        <button @click="currentTab = 'alerts_feedback'" class="relative p-2 rounded-xl border text-xs font-bold transition-all shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Alerts">
-          <i class="fa-solid fa-bell text-rose-500 text-xs"></i>
-          <span x-show="unreadAlertsCount > 0" class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-600 text-white font-black text-[8px] flex items-center justify-center animate-bounce shadow-md" x-text="unreadAlertsCount"></span>
-        </button>
-
-        <!-- Dr. A2A Copilot -->
-        <button @click="assistantOpen = true" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-extrabold flex items-center space-x-1.5 shadow-lg shadow-teal-500/20 transition-all active:scale-95">
-          <i class="fa-solid fa-robot text-xs"></i>
-          <span class="hidden sm:inline">Dr. A2A</span>
-        </button>
-      </div>
-
+    </div>
+    <div class="flex items-center space-x-1.5">
+      <button @click="toggleTheme()" class="p-2 rounded-xl border text-xs" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="Toggle Theme">
+        <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
+      </button>
+      <button @click="assistantOpen = true" class="p-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 text-xs font-black shadow-md" title="Dr. A2A Copilot">
+        <i class="fa-solid fa-robot"></i>
+      </button>
     </div>
   </header>
 
   <!-- ========================================================================= -->
-  <!-- MAIN APP WRAPPER: SIDEBAR + CONTENT AREA                                  -->
+  <!-- MAIN APP WRAPPER: UNIFIED SIDEBAR + CONTENT AREA                          -->
   <!-- ========================================================================= -->
-  <div class="flex-1 flex w-full relative min-h-[calc(100vh-65px)]">
+  <div class="flex-1 flex w-full relative min-h-screen">
 
     <!-- ========================================================================= -->
-    <!-- COLLAPSIBLE LEFT NAVIGATION SIDEBAR                                       -->
+    <!-- CONSOLIDATED LEFT NAVIGATION SIDEBAR                                      -->
     <!-- ========================================================================= -->
-    <aside :class="sidebarCollapsed ? 'w-20' : 'w-64 xl:w-72'" class="transition-all duration-300 ease-in-out shrink-0 sticky top-[57px] h-[calc(100vh-57px)] flex flex-col justify-between p-3 glass-card border-r z-30 overflow-y-auto custom-scrollbar shadow-lg" style="border-color: var(--color-border-card); background-color: var(--color-bg-card-subtle);">
+    <aside :class="sidebarCollapsed ? 'w-20' : 'w-72 xl:w-80'" class="transition-all duration-300 ease-in-out shrink-0 sticky top-0 h-screen flex flex-col justify-between p-3.5 glass-card border-r z-30 overflow-y-auto custom-scrollbar shadow-2xl" style="border-color: var(--color-border-card); background-color: var(--color-bg-card-subtle);">
       
-      <!-- Top Navigation Groups -->
-      <div class="space-y-5">
+      <!-- Top Section: Brand Header, Quick Tools, Personas & Navigation Groups -->
+      <div class="space-y-4">
+        
+        <!-- 1. Brand Logo, Emblem & Title -->
+        <div class="space-y-2.5 pb-3 border-b" style="border-color: var(--color-border-subtle);">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5 cursor-pointer group min-w-0" @click="triggerSparkleCelebration()">
+              <!-- Glowing DNA Box -->
+              <div class="relative w-10 h-10 rounded-2xl bg-slate-950 dark:bg-slate-900 flex items-center justify-center border border-teal-400/50 shadow-md group-hover:scale-105 transition-transform shrink-0">
+                <i class="fa-solid fa-dna text-cyan-400 text-lg font-black"></i>
+              </div>
+              
+              <!-- Brand Title & Subtitle (Expanded) -->
+              <div x-show="!sidebarCollapsed" class="min-w-0">
+                <div class="flex items-center space-x-1">
+                  <h1 class="text-sm font-black tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent truncate">
+                    Enterprise A2A Gateway
+                  </h1>
+                </div>
+                <div class="flex items-center space-x-1 text-[10px] font-mono" style="color: var(--color-text-muted);">
+                  <span class="truncate">Biopharma Swarm</span>
+                  <span>•</span>
+                  <span class="font-bold flex items-center space-x-1" style="color: var(--color-badge-emerald-text);">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>28µs AST</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collapse / Expand Toggle Button -->
+            <button @click="sidebarCollapsed = !sidebarCollapsed" class="p-1.5 rounded-xl border hover:border-cyan-400 transition-all flex items-center justify-center shrink-0 shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" :title="sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
+              <i class="fa-solid text-xs transition-transform duration-300" :class="sidebarCollapsed ? 'fa-angles-right text-cyan-400' : 'fa-angles-left text-slate-400'"></i>
+            </button>
+          </div>
+
+          <!-- Badges & Active Workspace (Expanded) -->
+          <div x-show="!sidebarCollapsed" class="space-y-2 pt-1 animate-fade-in">
+            <div class="flex items-center space-x-1.5">
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);">SPEC: A2A v1.0.0</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">GxP 21 CFR Part 11</span>
+            </div>
+
+            <!-- Workspace Context Pill -->
+            <div class="p-2 rounded-xl border text-[11px] flex items-center justify-between" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
+              <span class="text-[10px] font-mono font-bold" style="color: var(--color-text-muted);">WORKSPACE:</span>
+              <span class="font-mono font-bold text-cyan-500 truncate" x-text="getTabName(currentTab)"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Omni Search (Cmd+K) & Dr. A2A Copilot -->
+        <div class="space-y-2">
+          <!-- Command Palette Trigger -->
+          <button @click="openCommandPalette()" class="w-full p-2.5 rounded-xl border text-xs font-bold flex items-center transition-all shadow-sm hover:border-cyan-400 group" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);" title="Command Palette (Cmd+K)">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-magnifying-glass text-cyan-400 text-xs group-hover:scale-110 transition-transform"></i>
+              <span x-show="!sidebarCollapsed" class="text-[11px] font-semibold" style="color: var(--color-text-secondary);">Actions & Search...</span>
+            </div>
+            <kbd x-show="!sidebarCollapsed" class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono text-[9px]">⌘K</kbd>
+          </button>
+
+          <!-- Dr. A2A Virtual Assistant Spotlight -->
+          <button @click="assistantOpen = true" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-teal-500 via-cyan-500 to-emerald-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-black flex items-center transition-all shadow-md shadow-teal-500/20 active:scale-95 group" :class="sidebarCollapsed ? 'justify-center' : 'justify-between'" title="Ask Dr. A2A Copilot">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-robot text-sm group-hover:scale-110 transition-transform"></i>
+              <span x-show="!sidebarCollapsed" class="text-xs font-black">Dr. A2A Copilot</span>
+            </div>
+            <span x-show="!sidebarCollapsed" class="px-1.5 py-0.5 rounded bg-slate-950/20 text-slate-950 font-mono text-[9px] font-black uppercase">Online</span>
+          </button>
+        </div>
+
+        <!-- 3. Swarm Persona Storyboard Switcher -->
+        <div class="space-y-1.5 pt-1">
+          <div x-show="!sidebarCollapsed" class="px-1 text-[10px] font-mono font-extrabold uppercase tracking-widest" style="color: var(--color-text-muted);">
+            Swarm Persona Storyboard
+          </div>
+
+          <!-- Expanded 2x2 Grid -->
+          <div x-show="!sidebarCollapsed" class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
+            <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-cyan-600'" :style="activePersona !== 'architect' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+              <span>🏛️</span>
+              <span class="truncate">Architect</span>
+            </button>
+            <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm' : 'font-semibold hover:text-emerald-600'" :style="activePersona !== 'clinician' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+              <span>🩺</span>
+              <span class="truncate">Clinician</span>
+            </button>
+            <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black shadow-sm' : 'font-semibold hover:text-purple-600'" :style="activePersona !== 'compliance' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+              <span>⚖️</span>
+              <span class="truncate">Compliance</span>
+            </button>
+            <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-sky-600'" :style="activePersona !== 'developer' ? 'color: var(--color-text-secondary);' : ''" class="px-2 py-1.5 rounded-xl transition-all text-[11px] flex items-center space-x-1.5">
+              <span>💻</span>
+              <span class="truncate">Developer</span>
+            </button>
+          </div>
+
+          <!-- Collapsed Icon Stack -->
+          <div x-show="sidebarCollapsed" class="space-y-1">
+            <button @click="selectPersona('architect')" :class="activePersona === 'architect' ? 'bg-teal-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Architect Persona">🏛️</button>
+            <button @click="selectPersona('clinician')" :class="activePersona === 'clinician' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Clinician Persona">🩺</button>
+            <button @click="selectPersona('compliance')" :class="activePersona === 'compliance' ? 'bg-purple-500 text-white' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Compliance Persona">⚖️</button>
+            <button @click="selectPersona('developer')" :class="activePersona === 'developer' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'" class="w-full py-1.5 rounded-lg flex items-center justify-center text-xs" title="Developer Persona">💻</button>
+          </div>
+        </div>
+
+        <!-- 4. Navigation Groups (The 3 Groups) -->
+        <div class="space-y-5 pt-2 border-t" style="border-color: var(--color-border-subtle);">
         
         <!-- Group 1: Core Studios -->
         <div class="space-y-1">
@@ -450,16 +479,72 @@
 
       </div>
 
-      <!-- Bottom Sidebar Footer & Collapse Toggle Button -->
-      <div class="pt-3 border-t space-y-2" style="border-color: var(--color-border-subtle);">
-        <div x-show="!sidebarCollapsed" class="p-2.5 rounded-xl border flex items-center justify-between text-[11px]" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
-          <div class="flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="font-bold" style="color: var(--color-text-primary);">A2A Mesh</span>
-          </div>
-          <span class="font-mono text-[10px] text-emerald-400 font-black">ONLINE</span>
+      <!-- Bottom Sidebar Footer: SSO, BYOK, Utilities & Telemetry -->
+      <div class="pt-3 border-t space-y-2.5 shrink-0" style="border-color: var(--color-border-subtle);">
+        
+        <!-- SSO User Profile & BYOK Key Cards (When Expanded) -->
+        <div x-show="!sidebarCollapsed" class="space-y-1.5 animate-fade-in">
+          <!-- SSO Login / Profile Card -->
+          <button @click="ssoModalOpen = true" class="w-full p-2.5 rounded-xl border text-xs font-bold flex items-center justify-between transition-all shadow-sm hover:border-teal-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <div class="w-6 h-6 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-500 shrink-0 text-xs font-black">
+                <i class="fa-solid fa-user-shield"></i>
+              </div>
+              <div class="min-w-0 text-left">
+                <div class="text-[11px] font-bold truncate" x-text="currentUser ? currentUser.name : 'SSO Authentication'"></div>
+                <div class="text-[9px] font-mono text-emerald-500 truncate" x-text="currentUser ? currentUser.role : 'roles/run.invoker'"></div>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-[10px]" style="color: var(--color-text-muted);"></i>
+          </button>
+
+          <!-- BYOK API Keys & Credentials -->
+          <button @click="byokDrawerOpen = true" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-between transition-all shadow-sm hover:border-amber-500" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+            <div class="flex items-center space-x-2 text-[11px]">
+              <i class="fa-solid fa-key text-amber-500 text-xs"></i>
+              <span>BYOK Key Management</span>
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">Active</span>
+          </button>
         </div>
 
+        <!-- When Collapsed: SSO & BYOK Icon buttons -->
+        <div x-show="sidebarCollapsed" class="space-y-1">
+          <button @click="ssoModalOpen = true" class="w-full py-2 rounded-xl border flex items-center justify-center text-xs hover:border-teal-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="SSO Login / Profile">
+            <i class="fa-solid fa-user-shield text-teal-500"></i>
+          </button>
+          <button @click="byokDrawerOpen = true" class="w-full py-2 rounded-xl border flex items-center justify-center text-xs hover:border-amber-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);" title="BYOK Keys">
+            <i class="fa-solid fa-key text-amber-500"></i>
+          </button>
+        </div>
+
+        <!-- System Preferences Toolbar: Theme, Density, Alerts, Mesh Status -->
+        <div class="grid grid-cols-4 gap-1 p-1 rounded-xl border text-center" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
+          
+          <!-- Theme Toggle -->
+          <button @click="toggleTheme()" class="p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+            <i class="fa-solid text-xs" :class="isDark ? 'fa-sun text-amber-400' : 'fa-moon text-slate-700'"></i>
+          </button>
+
+          <!-- Information Density -->
+          <button @click="compactMode = !compactMode" class="p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" :title="compactMode ? 'Switch to Comfortable Spacing' : 'Switch to Compact Spacing'">
+            <i class="fa-solid text-xs" :class="compactMode ? 'fa-compress text-cyan-400' : 'fa-expand text-slate-400'"></i>
+          </button>
+
+          <!-- Alerts Bell -->
+          <button @click="currentTab = 'alerts_feedback'" class="relative p-2 rounded-lg hover:bg-teal-500/10 transition-colors flex items-center justify-center" title="Alerts & Feedback">
+            <i class="fa-solid fa-bell text-rose-500 text-xs"></i>
+            <span x-show="unreadAlertsCount > 0" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
+          </button>
+
+          <!-- A2A Mesh Status Indicator -->
+          <div class="p-2 flex items-center justify-center" title="A2A Protocol Mesh Online (28µs AST)">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          </div>
+
+        </div>
+
+        <!-- Collapse / Expand Toggle Button -->
         <button @click="sidebarCollapsed = !sidebarCollapsed" class="w-full p-2 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition-all hover:border-cyan-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle); color: var(--color-text-secondary);">
           <i class="fa-solid" :class="sidebarCollapsed ? 'fa-angles-right text-cyan-400' : 'fa-angles-left'"></i>
           <span x-show="!sidebarCollapsed" class="text-[11px]">Collapse Sidebar</span>
