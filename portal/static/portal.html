@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" id="html-root">
+<html lang="en" class="light" id="html-root">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2742,7 +2742,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         legalModal: null,
         unreadAlertsCount: 2,
         currentUser: null,
-        isDark: true,
+        isDark: false,
 
         // Gemini Enterprise User Training & Onboarding State
         trainingStep: 1,
@@ -3133,14 +3133,6 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           } catch(e) {}
         },
 
-        init() {
-          this.updateDynamicCalculations();
-          setTimeout(() => {
-            this.init3DScenes();
-            this.initCard3DTilt();
-          }, 100);
-        },
-
         toggleTheme() {
           this.isDark = !this.isDark;
           const root = document.getElementById('html-root');
@@ -3415,8 +3407,21 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         },
 
         init() {
-          this.init3DScenes();
-          this.initCard3DTilt();
+          this.updateDynamicCalculations();
+          const root = document.getElementById('html-root');
+          if (root) {
+            if (this.isDark) {
+              root.classList.add('dark');
+              root.classList.remove('light');
+            } else {
+              root.classList.add('light');
+              root.classList.remove('dark');
+            }
+          }
+          setTimeout(() => {
+            this.init3DScenes();
+            this.initCard3DTilt();
+          }, 100);
 
           // Setup keyboard listener for Cmd+K / Ctrl+K
           window.addEventListener('keydown', (e) => {
