@@ -207,6 +207,78 @@
     .slider-track-gradient {
       background: linear-gradient(to right, #10b981 0%, #00f2fe 35%, #f59e0b 70%, #f43f5e 100%);
     }
+
+    /* Futuristic Cyber Glow & Shimmer Keyframes */
+    @keyframes textShimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .text-shimmer-cyber {
+      background: linear-gradient(90deg, #00f2fe 0%, #10b981 25%, #8b5cf6 50%, #ec4899 75%, #00f2fe 100%);
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textShimmer 6s ease-in-out infinite;
+    }
+
+    @keyframes cyberPulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.6); }
+      70% { transform: scale(1.05); opacity: 0; box-shadow: 0 0 0 20px rgba(0, 242, 254, 0); }
+      100% { transform: scale(0.95); opacity: 0; }
+    }
+    .cyber-pulse-ring {
+      animation: cyberPulseRing 2.4s infinite cubic-bezier(0.45, 0, 0.55, 1);
+    }
+
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-track {
+      display: flex;
+      width: 200%;
+      animation: marqueeScroll 25s linear infinite;
+    }
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes holographicGrid {
+      0% { background-position: 0 0; }
+      100% { background-position: 40px 40px; }
+    }
+    .cyber-grid-anim {
+      background-image: 
+        linear-gradient(rgba(0, 242, 254, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 242, 254, 0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      animation: holographicGrid 25s linear infinite;
+    }
+
+    @keyframes scanlineAnim {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1200%); }
+    }
+    .cyber-scanline {
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(to bottom, transparent, rgba(0, 242, 254, 0.3), transparent);
+      animation: scanlineAnim 7s linear infinite;
+      pointer-events: none;
+    }
+
+    .glass-cyber-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border-card);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 242, 254, 0.08);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-cyber-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 242, 254, 0.5);
+      box-shadow: 0 25px 50px rgba(0, 242, 254, 0.12), 0 0 25px rgba(0, 242, 254, 0.15);
+    }
   </style>
 </head>
 <body class="cyber-bg min-h-screen antialiased flex flex-col justify-between transition-colors duration-300 custom-scrollbar" x-data="portalState()">
@@ -366,6 +438,13 @@
             Core Workflows & Studios
           </div>
           
+          <button id="tab-landing" @click="currentTab = 'landing'" :class="currentTab === 'landing' ? 'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400 hover:bg-slate-800/20'" :style="currentTab !== 'landing' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? '🚀 Quantum Mesh Portal' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'landing' ? 'bg-slate-950/20 text-slate-950' : 'text-cyan-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-atom text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left font-bold">🚀 Quantum Mesh Portal</span>
+          </button>
+
           <button id="tab-dag" @click="currentTab = 'dag_studio'" :class="currentTab === 'dag_studio' ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400 hover:bg-slate-800/20'" :style="currentTab !== 'dag_studio' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Visual Drag & Drop DAG' : ''">
             <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'dag_studio' ? 'bg-slate-950/20 text-slate-950' : 'text-teal-400 group-hover:scale-110 transition-transform'">
               <i class="fa-solid fa-diagram-project text-sm"></i>
@@ -557,6 +636,819 @@
     <!-- MAIN PAGE CONTENT CONTAINER                                               -->
     <!-- ========================================================================= -->
     <main :class="{ 'compact-density': compactMode }" class="flex-1 min-w-0 p-4 md:p-6 lg:p-8 space-y-8 max-w-8xl mx-auto overflow-y-auto custom-scrollbar">
+
+    <!-- ========================================================================= -->
+    <!-- TAB 0: FUTURISTIC QUANTUM MESH LANDING PORTAL                               -->
+    <!-- ========================================================================= -->
+    <div x-show="currentTab === 'landing'" class="space-y-12">
+
+      <!-- 1. HERO COMMAND STAGE: HOLOGRAPHIC 3D QUANTUM CORE & CYBER HUD -->
+      <div class="glass-cyber-card rounded-3xl p-6 md:p-10 relative overflow-hidden">
+        <!-- Ambient animated scanline & grid -->
+        <div class="cyber-grid-anim absolute inset-0 opacity-40 pointer-events-none"></div>
+        <div class="cyber-scanline"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+          
+          <!-- Left Column: Vision & Command Controls (7 cols) -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Protocol Eyebrow Badge -->
+            <div class="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full text-xs font-mono font-extrabold border bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_20px_rgba(0,242,254,0.25)]">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              <span>GOOGLE A2A v1.0.0 PROTOCOL • SOVEREIGN NEURAL SWARM GATEWAY</span>
+            </div>
+
+            <!-- Grand Cyber Headline -->
+            <div class="space-y-3">
+              <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none text-shimmer-cyber uppercase">
+                Sovereign Multi-Agent<br />
+                Quantum Mesh
+              </h1>
+              <p class="text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl" style="color: var(--color-text-secondary);">
+                Autonomous biopharma multi-agent orchestration gateway interconnecting clinical trial swarms with 
+                <span class="font-bold text-cyan-400">sub-28 µs AST sanitization</span>, 
+                <span class="font-bold text-emerald-400">stateless 21 CFR Part 11 HMAC-SHA256 signatures</span>, and 
+                <span class="font-bold text-purple-400">zero third-party foundational egress</span>.
+              </p>
+            </div>
+
+            <!-- Key Metrics Telemetry Pods -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div class="p-3.5 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400">AST Latency</div>
+                <div class="text-2xl font-black text-cyan-400 font-mono mt-0.5">27.4 µs</div>
+                <div class="text-[10px] truncate" style="color: var(--color-text-muted);">Zero Regex Backtrack</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">Compliance</div>
+                <div class="text-2xl font-black text-emerald-400 font-mono mt-0.5">100%</div>
+                <div class="text-[10px] truncate" style="color: var(--color-text-muted);">21 CFR Part 11 / GAMP 5</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400">HMAC Token TTL</div>
+                <div class="text-2xl font-black text-purple-400 font-mono mt-0.5">48 Hours</div>
+                <div class="text-[10px] truncate" style="color: var(--color-text-muted);">Stateless Verification</div>
+              </div>
+
+              <div class="p-3.5 rounded-2xl border backdrop-blur-sm transition-all hover:scale-105" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">Egress Risk</div>
+                <div class="text-2xl font-black text-rose-400 font-mono mt-0.5">Zero</div>
+                <div class="text-[10px] truncate" style="color: var(--color-text-muted);">Sovereign Enclave Isolation</div>
+              </div>
+            </div>
+
+            <!-- Primary CTAs & Interactive Buttons -->
+            <div class="flex flex-wrap items-center gap-3 pt-2">
+              <button 
+                @click="currentTab = 'dag_studio'" 
+                class="px-6 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all flex items-center space-x-2.5 group"
+              >
+                <i class="fa-solid fa-diagram-project group-hover:rotate-12 transition-transform"></i>
+                <span>Launch Swarm DAG Studio</span>
+                <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+              </button>
+
+              <button 
+                @click="triggerLandingSim(false)" 
+                :disabled="landingSimActive"
+                class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black border transition-all flex items-center space-x-2 hover:scale-105 shadow-md"
+                :class="landingSimActive ? 'opacity-60 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'text-cyan-400 border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 hover:border-cyan-400 shadow-cyan-500/10'"
+              >
+                <i class="fa-solid fa-bolt" :class="{ 'animate-bounce text-amber-400': landingSimActive }"></i>
+                <span x-text="landingSimActive ? 'Simulating Swarm...' : '⚡ Fire Quantum Simulation'"></span>
+              </button>
+
+              <button 
+                @click="currentTab = 'training'" 
+                class="px-4 py-3 rounded-2xl text-xs font-bold border hover:border-purple-400 hover:text-purple-400 transition-all flex items-center space-x-2"
+                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
+              >
+                <i class="fa-solid fa-graduation-cap text-purple-400"></i>
+                <span>Gemini Training</span>
+              </button>
+
+              <button 
+                @click="currentTab = 'veo_studio'" 
+                class="px-4 py-3 rounded-2xl text-xs font-bold border hover:border-rose-400 hover:text-rose-400 transition-all flex items-center space-x-2"
+                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
+              >
+                <i class="fa-solid fa-clapperboard text-rose-400"></i>
+                <span>Veo 2 Studio</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Interactive 3D WebGL Holographic Stage (5 cols) -->
+          <div class="lg:col-span-5 relative">
+            
+            <!-- Tech Frame Wrapper -->
+            <div class="relative rounded-2xl border overflow-hidden p-2 backdrop-blur-md shadow-2xl group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card);">
+              
+              <!-- Cyber HUD Header Overlay -->
+              <div class="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
+                <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-950/80 border border-cyan-500/30 text-[10px] font-mono text-cyan-400 backdrop-blur-md">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span>QUANTUM CORE v1.0.0</span>
+                </div>
+                <div class="flex items-center space-x-1.5 px-2 py-1 rounded-lg bg-slate-950/80 border border-slate-700/60 text-[9px] font-mono text-slate-300 backdrop-blur-md">
+                  <i class="fa-solid fa-microchip text-teal-400"></i>
+                  <span>180 MESH NODES • 60 FPS</span>
+                </div>
+              </div>
+
+              <!-- Interactive 3D WebGL Canvas -->
+              <div class="w-full h-[400px] sm:h-[460px] md:h-[480px] relative rounded-xl overflow-hidden bg-slate-950 border border-cyan-500/20 shadow-inner">
+                <canvas id="quantum-mesh-canvas" class="w-full h-full cursor-grab active:cursor-grabbing block"></canvas>
+
+                <!-- HUD Corner Crosshairs -->
+                <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+
+                <!-- Floating Interaction Hint -->
+                <div class="absolute bottom-3 left-3 z-20 pointer-events-none">
+                  <div class="px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-[10px] font-mono text-slate-400 flex items-center space-x-1.5 backdrop-blur-md">
+                    <i class="fa-solid fa-hand-pointer text-cyan-400 animate-pulse"></i>
+                    <span>Drag to orbit • Scroll to zoom</span>
+                  </div>
+                </div>
+
+                <!-- 3D Stage Camera & Mode Controls -->
+                <div class="absolute bottom-3 right-3 z-20 flex items-center space-x-1.5">
+                  <button 
+                    @click="toggleLandingWireframe()" 
+                    class="px-2 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
+                    title="Toggle Wireframe Shell"
+                  >
+                    <i class="fa-solid fa-cube"></i> Wireframe
+                  </button>
+                  <button 
+                    @click="resetLandingCamera()" 
+                    class="px-2 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
+                    title="Reset Core Orientation"
+                  >
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 2. INFINITE PROTOCOL MARQUEE TICKER -->
+      <div class="rounded-2xl border py-3 overflow-hidden relative shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
+        <div class="marquee-track flex items-center space-x-8 text-xs font-mono font-bold whitespace-nowrap">
+          <div class="flex items-center space-x-8 shrink-0">
+            <span class="flex items-center space-x-2 text-cyan-400"><i class="fa-solid fa-atom"></i><span>GOOGLE A2A v1.0.0 COMPLIANT</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-emerald-400"><i class="fa-solid fa-bolt"></i><span>SUB-28µs IN-MEMORY AST SANITIZER</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-purple-400"><i class="fa-solid fa-signature"></i><span>21 CFR PART 11 HMAC-SHA256 SEAL</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-teal-400"><i class="fa-solid fa-cloud"></i><span>CLOUD RUN INTERCEPTOR PROXY</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-rose-400"><i class="fa-solid fa-shield-halved"></i><span>OUTSIDE-IN SOVEREIGN VPC DEMARCATION</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-amber-400"><i class="fa-solid fa-film"></i><span>DEEPMIND VEO 2 4K CINEMATICS</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-sky-400"><i class="fa-solid fa-microphone-lines"></i><span>WEBRTC GEMINI OMNI LIVE</span></span>
+            <span class="text-slate-500">•</span>
+          </div>
+          <!-- Duplicate loop for seamless infinite marquee -->
+          <div class="flex items-center space-x-8 shrink-0">
+            <span class="flex items-center space-x-2 text-cyan-400"><i class="fa-solid fa-atom"></i><span>GOOGLE A2A v1.0.0 COMPLIANT</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-emerald-400"><i class="fa-solid fa-bolt"></i><span>SUB-28µs IN-MEMORY AST SANITIZER</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-purple-400"><i class="fa-solid fa-signature"></i><span>21 CFR PART 11 HMAC-SHA256 SEAL</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-teal-400"><i class="fa-solid fa-cloud"></i><span>CLOUD RUN INTERCEPTOR PROXY</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-rose-400"><i class="fa-solid fa-shield-halved"></i><span>OUTSIDE-IN SOVEREIGN VPC DEMARCATION</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-amber-400"><i class="fa-solid fa-film"></i><span>DEEPMIND VEO 2 4K CINEMATICS</span></span>
+            <span class="text-slate-500">•</span>
+            <span class="flex items-center space-x-2 text-sky-400"><i class="fa-solid fa-microphone-lines"></i><span>WEBRTC GEMINI OMNI LIVE</span></span>
+            <span class="text-slate-500">•</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. LIVE INTERACTIVE QUANTUM PACKET PIPELINE SIMULATOR -->
+      <div class="glass-cyber-card rounded-3xl p-6 md:p-8 space-y-6">
+        
+        <!-- Pipeline Header & Trigger Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-5" style="border-color: var(--color-border-subtle);">
+          <div class="space-y-1 max-w-2xl">
+            <div class="inline-flex items-center space-x-2 text-xs font-mono font-extrabold text-teal-400 uppercase tracking-wider">
+              <i class="fa-solid fa-microchip"></i>
+              <span>Interactive Protocol Interceptor • Real-Time Packet Stream</span>
+            </div>
+            <h2 class="text-2xl font-black tracking-tight" style="color: var(--color-text-primary);">
+              Live 5-Node A2A Protocol Packet Flow
+            </h2>
+            <p class="text-xs md:text-sm" style="color: var(--color-text-secondary);">
+              Trigger real-time telemetry packets through the gateway. Observe in-memory AST dictionary filtering strip internal envelopes and witness stateless HMAC-SHA256 token sealing.
+            </p>
+          </div>
+
+          <!-- Interactive Triggers -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button 
+              @click="triggerLandingSim(false)" 
+              :disabled="landingSimActive"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center space-x-2 shadow-sm"
+              :class="landingSimActive ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400'"
+            >
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>1. Normal EDC Packet</span>
+            </button>
+
+            <button 
+              @click="triggerLandingSim(true)" 
+              :disabled="landingSimActive"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center space-x-2 shadow-sm"
+              :class="landingSimActive ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-400 border-slate-700' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-400'"
+            >
+              <i class="fa-solid fa-virus-slash"></i>
+              <span>2. Prompt Injection Attack</span>
+            </button>
+
+            <button 
+              @click="triggerSparkleCelebration(); addLandingTerminalLog('SYSTEM', 'Cleared packet buffers. Ready for next transaction.', 'info')" 
+              class="px-3 py-2 rounded-xl text-xs font-bold border hover:border-slate-400 transition-all flex items-center space-x-1.5"
+              style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
+            >
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5-Stage Graphic Multi-Agent Pipeline Visualization -->
+        <div class="relative py-4">
+          
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 relative z-10">
+            
+            <!-- Node 1: Ingestion -->
+            <div 
+              class="p-4 rounded-2xl border transition-all duration-300 relative group"
+              :class="landingSimStep === 1 ? 'ring-2 ring-cyan-400 shadow-lg shadow-cyan-500/20 scale-105' : ''"
+              :style="'background-color: var(--color-bg-card-subtle); border-color: ' + (landingSimStep === 1 ? '#00f2fe' : 'var(--color-border-subtle)')"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono font-bold text-cyan-400 uppercase">NODE 01</span>
+                <span class="w-2 h-2 rounded-full" :class="landingSimStep >= 1 ? 'bg-cyan-400 animate-pulse' : 'bg-slate-600'"></span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-lg mb-3 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-database"></i>
+              </div>
+              <div class="text-xs font-black" style="color: var(--color-text-primary);">Patient EDC / SDTM</div>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Ingests raw CDISC AE/LB clinical domains</p>
+              <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-muted);">Protocol</span>
+                <span class="font-bold text-cyan-400">RFC 8615</span>
+              </div>
+            </div>
+
+            <!-- Node 2: AST Sanitizer -->
+            <div 
+              class="p-4 rounded-2xl border transition-all duration-300 relative group"
+              :class="landingSimStep === 2 ? (landingSimAttackMode ? 'ring-2 ring-rose-400 shadow-lg shadow-rose-500/20 scale-105' : 'ring-2 ring-emerald-400 shadow-lg shadow-emerald-500/20 scale-105') : ''"
+              :style="'background-color: var(--color-bg-card-subtle); border-color: ' + (landingSimStep === 2 ? (landingSimAttackMode ? '#f43f5e' : '#10b981') : 'var(--color-border-subtle)')"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase">NODE 02</span>
+                <span class="w-2 h-2 rounded-full" :class="landingSimStep >= 2 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'"></span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg mb-3 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="text-xs font-black" style="color: var(--color-text-primary);">AST ADK Sanitizer</div>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Strips prohibited envelopes in &lt;28 µs</p>
+              <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-muted);">Latency</span>
+                <span class="font-bold text-emerald-400" x-text="landingSimAttackMode && landingSimStep === 2 ? '26.8 µs (Stripped)' : '27.4 µs'">27.4 µs</span>
+              </div>
+            </div>
+
+            <!-- Node 3: Sovereign Vertex AI -->
+            <div 
+              class="p-4 rounded-2xl border transition-all duration-300 relative group"
+              :class="landingSimStep === 3 ? 'ring-2 ring-purple-400 shadow-lg shadow-purple-500/20 scale-105' : ''"
+              :style="'background-color: var(--color-bg-card-subtle); border-color: ' + (landingSimStep === 3 ? '#8b5cf6' : 'var(--color-border-subtle)')"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono font-bold text-purple-400 uppercase">NODE 03</span>
+                <span class="w-2 h-2 rounded-full" :class="landingSimStep >= 3 ? 'bg-purple-400 animate-pulse' : 'bg-slate-600'"></span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-lg mb-3 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-brain"></i>
+              </div>
+              <div class="text-xs font-black" style="color: var(--color-text-primary);">Sovereign Vertex AI</div>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Bayesian toxicity model & trial reasoning</p>
+              <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-muted);">Model</span>
+                <span class="font-bold text-purple-400">Gemini 2.5 Flash</span>
+              </div>
+            </div>
+
+            <!-- Node 4: A2UI Surface Compiler -->
+            <div 
+              class="p-4 rounded-2xl border transition-all duration-300 relative group"
+              :class="landingSimStep === 4 ? 'ring-2 ring-amber-400 shadow-lg shadow-amber-500/20 scale-105' : ''"
+              :style="'background-color: var(--color-bg-card-subtle); border-color: ' + (landingSimStep === 4 ? '#f59e0b' : 'var(--color-border-subtle)')"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono font-bold text-amber-400 uppercase">NODE 04</span>
+                <span class="w-2 h-2 rounded-full" :class="landingSimStep >= 4 ? 'bg-amber-400 animate-pulse' : 'bg-slate-600'"></span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg mb-3 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-id-card"></i>
+              </div>
+              <div class="text-xs font-black" style="color: var(--color-text-primary);">A2UI Surface Compiler</div>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Seals tamper-evident HMAC-SHA256 token</p>
+              <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-muted);">Token Seal</span>
+                <span class="font-bold text-amber-400">48h TTL</span>
+              </div>
+            </div>
+
+            <!-- Node 5: Clinician HITL Sign-off -->
+            <div 
+              class="p-4 rounded-2xl border transition-all duration-300 relative group"
+              :class="landingSimStep === 5 ? 'ring-2 ring-teal-400 shadow-lg shadow-teal-500/20 scale-105' : ''"
+              :style="'background-color: var(--color-bg-card-subtle); border-color: ' + (landingSimStep === 5 ? '#14b8a6' : 'var(--color-border-subtle)')"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-mono font-bold text-teal-400 uppercase">NODE 05</span>
+                <span class="w-2 h-2 rounded-full" :class="landingSimStep >= 5 ? 'bg-teal-400 animate-pulse' : 'bg-slate-600'"></span>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 text-lg mb-3 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-signature"></i>
+              </div>
+              <div class="text-xs font-black" style="color: var(--color-text-primary);">Clinician HITL Sign-off</div>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">21 CFR Part 11 compliant execution</p>
+              <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
+                <span style="color: var(--color-text-muted);">Audit Status</span>
+                <span class="font-bold text-teal-400">GxP Certified</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Live Payload Mutation Terminal Box -->
+        <div class="p-4 rounded-2xl border font-mono text-xs space-y-2 overflow-hidden" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+          <div class="flex items-center justify-between text-[11px]">
+            <div class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full" :class="landingSimActive ? 'bg-emerald-400 animate-ping' : 'bg-slate-500'"></span>
+              <span class="font-bold text-cyan-400">LIVE WIRE PROTOBUF PAYLOAD INSPECTOR</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300" x-text="'STEP ' + landingSimStep + ' OF 5'"></span>
+            </div>
+            <span class="text-[10px]" style="color: var(--color-text-muted);" x-text="landingSimStatus">Ready</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 overflow-x-auto text-[11px] text-slate-300 custom-scrollbar leading-relaxed">
+            <template x-if="landingSimStep === 0">
+              <span class="text-slate-500">// Press "Normal EDC Packet" or "Prompt Injection Attack" to fire packet traversal...</span>
+            </template>
+            <template x-if="landingSimStep === 1">
+              <div>
+                <span class="text-cyan-400">// [Ingestion] Inbound CDISC SDTM Subject Record:</span><br />
+                {"subject_id": "SUBJ-9042", "cohort": "Cohort-B", "dose_planned_mg": 300, "ae_grade": 1, <span :class="landingSimAttackMode ? 'text-rose-400 font-bold bg-rose-950/40 px-1 rounded' : 'text-slate-400'">"__internal_trace__": "TRACE_SECRET_KEY_99", "system_override": "BYPASS_DOSE_LIMIT"</span>}
+              </div>
+            </template>
+            <template x-if="landingSimStep === 2">
+              <div>
+                <span class="text-emerald-400">// [AST ADK Sanitizer] In-memory AST filter executed in 26.8 µs:</span><br />
+                <span class="text-rose-400 line-through mr-2">__internal_trace__ (STRIPPED)</span>
+                <span class="text-rose-400 line-through mr-2">system_override (STRIPPED)</span>
+                <span class="text-emerald-400 font-bold">✓ Clean Payload Forwarded to Sovereign VPC:</span><br />
+                {"subject_id": "SUBJ-9042", "cohort": "Cohort-B", "dose_planned_mg": 300, "ae_grade": 1}
+              </div>
+            </template>
+            <template x-if="landingSimStep === 3">
+              <div>
+                <span class="text-purple-400">// [Sovereign Vertex AI] Bayesian Toxicity Convergence:</span><br />
+                {"subject_id": "SUBJ-9042", "recommended_dose_mg": 300, "dlt_probability": 0.182, "therapeutic_window": "OPTIMAL", "confidence": 0.964}
+              </div>
+            </template>
+            <template x-if="landingSimStep === 4">
+              <div>
+                <span class="text-amber-400">// [A2UI Card Compiler] Sealed Tamper-Evident HMAC-SHA256 Token:</span><br />
+                {"a2ui_card": "DOSE_APPROVAL_CARD", "token": "eyJhbGciOiJIUzI1NiJ9...8f2a4b1", "hmac_sha256": "0x4f92c7104b...e291", "ttl_expiry": "48h"}
+              </div>
+            </template>
+            <template x-if="landingSimStep === 5">
+              <div>
+                <span class="text-teal-400 font-bold">// [Clinician HITL] Electronic Signature Sealed (21 CFR Part 11):</span><br />
+                {"signed_by": "Dr. Sarah Lin, MD", "signer_role": "Principal Investigator", "status": "APPROVED", "gxp_hash": "sha256:7b9140a3f892c4d...991e", "timestamp": "2026-09-04T22:45:00Z"}
+              </div>
+            </template>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 4. FOUR HOLOGRAPHIC 3D TILT ARCHITECTURE PILLARS -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
+              Architectural Pillars & Sovereign Safeguards
+            </h3>
+            <p class="text-xs" style="color: var(--color-text-secondary);">
+              Production-tested mechanisms engineered for high-throughput enterprise pharmaceutical swarms.
+            </p>
+          </div>
+          <button 
+            @click="currentTab = 'overview'" 
+            class="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center space-x-1"
+          >
+            <span>View MECE Matrix</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          
+          <!-- Pillar 1 -->
+          <div class="glass-cyber-card p-6 rounded-3xl space-y-4 relative group cursor-pointer" @click="currentTab = 'playground'">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-mono font-bold text-cyan-400 uppercase">Pillar 01</div>
+              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Sub-28 µs AST Sanitizer</h4>
+            </div>
+            <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+              In-memory abstract syntax tree filter strips internal orchestrator envelopes without regular-expression backtracking vulnerability.
+            </p>
+            <div class="pt-2 border-t flex items-center justify-between text-xs font-bold text-cyan-400" style="border-color: var(--color-border-subtle);">
+              <span>Explore Playground</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="glass-cyber-card p-6 rounded-3xl space-y-4 relative group cursor-pointer" @click="currentTab = 'dose_curve'">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-signature"></i>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-mono font-bold text-emerald-400 uppercase">Pillar 02</div>
+              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Stateless 21 CFR Part 11</h4>
+            </div>
+            <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+              48-hour HMAC-SHA256 cryptographically sealed state tokens eliminate relational database write-lock contention on approvals.
+            </p>
+            <div class="pt-2 border-t flex items-center justify-between text-xs font-bold text-emerald-400" style="border-color: var(--color-border-subtle);">
+              <span>Inspect Dose Curve</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="glass-cyber-card p-6 rounded-3xl space-y-4 relative group cursor-pointer" @click="currentTab = 'opt3'">
+            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-landmark"></i>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-mono font-bold text-purple-400 uppercase">Pillar 03</div>
+              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Outside-In Demarcation</h4>
+            </div>
+            <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+              Physical boundary isolation separating sovereign VPC biopharma enclaves from public foundational model cloud boundaries.
+            </p>
+            <div class="pt-2 border-t flex items-center justify-between text-xs font-bold text-purple-400" style="border-color: var(--color-border-subtle);">
+              <span>Review Dual-Plane</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="glass-cyber-card p-6 rounded-3xl space-y-4 relative group cursor-pointer" @click="currentTab = 'veo_studio'">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 text-xl group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-film"></i>
+            </div>
+            <div class="space-y-1">
+              <div class="text-xs font-mono font-bold text-rose-400 uppercase">Pillar 04</div>
+              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Veo 2 & Omni Live Hub</h4>
+            </div>
+            <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+              WebRTC bidirectional neural audio streaming with DeepMind Veo 2 4K video briefing synthesis and A2UI card generation.
+            </p>
+            <div class="pt-2 border-t flex items-center justify-between text-xs font-bold text-rose-400" style="border-color: var(--color-border-subtle);">
+              <span>Open Omni Studio</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 5. INTERACTIVE LIVE DOSE TITRATION MINI-REGULATOR (HANDS-ON SANDBOX) -->
+      <div class="glass-cyber-card rounded-3xl p-6 md:p-8 space-y-6">
+        
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--color-border-subtle);">
+          <div class="space-y-1">
+            <div class="inline-flex items-center space-x-2 text-xs font-mono font-extrabold text-emerald-400 uppercase tracking-wider">
+              <i class="fa-solid fa-sliders"></i>
+              <span>Interactive Dose Regulator & GxP Electronic Sign-off</span>
+            </div>
+            <h3 class="text-2xl font-black" style="color: var(--color-text-primary);">
+              Live Clinical Dose Titration Mini-Sandbox
+            </h3>
+            <p class="text-xs md:text-sm" style="color: var(--color-text-secondary);">
+              Drag the interactive dose slider to simulate real-time Bayesian toxicity modeling and issue a 21 CFR Part 11 compliant HMAC signature stamp.
+            </p>
+          </div>
+
+          <button 
+            @click="currentTab = 'dose_curve'" 
+            class="px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center space-x-1.5 hover:border-emerald-400 hover:text-emerald-400"
+            style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
+          >
+            <span>Full Curve Analysis</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </button>
+        </div>
+
+        <!-- Interactive Regulator Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Slider & Gauges (7 cols) -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Dose Slider Track -->
+            <div class="space-y-3">
+              <div class="flex justify-between items-center text-xs font-mono font-bold">
+                <span style="color: var(--color-text-secondary);">TARGET CLINICAL DOSE:</span>
+                <span class="text-xl font-black text-emerald-400 font-mono" x-text="landingMiniDose + ' mg'">300 mg</span>
+              </div>
+
+              <input 
+                type="range" 
+                min="100" 
+                max="600" 
+                step="25" 
+                x-model="landingMiniDose"
+                class="w-full h-3 rounded-lg appearance-none cursor-pointer slider-track-gradient focus:outline-none"
+              />
+
+              <div class="flex justify-between text-[10px] font-mono" style="color: var(--color-text-muted);">
+                <span>100 mg (Min Safe)</span>
+                <span>300 mg (Recommended)</span>
+                <span>600 mg (Max Escalation)</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Bayesian Predictions -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="p-3 rounded-2xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono uppercase" style="color: var(--color-text-muted);">DLT Toxicity Risk</div>
+                <div class="text-xl font-black font-mono mt-1" :class="landingMiniDose > 450 ? 'text-rose-400' : (landingMiniDose > 350 ? 'text-amber-400' : 'text-emerald-400')" x-text="((landingMiniDose / 600) * 46).toFixed(1) + '%'">
+                  18.2%
+                </div>
+              </div>
+
+              <div class="p-3 rounded-2xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono uppercase" style="color: var(--color-text-muted);">Response Rate</div>
+                <div class="text-xl font-black text-cyan-400 font-mono mt-1" x-text="(50 + (landingMiniDose / 600) * 38).toFixed(1) + '%'">
+                  69.0%
+                </div>
+              </div>
+
+              <div class="p-3 rounded-2xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-[10px] font-mono uppercase" style="color: var(--color-text-muted);">Window Status</div>
+                <div class="text-xs font-black font-mono mt-2 uppercase truncate" :class="landingMiniDose > 450 ? 'text-rose-400' : (landingMiniDose > 350 ? 'text-amber-400' : 'text-emerald-400')" x-text="landingMiniDose > 450 ? 'CRITICAL ESCALATION' : (landingMiniDose > 350 ? 'ELEVATED RISK' : 'OPTIMAL WINDOW')">
+                  OPTIMAL WINDOW
+                </div>
+              </div>
+            </div>
+
+            <!-- Sign Action Button -->
+            <div class="flex items-center space-x-3">
+              <button 
+                @click="signLandingDose()" 
+                class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all flex items-center space-x-2"
+              >
+                <i class="fa-solid fa-signature"></i>
+                <span>1-Click 21 CFR Part 11 Electronic Sign-off</span>
+              </button>
+
+              <button 
+                @click="resetLandingDose()" 
+                class="px-4 py-3 rounded-2xl text-xs font-bold border hover:border-slate-400 transition-all flex items-center space-x-1.5"
+                style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);"
+              >
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Reset</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Stamped Holographic Certificate Card (5 cols) -->
+          <div class="lg:col-span-5">
+            <div 
+              class="p-5 rounded-2xl border relative overflow-hidden transition-all duration-300"
+              :class="landingCertificate ? 'border-emerald-400/60 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-400/40' : 'border-slate-800/80 opacity-70'"
+              style="background-color: var(--color-bg-card-subtle);"
+            >
+              <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--color-border-subtle);">
+                <div class="flex items-center space-x-2">
+                  <i class="fa-solid fa-certificate text-emerald-400"></i>
+                  <span class="text-xs font-bold uppercase font-mono text-emerald-400">PART 11 AUDIT CERTIFICATE</span>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded" :class="landingCertificate ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'">
+                  <span x-text="landingCertificate ? 'SEALED & VERIFIED' : 'AWAITING SIGNATURE'"></span>
+                </span>
+              </div>
+
+              <div class="py-4 space-y-2 text-xs font-mono">
+                <div class="flex justify-between">
+                  <span style="color: var(--color-text-muted);">Subject Cohort:</span>
+                  <span class="font-bold text-cyan-400">MK-3475-Cohort-B</span>
+                </div>
+                <div class="flex justify-between">
+                  <span style="color: var(--color-text-muted);">Approved Titration:</span>
+                  <span class="font-bold text-emerald-400" x-text="(landingCertificate ? landingCertificate.dose : landingMiniDose) + ' mg'">300 mg</span>
+                </div>
+                <div class="flex justify-between">
+                  <span style="color: var(--color-text-muted);">Investigator:</span>
+                  <span class="font-bold" style="color: var(--color-text-primary);">Dr. Sarah Lin, MD</span>
+                </div>
+                <div class="flex justify-between">
+                  <span style="color: var(--color-text-muted);">Timestamp:</span>
+                  <span class="text-[10px]" style="color: var(--color-text-secondary);" x-text="landingCertificate ? landingCertificate.timestamp : 'Pending Sign-off...'">Pending...</span>
+                </div>
+                <div class="pt-2 border-t" style="border-color: var(--color-border-subtle);">
+                  <div class="text-[10px]" style="color: var(--color-text-muted);">HMAC-SHA256 Certificate Hash:</div>
+                  <div class="text-[10px] truncate text-emerald-400 font-mono mt-0.5" x-text="landingCertificate ? landingCertificate.hash : '0x0000000000000000000000000000000000000000'">
+                    0x0000000000000000000000000000000000000000
+                  </div>
+                </div>
+              </div>
+
+              <template x-if="landingCertificate">
+                <div class="pt-2 flex items-center justify-between text-[10px] font-mono text-emerald-400">
+                  <span class="flex items-center space-x-1"><i class="fa-solid fa-lock"></i><span>Zero DB write-lock contention</span></span>
+                  <span>48h TTL</span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 6. CYBERPUNK REAL-TIME SWARM TELEMETRY TERMINAL -->
+      <div class="glass-cyber-card rounded-3xl p-6 md:p-8 space-y-4">
+        
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style="border-color: var(--color-border-subtle);">
+          <div class="flex items-center space-x-3">
+            <div class="flex space-x-1.5">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+            </div>
+            <span class="text-xs font-mono font-bold text-cyan-400">SOVEREIGN SWARM AUDIT LOGS — a2a_gateway_v1.log</span>
+          </div>
+
+          <div class="flex items-center space-x-2 text-[10px] font-mono">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>1,240 PACKETS/SEC</span>
+            </span>
+            <button 
+              @click="addLandingTerminalLog('SYSTEM', 'Manual telemetry snapshot executed.', 'info')" 
+              class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700"
+            >
+              <i class="fa-solid fa-plus"></i> Snapshot
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Window Body -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs max-h-56 overflow-y-auto custom-scrollbar space-y-1.5 leading-relaxed">
+          <template x-for="(log, idx) in landingTerminalLogs" :key="idx">
+            <div class="flex items-start space-x-2">
+              <span class="text-slate-500 select-none text-[10px]" x-text="'[' + log.time + ']'"></span>
+              <span class="font-bold text-[10px] uppercase px-1 rounded" :class="{
+                'text-cyan-400 bg-cyan-950/60': log.type === 'info',
+                'text-emerald-400 bg-emerald-950/60': log.type === 'success',
+                'text-rose-400 bg-rose-950/60': log.type === 'danger',
+                'text-amber-400 bg-amber-950/60': log.type === 'warning'
+              }" x-text="log.prefix"></span>
+              <span class="text-slate-300 text-[11px]" x-text="log.msg"></span>
+            </div>
+          </template>
+        </div>
+
+      </div>
+
+      <!-- 7. FOUR-PERSONA SWARM LAUNCHPAD -->
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
+            Tailored Persona Launchpads
+          </h3>
+          <p class="text-xs" style="color: var(--color-text-secondary);">
+            Choose your executive persona to enter customized gateway workspaces and governance views.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Persona 1 -->
+          <div 
+            @click="selectPersona('architect')" 
+            class="p-5 rounded-3xl border cursor-pointer transition-all hover:scale-105 group"
+            :class="activePersona === 'architect' ? 'ring-2 ring-teal-400 shadow-lg shadow-teal-500/10' : ''"
+            :style="'background-color: var(--color-bg-card); border-color: var(--color-border-subtle);'"
+          >
+            <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 text-base mb-3 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-landmark"></i>
+            </div>
+            <div class="text-sm font-black" style="color: var(--color-text-primary);">Enterprise Architect</div>
+            <p class="text-xs mt-1" style="color: var(--color-text-secondary);">Multi-agent DAG topology, VPC peering, and high-throughput routing.</p>
+            <div class="mt-3 pt-2 border-t flex items-center justify-between text-xs font-bold text-teal-400" style="border-color: var(--color-border-subtle);">
+              <span>Enter Workspace</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Persona 2 -->
+          <div 
+            @click="selectPersona('clinician')" 
+            class="p-5 rounded-3xl border cursor-pointer transition-all hover:scale-105 group"
+            :class="activePersona === 'clinician' ? 'ring-2 ring-emerald-400 shadow-lg shadow-emerald-500/10' : ''"
+            :style="'background-color: var(--color-bg-card); border-color: var(--color-border-subtle);'"
+          >
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-base mb-3 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <div class="text-sm font-black" style="color: var(--color-text-primary);">Clinical Investigator</div>
+            <p class="text-xs mt-1" style="color: var(--color-text-secondary);">Dose titration curve safety, DLT risk boundaries, and patient outcomes.</p>
+            <div class="mt-3 pt-2 border-t flex items-center justify-between text-xs font-bold text-emerald-400" style="border-color: var(--color-border-subtle);">
+              <span>Enter Workspace</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Persona 3 -->
+          <div 
+            @click="selectPersona('compliance')" 
+            class="p-5 rounded-3xl border cursor-pointer transition-all hover:scale-105 group"
+            :class="activePersona === 'compliance' ? 'ring-2 ring-purple-400 shadow-lg shadow-purple-500/10' : ''"
+            :style="'background-color: var(--color-bg-card); border-color: var(--color-border-subtle);'"
+          >
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-base mb-3 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <div class="text-sm font-black" style="color: var(--color-text-primary);">Regulatory Auditor</div>
+            <p class="text-xs mt-1" style="color: var(--color-text-secondary);">21 CFR Part 11 HMAC cryptographic stamps, GAMP 5, and immutable trails.</p>
+            <div class="mt-3 pt-2 border-t flex items-center justify-between text-xs font-bold text-purple-400" style="border-color: var(--color-border-subtle);">
+              <span>Enter Workspace</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+          <!-- Persona 4 -->
+          <div 
+            @click="selectPersona('developer')" 
+            class="p-5 rounded-3xl border cursor-pointer transition-all hover:scale-105 group"
+            :class="activePersona === 'developer' ? 'ring-2 ring-sky-400 shadow-lg shadow-sky-500/10' : ''"
+            :style="'background-color: var(--color-bg-card); border-color: var(--color-border-subtle);'"
+          >
+            <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-base mb-3 group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-code"></i>
+            </div>
+            <div class="text-sm font-black" style="color: var(--color-text-primary);">Swarm Developer</div>
+            <p class="text-xs mt-1" style="color: var(--color-text-secondary);">gRPC streaming stubs, protobuf schemas, AST sanitizer benchmarks.</p>
+            <div class="mt-3 pt-2 border-t flex items-center justify-between text-xs font-bold text-sky-400" style="border-color: var(--color-border-subtle);">
+              <span>Enter Workspace</span>
+              <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
 
     <!-- ========================================================================= -->
     <!-- TAB 1: VISUAL DRAG & DROP DAG STUDIO -->
@@ -2814,7 +3706,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   <script>
     function portalState() {
       return {
-        currentTab: 'dag_studio',
+        currentTab: 'landing',
         sidebarCollapsed: false,
         activePersona: 'architect',
         assistantOpen: false,
@@ -2828,6 +3720,25 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         unreadAlertsCount: 2,
         currentUser: null,
         isDark: false,
+
+        // Futuristic Landing Page Quantum State
+        landingSimActive: false,
+        landingSimStep: 0,
+        landingSimStatus: 'Ready • Swarm Idle',
+        landingSimAttackMode: false,
+        landingMiniDose: 300,
+        landingCertificate: null,
+        landing3dWireframeVisible: true,
+        landing3dCoreGroup: null,
+        landing3dWireMesh: null,
+        landing3dCamera: null,
+        landingTerminalLogs: [
+          { time: '22:42:10.104', prefix: 'BOOT', msg: 'A2A Gateway Sovereign Enclave online on 127.0.0.1:8090', type: 'info' },
+          { time: '22:42:10.132', prefix: 'AST_ADK', msg: 'Sub-28µs in-memory dictionary filter active (0 regex rules)', type: 'success' },
+          { time: '22:42:10.158', prefix: 'CRYPTO', msg: 'HMAC-SHA256 Part 11 signing master key verified (48h TTL)', type: 'success' },
+          { time: '22:42:10.184', prefix: 'MESH', msg: '180 autonomous biopharma nodes synced across sovereign VPC', type: 'info' },
+          { time: '22:42:10.212', prefix: 'GEMINI', msg: 'Vertex AI Gemini 2.5 Flash biopharma extension registered', type: 'info' }
+        ],
 
         // Gemini Enterprise User Training & Onboarding State
         trainingStep: 1,
@@ -2924,6 +3835,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         // Omni Command Palette Action Registry
         commands: [
           // Studios & Navigation
+          { id: 'nav-landing', title: 'Open Quantum Mesh Portal', subtitle: 'Interactive 3D WebGL core and real-time swarm simulator', category: 'navigation', icon: 'fa-solid fa-atom', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: 'G Q', action: 'landing' },
           { id: 'nav-dag', title: 'Open Visual DAG Studio', subtitle: 'Compose multi-agent pipelines with 28µs AST filter', category: 'navigation', icon: 'fa-solid fa-diagram-project', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: 'G D', action: 'dag_studio' },
           { id: 'nav-dose', title: 'Open Dose Titration Curve', subtitle: 'Interactive risk curve with 21 CFR Part 11 sign-off', category: 'navigation', icon: 'fa-solid fa-sliders', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G T', action: 'dose_curve' },
           { id: 'nav-veo', title: 'Open Veo 2 & Omni Studio', subtitle: 'Google DeepMind 5-act 4K cinematic video engine', category: 'navigation', icon: 'fa-solid fa-clapperboard', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'G V', action: 'veo_studio' },
@@ -2986,6 +3898,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
         getTabName(tab) {
           const map = {
+            'landing': 'Quantum Mesh Portal',
             'dag_studio': 'Visual Drag & Drop DAG',
             'dose_curve': 'Dose Titration Curve',
             'playground': 'Playground & Ingestion',
@@ -3542,6 +4455,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
         init3DScenes() {
           if (typeof THREE === 'undefined') return;
+          this.initQuantumLanding3D();
           this.initDag3DBackground();
           this.initVeo3DStage();
           this.initCopilot3DAvatar();
@@ -3733,8 +4647,255 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           animate();
         },
 
+        initQuantumLanding3D() {
+          const canvas = document.getElementById('quantum-mesh-canvas');
+          if (!canvas) return;
+          const parent = canvas.parentElement;
+          if (!parent) return;
+
+          const w = parent.clientWidth || 450;
+          const h = parent.clientHeight || 450;
+
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+          camera.position.set(0, 0, 18);
+          this.landing3dCamera = camera;
+
+          const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, preserveDrawingBuffer: true });
+          renderer.setSize(w, h);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+          const coreGroup = new THREE.Group();
+          scene.add(coreGroup);
+          this.landing3dCoreGroup = coreGroup;
+
+          // Outer Holographic Icosahedron Shell
+          const icoGeo = new THREE.IcosahedronGeometry(4.4, 2);
+          const icoMat = new THREE.MeshBasicMaterial({
+            color: 0x00f2fe,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.85
+          });
+          const icoMesh = new THREE.Mesh(icoGeo, icoMat);
+          coreGroup.add(icoMesh);
+          this.landing3dWireMesh = icoMesh;
+
+          // Inner Dense Luminous Core
+          const innerGeo = new THREE.SphereGeometry(2.3, 24, 24);
+          const innerMat = new THREE.MeshBasicMaterial({
+            color: 0x10b981,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.9
+          });
+          const innerMesh = new THREE.Mesh(innerGeo, innerMat);
+          coreGroup.add(innerMesh);
+
+          // Planetary Orbital Ring 1
+          const ring1Geo = new THREE.TorusGeometry(6.2, 0.08, 16, 64);
+          const ring1Mat = new THREE.MeshBasicMaterial({
+            color: 0x00f2fe,
+            transparent: true,
+            opacity: 0.85
+          });
+          const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
+          ring1.rotation.x = Math.PI / 3;
+          coreGroup.add(ring1);
+
+          // Planetary Orbital Ring 2 (Cross Tilt)
+          const ring2Geo = new THREE.TorusGeometry(7.0, 0.07, 16, 64);
+          const ring2Mat = new THREE.MeshBasicMaterial({
+            color: 0xa855f7,
+            transparent: true,
+            opacity: 0.85
+          });
+          const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+          ring2.rotation.y = Math.PI / 4;
+          ring2.rotation.x = -Math.PI / 4;
+          coreGroup.add(ring2);
+
+          // 5 Orbiting Enclave Node Spheres along Ring 1
+          const nodeColors = [0x00f2fe, 0x10b981, 0xa855f7, 0xf59e0b, 0x14b8a6];
+          for (let i = 0; i < 5; i++) {
+            const angle = (i / 5) * Math.PI * 2;
+            const nodeGeo = new THREE.SphereGeometry(0.48, 16, 16);
+            const nodeMat = new THREE.MeshBasicMaterial({ color: nodeColors[i] });
+            const nodeMesh = new THREE.Mesh(nodeGeo, nodeMat);
+            nodeMesh.position.set(Math.cos(angle) * 6.2, Math.sin(angle) * 6.2, 0);
+            ring1.add(nodeMesh);
+          }
+
+          // Volumetric Starfield / Nebula Particles
+          const particleCount = 180;
+          const partGeo = new THREE.BufferGeometry();
+          const partPositions = new Float32Array(particleCount * 3);
+          for (let i = 0; i < particleCount * 3; i += 3) {
+            const r = 9 + Math.random() * 8;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
+            partPositions[i] = r * Math.sin(phi) * Math.cos(theta);
+            partPositions[i + 1] = r * Math.sin(phi) * Math.sin(theta);
+            partPositions[i + 2] = r * Math.cos(phi);
+          }
+          partGeo.setAttribute('position', new THREE.BufferAttribute(partPositions, 3));
+          const partMat = new THREE.PointsMaterial({
+            color: 0x38bdf8,
+            size: 0.65,
+            transparent: true,
+            opacity: 0.9
+          });
+          const particles = new THREE.Points(partGeo, partMat);
+          coreGroup.add(particles);
+
+          // Mouse Interactivity
+          let isDragging = false;
+          let prevX = 0, prevY = 0;
+          let targetRotX = 0, targetRotY = 0;
+
+          canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            prevX = e.clientX;
+            prevY = e.clientY;
+          });
+          window.addEventListener('mouseup', () => { isDragging = false; });
+          window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+              const deltaX = e.clientX - prevX;
+              const deltaY = e.clientY - prevY;
+              targetRotY += deltaX * 0.008;
+              targetRotX += deltaY * 0.008;
+              prevX = e.clientX;
+              prevY = e.clientY;
+            } else {
+              const rect = canvas.getBoundingClientRect();
+              if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                const normX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+                const normY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+                targetRotY += (normX * 0.4 - targetRotY) * 0.05;
+                targetRotX += (normY * 0.4 - targetRotX) * 0.05;
+              }
+            }
+          });
+
+          canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            camera.position.z = Math.max(12, Math.min(28, camera.position.z + e.deltaY * 0.02));
+          }, { passive: false });
+
+          // Animation Loop
+          let clock = new THREE.Clock();
+          const animate = () => {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            coreGroup.rotation.y += 0.005;
+            coreGroup.rotation.x += (targetRotX - coreGroup.rotation.x) * 0.06;
+            coreGroup.rotation.y += (targetRotY - coreGroup.rotation.y) * 0.06;
+
+            ring1.rotation.z = t * 0.4;
+            ring2.rotation.z = -t * 0.3;
+
+            const pulse = 1.0 + Math.sin(t * 2.8) * 0.08;
+            innerMesh.scale.set(pulse, pulse, pulse);
+
+            renderer.render(scene, camera);
+          };
+          animate();
+
+          // Responsive Window Resizing
+          if (window.ResizeObserver) {
+            new ResizeObserver(() => {
+              const newW = parent.clientWidth || 450;
+              const newH = parent.clientHeight || 450;
+              camera.aspect = newW / newH;
+              camera.updateProjectionMatrix();
+              renderer.setSize(newW, newH);
+            }).observe(parent);
+          }
+        },
+
+        toggleLandingWireframe() {
+          this.landing3dWireframeVisible = !this.landing3dWireframeVisible;
+          if (this.landing3dWireMesh) {
+            this.landing3dWireMesh.visible = this.landing3dWireframeVisible;
+          }
+          this.addLandingTerminalLog('3D_CORE', 'Holographic wireframe shell ' + (this.landing3dWireframeVisible ? 'rendered' : 'hidden') + '.', 'info');
+        },
+
+        resetLandingCamera() {
+          if (this.landing3dCamera) this.landing3dCamera.position.set(0, 0, 18);
+          if (this.landing3dCoreGroup) this.landing3dCoreGroup.rotation.set(0, 0, 0);
+          this.addLandingTerminalLog('3D_CORE', 'Holographic core orientation reset.', 'info');
+        },
+
+        triggerLandingSim(isAttack = false) {
+          if (this.landingSimActive) return;
+          this.landingSimActive = true;
+          this.landingSimAttackMode = isAttack;
+          this.landingSimStep = 1;
+          this.landingSimStatus = 'Node 1: Ingesting Clinical Record...';
+          this.addLandingTerminalLog('INGEST', isAttack ? 'Inbound packet with suspicious __internal_trace__ & system_override payload.' : 'Inbound Subject #9042 CDISC SDTM AE domain received.', isAttack ? 'warning' : 'info');
+
+          setTimeout(() => {
+            this.landingSimStep = 2;
+            this.landingSimStatus = isAttack ? 'Node 2: AST Sanitizer Neutralized Threat (26.8 µs)' : 'Node 2: AST Sanitizer Verified Clean (27.4 µs)';
+            this.addLandingTerminalLog('AST_FILTER', isAttack ? 'STRIPPED prohibited keys (__internal_trace__, system_override) in 26.8 µs. Zero regex backtracking.' : 'Verified schema. Clean payload passed to sovereign enclave in 27.4 µs.', isAttack ? 'danger' : 'success');
+          }, 800);
+
+          setTimeout(() => {
+            this.landingSimStep = 3;
+            this.landingSimStatus = 'Node 3: Sovereign Vertex AI Bayesian Reasoning...';
+            this.addLandingTerminalLog('VERTEX_AI', 'Bayesian toxicity model converged. DLT Probability: 18.2%. Confidence: 0.964.', 'info');
+          }, 1600);
+
+          setTimeout(() => {
+            this.landingSimStep = 4;
+            this.landingSimStatus = 'Node 4: A2UI Surface Sealed with HMAC-SHA256 Token...';
+            this.addLandingTerminalLog('A2UI_CARD', 'Generated interactive dose approval surface. Sealed 48h HMAC token (0x4f92...e291).', 'info');
+          }, 2400);
+
+          setTimeout(() => {
+            this.landingSimStep = 5;
+            this.landingSimStatus = 'Node 5: 21 CFR Part 11 Electronic Signature Verified!';
+            this.addLandingTerminalLog('CLINICIAN', 'Dr. Sarah Lin confirmed dose titration. GxP immutable ledger updated.', 'success');
+            this.triggerSparkleCelebration();
+          }, 3200);
+
+          setTimeout(() => {
+            this.landingSimActive = false;
+            this.landingSimStatus = 'Completed • Verified GxP Transaction';
+          }, 4200);
+        },
+
+        signLandingDose() {
+          const now = new Date();
+          const timestamp = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+          const randomHex = Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+          this.landingCertificate = {
+            dose: this.landingMiniDose,
+            timestamp: timestamp,
+            hash: 'sha256:' + randomHex
+          };
+          this.addLandingTerminalLog('SIGN_OFF', '1-Click 21 CFR Part 11 signature sealed: ' + this.landingMiniDose + ' mg (Hash: ' + this.landingCertificate.hash.substring(0, 18) + '...)', 'success');
+          this.triggerSparkleCelebration();
+        },
+
+        resetLandingDose() {
+          this.landingCertificate = null;
+          this.landingMiniDose = 300;
+          this.addLandingTerminalLog('REGULATOR', 'Dose sandbox reset to baseline (300 mg).', 'info');
+        },
+
+        addLandingTerminalLog(prefix, msg, type = 'info') {
+          const now = new Date();
+          const time = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+          this.landingTerminalLogs.unshift({ time, prefix, msg, type });
+          if (this.landingTerminalLogs.length > 25) this.landingTerminalLogs.pop();
+        },
+
         initCard3DTilt() {
-          const cards = document.querySelectorAll('.glass-card');
+          const cards = document.querySelectorAll('.glass-card, .glass-cyber-card');
           cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
               const rect = card.getBoundingClientRect();
