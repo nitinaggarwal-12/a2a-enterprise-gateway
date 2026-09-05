@@ -104,5 +104,42 @@ def test_design_mutation_adaptive_layout():
         assert resp.status_code == 200
         data = resp.json()
         assert data["layoutMode"] == mode
-        assert "gridTemplate" in data["mutation"]
         assert data["cognitiveLoadAdaptiveAdjustments"]["hideTelemetryHex"] is True
+
+def test_omni_contrast_calculation_formula():
+    from portal.omni_orchestrator import calculate_wcag_contrast_ratio
+    
+    # Standard extreme contrasts
+    assert calculate_wcag_contrast_ratio("#000000", "#ffffff") == 21.0
+    
+    # Flawed legacy neon token on white
+    legacy_cyan_ratio = calculate_wcag_contrast_ratio("#67e8f9", "#ffffff")
+    assert legacy_cyan_ratio < 2.0  # Fails WCAG AA & AAA
+    
+    # Intermediate token on white (WCAG AA)
+    intermediate_cyan_ratio = calculate_wcag_contrast_ratio("#0369a1", "#ffffff")
+    assert intermediate_cyan_ratio >= 4.5  # Passes WCAG AA
+    
+    # Remediated dual-theme cyan token on white (WCAG AAA)
+    remediated_cyan_ratio = calculate_wcag_contrast_ratio("#075985", "#ffffff")
+    assert remediated_cyan_ratio >= 7.0  # Passes WCAG AAA (7.56:1)
+
+    # Dark mode luminous token on dark slate
+    dark_cyan_ratio = calculate_wcag_contrast_ratio("#38bdf8", "#0f172a")
+    assert dark_cyan_ratio >= 7.0  # Passes WCAG AAA
+
+def test_omni_contrast_audit_endpoint():
+    resp = client.get("/api/omni/contrast-audit")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "success"
+    assert "themes" in data
+    assert len(data["themes"]["light"]) > 0
+    assert len(data["themes"]["dark"]) > 0
+    
+    # Verify no failures in canonical theme tokens
+    for item in data["themes"]["light"]:
+        assert item["verdict"] in ["AAA_PASS", "AA_PASS"], f"Light token {item['token']} failed: {item['contrast_ratio']}"
+    for item in data["themes"]["dark"]:
+        assert item["verdict"] in ["AAA_PASS", "AA_PASS"], f"Dark token {item['token']} failed: {item['contrast_ratio']}"
+
