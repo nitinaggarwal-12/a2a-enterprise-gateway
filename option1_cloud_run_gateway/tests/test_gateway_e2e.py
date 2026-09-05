@@ -380,4 +380,66 @@ def test_portal_a2ui_action_and_electronic_signature():
     assert reset_resp.json()["success"] is True
 
 
+def test_swarm_client_registration(client):
+    """Test sovereign biopharma swarm registration payload specified in 21 CFR Part 11 blueprint."""
+    reg_payload = {
+        "client_name": "Sovereign_Biopharma_Cohort_Swarm_01",
+        "organization": "Sovereign Therapeutics Corp",
+        "gateway_target": "https://a2a-gateway-638420508320.us-central1.run.app",
+        "security_scheme": "HMAC-SHA256",
+        "compliance_frameworks": ["21_CFR_Part_11", "Annex_11"],
+        "signature_manifestation": {
+            "supported_meanings": [
+                "ProtocolApproval",
+                "CohortValidation",
+                "SafetyReview",
+                "SystemAudit"
+            ]
+        }
+    }
+    response = client.post("/api/v1/register", json=reg_payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "REGISTERED"
+    assert data["client_name"] == "Sovereign_Biopharma_Cohort_Swarm_01"
+    assert data["compliance_status"] == "21_CFR_PART_11_CERTIFIED"
+    assert "CohortValidation" in data["supported_meanings"]
+    assert data["verification_endpoint"] == "/api/v1/verify-signature"
+
+
+def test_swarm_stateless_signature_verification_and_tamper_guard(client):
+    """Test CFRPart11Signer envelope verification and cyber-tamper detection."""
+    from app.security import CFRPart11Signer
+
+    signer = CFRPart11Signer()
+    protocol_doc = b"CLINICAL TRIAL PROTOCOL: Phase IIa sovereign mRNA target mapping..."
+
+    signed_envelope = signer.create_signature_payload(
+        agent_id="agent_cohort_matcher_04",
+        agent_name="Autonomous Cohort Matching Agent (v2.1)",
+        meaning="CohortValidation",
+        document_id="protocol_amendment_v3.2",
+        document_data=protocol_doc,
+    )
+
+    # 1. Valid Signature Verification
+    verify_resp = client.post("/api/v1/verify-signature", json=signed_envelope)
+    assert verify_resp.status_code == 200
+    v_data = verify_resp.json()
+    assert v_data["valid"] is True
+    assert v_data["signer_id"] == "agent_cohort_matcher_04"
+    assert v_data["meaning"] == "CohortValidation"
+    assert v_data["compliance_standard"] == "FDA_21_CFR_PART_11"
+
+    # 2. Tamper Attack (Attacker alters document_id or hash)
+    tampered_envelope = dict(signed_envelope)
+    tampered_envelope["payload"] = dict(signed_envelope["payload"])
+    tampered_envelope["payload"]["document_id"] = "protocol_amendment_tampered"
+
+    tamper_resp = client.post("/api/v1/verify-signature", json=tampered_envelope)
+    assert tamper_resp.status_code == 401
+    assert "Verification Failed" in tamper_resp.json()["detail"]
+
+
+
 

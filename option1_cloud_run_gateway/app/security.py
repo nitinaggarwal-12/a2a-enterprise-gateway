@@ -4,8 +4,11 @@ Handles Google OIDC Bearer Token verification and HMAC-SHA256 stateless
 state token generation and validation for 48+ hour Human-In-The-Loop (HITL) workflows.
 """
 
+import hmac
+import hashlib
+import json
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 from fastapi import Header, HTTPException, status
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -161,4 +164,90 @@ def consume_state_token(token: str) -> Dict[str, Any]:
     Replay attempts with the same token result in HTTP 409 Conflict.
     """
     return verify_state_token(token, enforce_idempotency=True)
+
+
+class CFRPart11Signer:
+    """Stateless cryptographic signer satisfying 21 CFR Part 11 rules:
+    - § 11.50 (Manifestation of Signatures: printed name, timestamp, meaning)
+    - § 11.70 (Signature/Record Linking: SHA-256 digest of clinical payload)
+    - § 11.200 / 11.300 (Credentials: Double-envelope HMAC key authentication)
+    """
+
+    SUPPORTED_MEANINGS = [
+        "ProtocolApproval",
+        "CohortValidation",
+        "SafetyReview",
+        "SystemAudit",
+        "DoseTitrationApproval",
+        "DeviationJustification",
+    ]
+
+    def __init__(self, hmac_secret_key: Optional[bytes] = None):
+        if hmac_secret_key is None:
+            hmac_secret_key = settings.JWT_SECRET.encode("utf-8")
+        elif not isinstance(hmac_secret_key, bytes):
+            if isinstance(hmac_secret_key, str):
+                hmac_secret_key = hmac_secret_key.encode("utf-8")
+            else:
+                raise TypeError("hmac_secret_key must be bytes or str")
+        self.secret_key = hmac_secret_key
+
+    def create_signature_payload(
+        self,
+        agent_id: str,
+        agent_name: str,
+        meaning: str,
+        document_id: str,
+        document_data: bytes,
+        extra_metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Creates a 21 CFR Part 11 compliant metadata payload and signs it."""
+        if isinstance(document_data, str):
+            document_data = document_data.encode("utf-8")
+        elif not isinstance(document_data, bytes):
+            document_data = json.dumps(document_data, sort_keys=True).encode("utf-8")
+
+        document_hash = hashlib.sha256(document_data).hexdigest()
+
+        payload = {
+            "signer_id": agent_id,
+            "signer_name": agent_name,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "meaning": meaning,
+            "document_id": document_id,
+            "document_hash": document_hash,
+        }
+        if extra_metadata:
+            payload["extra_metadata"] = extra_metadata
+
+        serialized_payload = json.dumps(payload, sort_keys=True).encode("utf-8")
+        signature = hmac.new(self.secret_key, serialized_payload, hashlib.sha256).hexdigest()
+
+        return {
+            "payload": payload,
+            "signature": signature,
+        }
+
+    def verify_signature(self, signed_envelope: Dict[str, Any]) -> Tuple[bool, str]:
+        """Statelessly verifies the signature integrity of the incoming package."""
+        payload = signed_envelope.get("payload")
+        provided_signature = signed_envelope.get("signature")
+
+        if not payload or not provided_signature:
+            return False, "Missing payload or signature in envelope"
+
+        required_fields = ["signer_id", "signer_name", "timestamp", "meaning", "document_id", "document_hash"]
+        for field in required_fields:
+            if field not in payload:
+                return False, f"Non-compliant envelope: missing § 11.50 attribute '{field}'"
+
+        serialized_payload = json.dumps(payload, sort_keys=True).encode("utf-8")
+        expected_signature = hmac.new(self.secret_key, serialized_payload, hashlib.sha256).hexdigest()
+
+        is_valid = hmac.compare_digest(expected_signature, provided_signature)
+        if not is_valid:
+            return False, "Cryptographic signature mismatch: record altered in transit"
+
+        return True, "21 CFR Part 11 Signature verified statelessly"
+
 

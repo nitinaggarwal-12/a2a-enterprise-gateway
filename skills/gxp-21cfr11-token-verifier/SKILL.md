@@ -24,8 +24,22 @@ Execute the token validation script:
 .venv/bin/python skills/gxp-21cfr11-token-verifier/scripts/verify_tokens.py
 ```
 
-### Step 2: Validation Scenarios Covered
+### Step 2: Run Sovereign Swarm CFRPart11Signer Micro-Utility
+Execute the swarm signer and verifier ceremony:
+
+```bash
+.venv/bin/python skills/gxp-21cfr11-token-verifier/scripts/cfr_part11_signer.py
+```
+
+### Step 3: Gateway Swarm Endpoints
+- **Swarm Registration**: `POST /api/v1/register`
+- **Stateless Signature Verification**: `POST /api/v1/verify-signature`
+- **Live Gateway Target**: `https://a2a-gateway-638420508320.us-central1.run.app`
+
+### Step 4: Validation Scenarios Covered
 1. **Valid Token Flow**: Signs a MK-3475 dose titration record and verifies matching HMAC digest.
-2. **Expired Token Flow**: Verifies rejection of tokens exceeding 48-hour TTL ($> 172,800$s).
-3. **Byte-Level Payload Tampering**: Simulates mutating dose `300mg` to `400mg` in transit, confirming HTTP 401 Unauthorized rejection via `hmac.compare_digest()`.
-4. **Secret Key Rotation**: Verifies tokens signed with previous secret keys are rejected unless dual-key transition window is active.
+2. **Sovereign Swarm Envelope**: Verifies `CFRPart11Signer` envelope containing `document_hash`, `signer_id`, `meaning`, and `timestamp`.
+3. **Expired Token Flow**: Verifies rejection of tokens exceeding 48-hour TTL ($> 172,800$s).
+4. **Byte-Level Payload Tampering**: Simulates mutating payload in transit, confirming HTTP 401 Unauthorized rejection via `hmac.compare_digest()`.
+5. **Secret Key Rotation**: Verifies tokens signed with previous secret keys are rejected unless dual-key transition window is active.
+
