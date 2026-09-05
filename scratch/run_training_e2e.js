@@ -198,7 +198,7 @@ async function runTrainingE2ESuite() {
     // Step 2: Google Cloud IAM & Service Account OIDC
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await setStep(2);
-    await verifyDomText('gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com', 'Dark Step 2 SA');
+    await verifyDomText('gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com', 'Dark Step 2 SA');
     await verifyDomText('roles/run.invoker', 'Dark Step 2 Role');
     await saveShot('dark_training_02_iam_oidc.png');
 
@@ -208,19 +208,19 @@ async function runTrainingE2ESuite() {
     await setRegistrationMode('gcp');
     await setGcpTab('wizard');
     await verifyDomText('console.cloud.google.com/vertex-ai/agent-builder', 'Dark Step 3 GCP URL');
-    await verifyDomText('Register External Agent (Google A2A Protocol v1.0.0)', 'Dark Step 3 GCP Wizard Title');
-    await verifyDomText('gcp-biopharma-prod', 'Dark Step 3 GCP Project');
+    await verifyDomText('Register External Agent (Google A2A Protocol v1.0.0', 'Dark Step 3 GCP Wizard Title');
+    await verifyDomText('nitinagga-ge-2', 'Dark Step 3 GCP Project');
     await saveShot('dark_training_03a_gcp_console_wizard.png');
 
     // Step 3b: Google Cloud Console - External A2A Agent Swarms Catalog
     await setGcpTab('catalog');
-    await verifyDomText('External A2A Agent Swarms', 'Dark Step 3 GCP Catalog Title');
+    await verifyDomText('Registered Agents', 'Dark Step 3 GCP Catalog Title');
     await verifyDomText('2.42 µs AST', 'Dark Step 3 GCP Latency');
     await saveShot('dark_training_03b_gcp_console_catalog.png');
 
     // Step 3c: Google Cloud Console - Cloud Run Security & IAM
     await setGcpTab('iam');
-    await verifyDomText('Target Service: a2a-gateway-prod', 'Dark Step 3 GCP Cloud Run');
+    await verifyDomText('Target Service: a2a-gateway', 'Dark Step 3 GCP Cloud Run');
     await verifyDomText('roles/run.invoker', 'Dark Step 3 GCP Invoker Role');
     await saveShot('dark_training_03c_gcp_console_iam.png');
 
@@ -228,7 +228,7 @@ async function runTrainingE2ESuite() {
     await setRegistrationMode('workspace');
     await registerExt();
     await verifyDomText('@clinical-gateway', 'Dark Step 3 Mention');
-    await verifyDomText('Dr. A2A Sovereign Biopharma Gateway', 'Dark Step 3 Agent Name');
+    await verifyDomText('Dr. A2A Sovereign Biopharma', 'Dark Step 3 Agent Name');
     await saveShot('dark_training_03_gemini_registry.png');
 
     // Step 4: Enterprise RBAC & Department OU Scoping
@@ -296,17 +296,17 @@ async function runTrainingE2ESuite() {
     await setRegistrationMode('gcp');
     await setGcpTab('wizard');
     await verifyDomText('console.cloud.google.com/vertex-ai/agent-builder', 'Light Step 3 GCP URL');
-    await verifyDomText('Register External Agent (Google A2A Protocol v1.0.0)', 'Light Step 3 GCP Wizard Title');
+    await verifyDomText('Register External Agent (Google A2A Protocol v1.0.0', 'Light Step 3 GCP Wizard Title');
     await saveShot('light_training_03a_gcp_console_wizard.png');
 
     // Step 3b: Google Cloud Console - External A2A Agent Swarms Catalog
     await setGcpTab('catalog');
-    await verifyDomText('External A2A Agent Swarms', 'Light Step 3 GCP Catalog Title');
+    await verifyDomText('Registered Agents', 'Light Step 3 GCP Catalog Title');
     await saveShot('light_training_03b_gcp_console_catalog.png');
 
     // Step 3c: Google Cloud Console - Cloud Run Security & IAM
     await setGcpTab('iam');
-    await verifyDomText('Target Service: a2a-gateway-prod', 'Light Step 3 GCP Cloud Run');
+    await verifyDomText('Target Service: a2a-gateway', 'Light Step 3 GCP Cloud Run');
     await saveShot('light_training_03c_gcp_console_iam.png');
 
     // Step 3d: Gemini Enterprise Workspace Admin Registration

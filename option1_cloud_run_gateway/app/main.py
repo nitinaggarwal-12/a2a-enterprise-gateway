@@ -124,6 +124,8 @@ async def get_agent_discovery():
 
 
 # Health Check
+@app.get("/")
+@app.get("/health")
 @app.get("/healthz")
 async def health_check():
     """Cloud Run health check endpoint."""

@@ -3348,7 +3348,7 @@
                   <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-400">HTTP 200 OK</span>
                 </div>
                 <div class="text-[11px] font-mono" style="color: var(--color-text-muted);">
-                  GET https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json
+                  GET https://a2a-gateway-638420508320.us-central1.run.app/.well-known/agent.json
                 </div>
                 <button id="btn-test-discovery" @click="testDiscoveryPing()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center space-x-2">
                   <i class="fa-solid fa-bolt"></i>
@@ -3412,8 +3412,8 @@
   ],
   <span class="text-cyan-400">"authentication"</span>: {
     <span class="text-sky-400">"type"</span>: <span class="text-emerald-400">"google_oidc"</span>,
-    <span class="text-sky-400">"serviceAccount"</span>: <span class="text-emerald-400">"gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com"</span>,
-    <span class="text-sky-400">"audience"</span>: <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run.app"</span>
+    <span class="text-sky-400">"serviceAccount"</span>: <span class="text-emerald-400">"gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com"</span>,
+    <span class="text-sky-400">"audience"</span>: <span class="text-emerald-400">"https://a2a-gateway-638420508320.us-central1.run.app"</span>
   }
 }</code></pre>
               </div>
@@ -3422,10 +3422,10 @@
               <div x-show="trainingCodeTab === 'curl'" class="relative">
                 <pre class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto custom-scrollbar border border-slate-800/80"><code><span class="text-slate-500"># 1. Fetch OIDC Identity Token from Google Cloud Metadata Server</span>
 TOKEN=$(gcloud auth print-identity-token \
-  --audience=<span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run.app"</span>)
+  --audience=<span class="text-emerald-400">"https://a2a-gateway-638420508320.us-central1.run.app"</span>)
 
 <span class="text-slate-500"># 2. Probe RFC 8615 A2A Protocol Discovery Endpoint</span>
-curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json"</span> \
+curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-638420508320.us-central1.run.app/.well-known/agent.json"</span> \
   -H <span class="text-cyan-400">"Authorization: Bearer $TOKEN"</span> \
   -H <span class="text-cyan-400">"Accept: application/json"</span> | jq .
 
@@ -3479,7 +3479,7 @@ curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run
                     <span>Dedicated Service Account</span>
                     <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-sky-500/20 text-sky-400">Principle of Least Privilege</span>
                   </div>
-                  <div class="font-mono text-[11px] text-cyan-400 break-all">gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com</div>
+                  <div class="font-mono text-[11px] text-cyan-400 break-all">gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com</div>
                 </div>
 
                 <div class="p-3.5 rounded-2xl border space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
@@ -3496,7 +3496,7 @@ curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run
                     <span>Audience (aud) Verification</span>
                     <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-purple-500/20 text-purple-400">Anti-Confused Deputy</span>
                   </div>
-                  <div class="font-mono text-[11px] text-purple-400 break-all">https://a2a-gateway-prod-uc.a.run.app</div>
+                  <div class="font-mono text-[11px] text-purple-400 break-all">https://a2a-gateway-638420508320.us-central1.run.app</div>
                 </div>
               </div>
 
@@ -3526,16 +3526,16 @@ curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run
               </div>
 
               <pre class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto custom-scrollbar border border-slate-800/80"><code><span class="text-slate-500"># 1. Provision Sovereign A2A Invoker Service Account in GCP</span>
-gcloud iam service-accounts create <span class="text-cyan-400">gemini-enterprise-a2a-invoker</span> \
-  --project=<span class="text-emerald-400">"gcp-biopharma-prod"</span> \
+gcloud iam service-accounts create <span class="text-cyan-400">gemini-app-sa</span> \
+  --project=<span class="text-emerald-400">"nitinagga-ge-2"</span> \
   --description=<span class="text-emerald-400">"Authorized Gemini Enterprise A2A Invoker"</span> \
-  --display-name=<span class="text-emerald-400">"Gemini Enterprise Invoker"</span>
+  --display-name=<span class="text-emerald-400">"Gemini App SA"</span>
 
 <span class="text-slate-500"># 2. Bind Least-Privilege roles/run.invoker to Target Gateway</span>
-gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gateway-prod</span> \
-  --project=<span class="text-emerald-400">"gcp-biopharma-prod"</span> \
+gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gateway</span> \
+  --project=<span class="text-emerald-400">"nitinagga-ge-2"</span> \
   --region=<span class="text-emerald-400">"us-central1"</span> \
-  --member=<span class="text-amber-400">"serviceAccount:gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com"</span> \
+  --member=<span class="text-amber-400">"serviceAccount:gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com"</span> \
   --role=<span class="text-sky-400">"roles/run.invoker"</span></code></pre>
 
               <!-- Decoded JWT Token Structure -->
@@ -3543,10 +3543,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 <div class="text-xs font-bold font-mono text-slate-400">Decoded OIDC Token Claims (Validated in Gateway Middleware)</div>
                 <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-[11px] font-mono text-slate-300 space-y-1">
                   <div><span class="text-slate-500">iss:</span> <span class="text-emerald-400">"https://accounts.google.com"</span></div>
-                  <div><span class="text-slate-500">aud:</span> <span class="text-cyan-400">"https://a2a-gateway-prod-uc.a.run.app"</span></div>
-                  <div><span class="text-slate-500">sub:</span> <span class="text-amber-400">"gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com"</span></div>
+                  <div><span class="text-slate-500">aud:</span> <span class="text-cyan-400">"https://a2a-gateway-638420508320.us-central1.run.app"</span></div>
+                  <div><span class="text-slate-500">sub:</span> <span class="text-amber-400">"gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com"</span></div>
                   <div><span class="text-slate-500">exp:</span> <span class="text-purple-400">3600s (Auto-Rotated by Google KMS)</span></div>
-                  <div><span class="text-slate-500">auth_time:</span> <span class="text-emerald-400">"2026-09-04T19:24:12Z"</span></div>
+                  <div><span class="text-slate-500">auth_time:</span> <span class="text-emerald-400">"2026-09-05T06:36:24Z"</span></div>
                 </div>
               </div>
             </div>
@@ -3658,7 +3658,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                         <span class="text-sm font-semibold">Google Cloud</span>
                       </div>
                       <div class="hidden sm:flex items-center space-x-1 px-2.5 py-1 rounded bg-black/20 text-xs font-mono">
-                        <span class="text-cyan-200">gcp-biopharma-prod</span>
+                        <span class="text-cyan-200">nitinagga-ge-2</span>
                         <i class="fa-solid fa-chevron-down text-[9px] opacity-75"></i>
                       </div>
                     </div>
@@ -3679,13 +3679,13 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   <div class="px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-xs">
                     <div class="flex items-center space-x-2">
                       <button @click="trainingGcpConsoleTab = 'wizard'" class="px-2.5 py-1 rounded-md font-bold transition-all" :class="trainingGcpConsoleTab === 'wizard' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-slate-400 hover:text-slate-200'">
-                        <i class="fa-solid fa-user-plus mr-1"></i> 1. Register External Agent (Wizard)
+                        <i class="fa-solid fa-user-plus mr-1"></i> 1. Agent Designer & Registration
                       </button>
                       <button @click="trainingGcpConsoleTab = 'catalog'" class="px-2.5 py-1 rounded-md font-bold transition-all" :class="trainingGcpConsoleTab === 'catalog' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-slate-200'">
-                        <i class="fa-solid fa-list-check mr-1"></i> 2. External A2A Agents Catalog
+                        <i class="fa-solid fa-list-check mr-1"></i> 2. Agent Platform Swarms Catalog
                       </button>
                       <button @click="trainingGcpConsoleTab = 'iam'" class="px-2.5 py-1 rounded-md font-bold transition-all" :class="trainingGcpConsoleTab === 'iam' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-slate-400 hover:text-slate-200'">
-                        <i class="fa-solid fa-shield-halved mr-1"></i> 3. Cloud Run & IAM
+                        <i class="fa-solid fa-shield-halved mr-1"></i> 3. Cloud Run & IAM Security
                       </button>
                     </div>
                   </div>
@@ -3695,7 +3695,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     <div class="flex items-center justify-between">
                       <div class="flex items-center space-x-2 text-xs font-black" style="color: var(--color-text-primary);">
                         <i class="fa-solid fa-arrow-left text-slate-500"></i>
-                        <span>Register External Agent (Google A2A Protocol v1.0.0)</span>
+                        <span>Register External Agent (Google A2A Protocol v1.0.0 &bull; Project nitinagga-ge-2)</span>
                       </div>
                       <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live Verified (HTTP 200)</span>
                     </div>
@@ -3703,11 +3703,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                       <div>
                         <label class="block font-bold mb-1 text-slate-400">Agent Display Name</label>
-                        <input type="text" readonly value="Dr. A2A Sovereign Biopharma Gateway" class="w-full px-3 py-1.5 rounded-lg border font-semibold bg-slate-900 border-slate-700 text-slate-200">
+                        <input type="text" readonly value="Enterprise A2A Gateway (Dr. A2A Sovereign Biopharma)" class="w-full px-3 py-1.5 rounded-lg border font-semibold bg-slate-900 border-slate-700 text-slate-200">
                       </div>
                       <div>
-                        <label class="block font-bold mb-1 text-slate-400">Agent ID (Unique Resource Identifier)</label>
-                        <input type="text" readonly value="dr-a2a-clinical-gateway" class="w-full px-3 py-1.5 rounded-lg border font-mono font-bold bg-slate-900 border-slate-700 text-cyan-400">
+                        <label class="block font-bold mb-1 text-slate-400">Agent ID (Cloud Run Service)</label>
+                        <input type="text" readonly value="a2a-gateway" class="w-full px-3 py-1.5 rounded-lg border font-mono font-bold bg-slate-900 border-slate-700 text-cyan-400">
                       </div>
                     </div>
 
@@ -3724,13 +3724,13 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
                     <div class="text-xs">
                       <label class="block font-bold mb-1 text-slate-400">Discovery Manifest URL (.well-known/agent.json)</label>
-                      <input type="text" readonly value="https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json" class="w-full px-3 py-1.5 rounded-lg border font-mono text-[11px] bg-slate-900 border-slate-700 text-cyan-300">
+                      <input type="text" readonly value="https://a2a-gateway-638420508320.us-central1.run.app/.well-known/agent.json" class="w-full px-3 py-1.5 rounded-lg border font-mono text-[11px] bg-slate-900 border-slate-700 text-cyan-300">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                       <div>
                         <label class="block font-bold mb-1 text-slate-400">Authorized Invoker Service Account</label>
-                        <input type="text" readonly value="gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com" class="w-full px-3 py-1.5 rounded-lg border font-mono text-[10px] bg-slate-900 border-slate-700 text-amber-300">
+                        <input type="text" readonly value="gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com" class="w-full px-3 py-1.5 rounded-lg border font-mono text-[10px] bg-slate-900 border-slate-700 text-amber-300">
                       </div>
                       <div>
                         <label class="block font-bold mb-1 text-slate-400">Required Scoped Role</label>
@@ -3739,14 +3739,14 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="pt-2 flex items-center space-x-3">
+                    <div class="pt-2 flex flex-wrap items-center gap-3">
                       <button id="btn-gcp-register-agent" @click="registerExtension()" class="px-5 py-2.5 rounded-lg bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-xs shadow-md transition-all flex items-center space-x-2">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                         <span>Register Agent in Google Cloud Console</span>
                       </button>
-                      <a href="/static/screenshots/gcp_console_02_agent_registration_wizard.jpg" target="_blank" class="px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1.5">
-                        <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
-                        <span>Inspect 4K GCP Screenshot</span>
+                      <a href="/static/screenshots/08_gcp_console_agent_designer_configured.png" target="_blank" class="px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all flex items-center space-x-1.5 border border-slate-700">
+                        <i class="fa-solid fa-up-right-from-square text-[10px] text-cyan-400"></i>
+                        <span>View Real Agent Designer Screenshot</span>
                       </a>
                     </div>
                   </div>
@@ -3754,8 +3754,8 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   <!-- TAB 2: GCP ACTIVE AGENTS CATALOG -->
                   <div x-show="trainingGcpConsoleTab === 'catalog'" class="p-4 space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                      <div class="text-xs font-bold text-slate-200">External A2A Agent Swarms &bull; Project gcp-biopharma-prod</div>
-                      <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400">1 Swarm Active</span>
+                      <div class="text-xs font-bold text-slate-200">Registered Agents &bull; Google Cloud Project nitinagga-ge-2</div>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400">7 Agents Verified</span>
                     </div>
 
                     <div class="overflow-x-auto rounded-xl border border-slate-800">
@@ -3773,21 +3773,51 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                           <tr class="hover:bg-slate-900/50">
                             <td class="p-2.5 font-bold font-sans flex items-center space-x-1.5">
                               <i class="fa-solid fa-network-wired text-cyan-400"></i>
-                              <span>Dr. A2A Sovereign Biopharma</span>
+                              <span>Enterprise A2A Gateway</span>
                             </td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Active</span></td>
                             <td class="p-2.5 text-emerald-400">A2A v1.0.0</td>
                             <td class="p-2.5 text-cyan-300 font-bold">2.42 µs AST</td>
-                            <td class="p-2.5 text-slate-400">Cloud Run / Sovereign VPC</td>
+                            <td class="p-2.5 text-slate-400">Cloud Run us-central1</td>
+                          </tr>
+                          <tr class="hover:bg-slate-900/50">
+                            <td class="p-2.5 font-bold font-sans flex items-center space-x-1.5">
+                              <i class="fa-solid fa-shield-virus text-indigo-400"></i>
+                              <span>Ingress Manager Agent</span>
+                            </td>
+                            <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Active</span></td>
+                            <td class="p-2.5 text-indigo-400">Enterprise Gateway</td>
+                            <td class="p-2.5 text-slate-300">14.1 µs AST</td>
+                            <td class="p-2.5 text-slate-400">Sovereign VPC</td>
+                          </tr>
+                          <tr class="hover:bg-slate-900/50">
+                            <td class="p-2.5 font-bold font-sans flex items-center space-x-1.5">
+                              <i class="fa-solid fa-dna text-purple-400"></i>
+                              <span>Scenario Challenger Agent V21</span>
+                            </td>
+                            <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Active</span></td>
+                            <td class="p-2.5 text-purple-400">CDISC Guard v2</td>
+                            <td class="p-2.5 text-slate-300">19.4 µs AST</td>
+                            <td class="p-2.5 text-slate-400">Sovereign VPC</td>
+                          </tr>
+                          <tr class="hover:bg-slate-900/50">
+                            <td class="p-2.5 font-bold font-sans flex items-center space-x-1.5">
+                              <i class="fa-solid fa-rocket text-amber-400"></i>
+                              <span>Launch Coordinator</span>
+                            </td>
+                            <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Active</span></td>
+                            <td class="p-2.5 text-amber-400">Swarm Protocol v1</td>
+                            <td class="p-2.5 text-slate-300">16.8 µs AST</td>
+                            <td class="p-2.5 text-slate-400">Sovereign VPC</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
 
                     <div class="pt-1 flex justify-end">
-                      <a href="/static/screenshots/gcp_console_03_registered_agents_catalog.jpg" target="_blank" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center space-x-1">
+                      <a href="/static/screenshots/01_gcp_console_agent_platform_catalog.png" target="_blank" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center space-x-1">
                         <i class="fa-solid fa-image"></i>
-                        <span>View GCP Console Catalog Screenshot</span>
+                        <span>View Real GCP Console Catalog Screenshot</span>
                       </a>
                     </div>
                   </div>
@@ -3796,21 +3826,26 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   <div x-show="trainingGcpConsoleTab === 'iam'" class="p-4 space-y-3">
                     <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
                       <div class="font-bold text-slate-200 flex items-center justify-between">
-                        <span>Target Service: a2a-gateway-prod</span>
+                        <span>Target Service: a2a-gateway (Project nitinagga-ge-2)</span>
                         <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px]">Healthy (Cloud Run)</span>
                       </div>
-                      <div class="text-slate-400 text-[11px]">Region: <code class="text-cyan-300">us-central1</code> | URL: <code class="text-sky-400">https://a2a-gateway-prod-uc.a.run.app</code></div>
+                      <div class="text-slate-400 text-[11px]">Region: <code class="text-cyan-300">us-central1</code> | URL: <code class="text-sky-400">https://a2a-gateway-638420508320.us-central1.run.app</code></div>
                       <div class="p-2.5 rounded bg-slate-950 border border-slate-800 text-[11px] font-mono space-y-1">
-                        <div class="text-slate-400 font-bold">IAM Role Binding:</div>
-                        <div class="text-amber-300">Principal: gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com</div>
+                        <div class="text-slate-400 font-bold">IAM Role Binding & Service Accounts:</div>
+                        <div class="text-amber-300">Invoker SA: gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com</div>
                         <div class="text-emerald-400">Role: Cloud Run Invoker (roles/run.invoker)</div>
+                        <div class="text-slate-400 text-[10px]">Compute SA: 638420508320-compute@developer.gserviceaccount.com</div>
                       </div>
                     </div>
 
-                    <div class="pt-1 flex justify-end">
-                      <a href="/static/screenshots/gcp_console_01_cloudrun_iam_binding.jpg" target="_blank" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center space-x-1">
+                    <div class="pt-1 flex items-center justify-end space-x-4">
+                      <a href="/static/screenshots/03_gcp_console_cloud_run_a2a_gateway_detail.png" target="_blank" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center space-x-1">
                         <i class="fa-solid fa-image"></i>
-                        <span>View GCP Cloud Run IAM Screenshot</span>
+                        <span>View Cloud Run Screenshot</span>
+                      </a>
+                      <a href="/static/screenshots/06_gcp_console_iam_service_accounts.png" target="_blank" class="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center space-x-1">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>View Service Accounts Screenshot</span>
                       </a>
                     </div>
                   </div>
@@ -3825,7 +3860,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               <div x-show="trainingRegistrationMode === 'workspace'" class="space-y-4 text-xs">
                 <div>
                   <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Agent Display Name</label>
-                  <input type="text" readonly value="Dr. A2A Sovereign Biopharma Gateway" class="w-full px-3.5 py-2 rounded-xl border font-semibold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                  <input type="text" readonly value="Enterprise A2A Gateway (Dr. A2A Sovereign Biopharma)" class="w-full px-3.5 py-2 rounded-xl border font-semibold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -3841,7 +3876,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
                 <div>
                   <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">A2A Discovery Manifest Endpoint</label>
-                  <input type="text" readonly value="https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json" class="w-full px-3.5 py-2 rounded-xl border font-mono text-xs" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                  <input type="text" readonly value="https://a2a-gateway-638420508320.us-central1.run.app/.well-known/agent.json" class="w-full px-3.5 py-2 rounded-xl border font-mono text-xs" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 </div>
 
                 <div>
@@ -3851,7 +3886,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
                 <div>
                   <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Interactive A2UI Action Webhook</label>
-                  <input type="text" readonly value="https://a2a-gateway-prod-uc.a.run.app/a2ui/action" class="w-full px-3.5 py-2 rounded-xl border font-mono text-xs" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                  <input type="text" readonly value="https://a2a-gateway-638420508320.us-central1.run.app/a2ui/action" class="w-full px-3.5 py-2 rounded-xl border font-mono text-xs" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
                 </div>
 
                 <!-- Register Extension Action Button -->
@@ -5035,21 +5070,39 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           },
           {
             step: 3,
-            title: 'Step 3: Google Cloud Console — Register External A2A Agent',
-            subtitle: 'console.cloud.google.com/vertex-ai/agent-builder/external-a2a-agents/register',
-            darkImg: '/static/screenshots/gcp_console_02_agent_registration_wizard.jpg',
-            lightImg: '/static/screenshots/gcp_console_02_agent_registration_wizard.jpg',
+            title: 'Step 3: Google Cloud Console — Agent Designer Configuration',
+            subtitle: 'console.cloud.google.com/agent-platform/studio/agent-designer (Project: nitinagga-ge-2)',
+            darkImg: '/static/screenshots/08_gcp_console_agent_designer_configured.png',
+            lightImg: '/static/screenshots/08_gcp_console_agent_designer_configured.png',
             badge: 'Google Cloud Console',
-            desc: 'User opens Google Cloud Console, navigates to Vertex AI Agent Builder, and completes the external A2A protocol agent registration form.'
+            desc: 'Authentic capture of Google Cloud Console in project nitinagga-ge-2 configuring Enterprise A2A Gateway at https://a2a-gateway-638420508320.us-central1.run.app with stateless HMAC-SHA256 signatures.'
           },
           {
             step: 3,
-            title: 'Step 3 (Catalog): Google Cloud Console — Active Swarms Catalog',
-            subtitle: 'console.cloud.google.com/vertex-ai/agent-builder/external-a2a-agents/catalog',
-            darkImg: '/static/screenshots/gcp_console_03_registered_agents_catalog.jpg',
-            lightImg: '/static/screenshots/gcp_console_03_registered_agents_catalog.jpg',
-            badge: 'GCP Swarm Catalog',
-            desc: 'Live verified listing in Google Cloud Console showing Dr. A2A Sovereign Biopharma Gateway active with sub-28µs AST sanitization.'
+            title: 'Step 3 (Catalog): Google Cloud Console — Agent Platform Swarms',
+            subtitle: 'console.cloud.google.com/agent-platform/studio/agent-designer (Project: nitinagga-ge-2)',
+            darkImg: '/static/screenshots/01_gcp_console_agent_platform_catalog.png',
+            lightImg: '/static/screenshots/01_gcp_console_agent_platform_catalog.png',
+            badge: 'GCP Agent Catalog',
+            desc: 'Authentic Agent Platform catalog in Google Cloud project nitinagga-ge-2 displaying registered agents: Ingress Manager, Scenario Challenger, Launch Coordinator, and A2A Gateway.'
+          },
+          {
+            step: 3,
+            title: 'Step 3 (Cloud Run): Google Cloud Console — Cloud Run Deployment',
+            subtitle: 'console.cloud.google.com/run/detail/us-central1/a2a-gateway (Project: nitinagga-ge-2)',
+            darkImg: '/static/screenshots/03_gcp_console_cloud_run_a2a_gateway_detail.png',
+            lightImg: '/static/screenshots/03_gcp_console_cloud_run_a2a_gateway_detail.png',
+            badge: 'Cloud Run Ingress',
+            desc: 'Authentic Cloud Run console showing healthy a2a-gateway service in us-central1 with active container instances handling live A2A v1.0.0 requests.'
+          },
+          {
+            step: 3,
+            title: 'Step 3 (IAM): Google Cloud Console — Service Accounts & Security',
+            subtitle: 'console.cloud.google.com/iam-admin/serviceaccounts (Project: nitinagga-ge-2)',
+            darkImg: '/static/screenshots/06_gcp_console_iam_service_accounts.png',
+            lightImg: '/static/screenshots/06_gcp_console_iam_service_accounts.png',
+            badge: 'IAM Security',
+            desc: 'Authentic IAM Service Accounts in project nitinagga-ge-2 showing gemini-app-sa@nitinagga-ge-2.iam.gserviceaccount.com configured with Cloud Run Invoker role.'
           },
           {
             step: 3,

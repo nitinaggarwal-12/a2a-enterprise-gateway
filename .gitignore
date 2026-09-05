@@ -5,9 +5,12 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+scratch/.chrome*
 scratch/.chrome_profile_*
+scratch/.chrome_gcp_*
 scratch/screenshots_*/
 scratch/*.html
+scratch/*.png
 .DS_Store
 *.log
 node_modules/
