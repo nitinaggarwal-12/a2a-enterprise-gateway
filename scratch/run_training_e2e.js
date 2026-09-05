@@ -216,15 +216,24 @@ async function runTrainingE2ESuite() {
     await verifyDomText('Dr. Evelyn Reed, MD', 'Dark Step 5 Signer');
     await saveShot('dark_training_06_hitl_approved_seal.png');
 
+    // Step 6: Universal A2UI Authoring & Omnichannel Transpilation
+    await setStep(6);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await sleep(800);
+    await verifyDomText('Step 6: Universal A2UI Authoring & Transpilation', 'Dark Step 6 Title');
+    await verifyDomText('Omnichannel Transpiler & JTI Guard', 'Dark Step 6 Badge');
+    await verifyDomText('Dose Titration Surface: MK-3475-087', 'Dark Step 6 Surface');
+    await saveShot('dark_training_07_a2ui_studio.png');
+
     // Carousel Gallery View in Dark Mode
     await setViewMode('gallery');
     await page.$eval('#training-gallery-carousel', el => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
     await sleep(800);
     await verifyDomText('Start-to-Finish Lifecycle Screenshot Carousel', 'Dark Carousel Header');
-    await saveShot('dark_training_07_carousel_gallery.png');
+    await saveShot('dark_training_08_carousel_gallery.png');
 
     // =========================================================================
-    // SECTION 2: LIGHT THEME CAPTURES (Steps 1 to 5 + Approved + Carousel)
+    // SECTION 2: LIGHT THEME CAPTURES (Steps 1 to 6 + Approved + Carousel)
     // =========================================================================
     console.log('\n--- Capturing Light Mode Gemini Enterprise Training Screenshots ---');
     await setTheme(false);
@@ -270,14 +279,21 @@ async function runTrainingE2ESuite() {
     await verifyDomText('21 CFR PART 11 VALIDATED ELECTRONIC SEAL', 'Light Step 5 Seal');
     await saveShot('light_training_06_hitl_approved_seal.png');
 
+    // Step 6: Universal A2UI Authoring & Omnichannel Transpilation
+    await setStep(6);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await sleep(800);
+    await verifyDomText('Step 6: Universal A2UI Authoring & Transpilation', 'Light Step 6 Title');
+    await saveShot('light_training_07_a2ui_studio.png');
+
     // Carousel Gallery View in Light Mode
     await setViewMode('gallery');
     await page.$eval('#training-gallery-carousel', el => el.scrollIntoView({ behavior: 'instant', block: 'start' }));
     await sleep(800);
     await verifyDomText('Start-to-Finish Lifecycle Screenshot Carousel', 'Light Carousel Header');
-    await saveShot('light_training_07_carousel_gallery.png');
+    await saveShot('light_training_08_carousel_gallery.png');
 
-    console.log('\n🎉 ALL 14 GEMINI ENTERPRISE TRAINING SCREENSHOTS CAPTURED & VERIFIED SUCCESSFULLY!');
+    console.log('\n🎉 ALL 16 GEMINI ENTERPRISE TRAINING SCREENSHOTS CAPTURED & VERIFIED SUCCESSFULLY!');
   } finally {
     await browser.close();
     try {
