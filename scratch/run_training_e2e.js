@@ -115,6 +115,24 @@ async function runTrainingE2ESuite() {
       await sleep(800);
     };
 
+    // Set registration console mode helper
+    const setRegistrationMode = async (mode) => {
+      await page.evaluate((m) => {
+        const state = Alpine.$data(document.querySelector('[x-data]'));
+        state.trainingRegistrationMode = m;
+      }, mode);
+      await sleep(800);
+    };
+
+    // Set GCP Console sub-tab helper
+    const setGcpTab = async (tab) => {
+      await page.evaluate((t) => {
+        const state = Alpine.$data(document.querySelector('[x-data]'));
+        state.trainingGcpConsoleTab = t;
+      }, tab);
+      await sleep(800);
+    };
+
     // Register extension helper
     const registerExt = async () => {
       await page.evaluate(() => {
@@ -184,9 +202,30 @@ async function runTrainingE2ESuite() {
     await verifyDomText('roles/run.invoker', 'Dark Step 2 Role');
     await saveShot('dark_training_02_iam_oidc.png');
 
-    // Step 3: Gemini Enterprise Admin Registration
+    // Step 3a: Google Cloud Console - Register External Agent Wizard
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await setStep(3);
+    await setRegistrationMode('gcp');
+    await setGcpTab('wizard');
+    await verifyDomText('console.cloud.google.com/vertex-ai/agent-builder', 'Dark Step 3 GCP URL');
+    await verifyDomText('Register External Agent (Google A2A Protocol v1.0.0)', 'Dark Step 3 GCP Wizard Title');
+    await verifyDomText('gcp-biopharma-prod', 'Dark Step 3 GCP Project');
+    await saveShot('dark_training_03a_gcp_console_wizard.png');
+
+    // Step 3b: Google Cloud Console - External A2A Agent Swarms Catalog
+    await setGcpTab('catalog');
+    await verifyDomText('External A2A Agent Swarms', 'Dark Step 3 GCP Catalog Title');
+    await verifyDomText('2.42 µs AST', 'Dark Step 3 GCP Latency');
+    await saveShot('dark_training_03b_gcp_console_catalog.png');
+
+    // Step 3c: Google Cloud Console - Cloud Run Security & IAM
+    await setGcpTab('iam');
+    await verifyDomText('Target Service: a2a-gateway-prod', 'Dark Step 3 GCP Cloud Run');
+    await verifyDomText('roles/run.invoker', 'Dark Step 3 GCP Invoker Role');
+    await saveShot('dark_training_03c_gcp_console_iam.png');
+
+    // Step 3d: Gemini Enterprise Workspace Admin Registration
+    await setRegistrationMode('workspace');
     await registerExt();
     await verifyDomText('@clinical-gateway', 'Dark Step 3 Mention');
     await verifyDomText('Dr. A2A Sovereign Biopharma Gateway', 'Dark Step 3 Agent Name');
@@ -251,9 +290,27 @@ async function runTrainingE2ESuite() {
     await verifyDomText('roles/run.invoker', 'Light Step 2 Role');
     await saveShot('light_training_02_iam_oidc.png');
 
-    // Step 3: Gemini Enterprise Admin Registration
+    // Step 3a: Google Cloud Console - Register External Agent Wizard
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await setStep(3);
+    await setRegistrationMode('gcp');
+    await setGcpTab('wizard');
+    await verifyDomText('console.cloud.google.com/vertex-ai/agent-builder', 'Light Step 3 GCP URL');
+    await verifyDomText('Register External Agent (Google A2A Protocol v1.0.0)', 'Light Step 3 GCP Wizard Title');
+    await saveShot('light_training_03a_gcp_console_wizard.png');
+
+    // Step 3b: Google Cloud Console - External A2A Agent Swarms Catalog
+    await setGcpTab('catalog');
+    await verifyDomText('External A2A Agent Swarms', 'Light Step 3 GCP Catalog Title');
+    await saveShot('light_training_03b_gcp_console_catalog.png');
+
+    // Step 3c: Google Cloud Console - Cloud Run Security & IAM
+    await setGcpTab('iam');
+    await verifyDomText('Target Service: a2a-gateway-prod', 'Light Step 3 GCP Cloud Run');
+    await saveShot('light_training_03c_gcp_console_iam.png');
+
+    // Step 3d: Gemini Enterprise Workspace Admin Registration
+    await setRegistrationMode('workspace');
     await registerExt();
     await verifyDomText('@clinical-gateway', 'Light Step 3 Mention');
     await saveShot('light_training_03_gemini_registry.png');
@@ -293,7 +350,7 @@ async function runTrainingE2ESuite() {
     await verifyDomText('Start-to-Finish Lifecycle Screenshot Carousel', 'Light Carousel Header');
     await saveShot('light_training_08_carousel_gallery.png');
 
-    console.log('\n🎉 ALL 16 GEMINI ENTERPRISE TRAINING SCREENSHOTS CAPTURED & VERIFIED SUCCESSFULLY!');
+    console.log('\n🎉 ALL 22 GEMINI ENTERPRISE & GCP CONSOLE TRAINING SCREENSHOTS CAPTURED & VERIFIED SUCCESSFULLY!');
   } finally {
     await browser.close();
     try {
