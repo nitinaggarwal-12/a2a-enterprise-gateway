@@ -775,6 +775,53 @@ async def get_test_cases():
     return {"testCases": TEST_CASES_DATA}
 
 
+@app.get("/.well-known/agent.json")
+@app.get("/agent.json")
+async def get_portal_agent_discovery():
+    """Expose standard A2A discovery card metadata (v1.0.0) for Gemini Enterprise training & onboarding."""
+    return {
+        "schemaVersion": "1.0.0",
+        "protocolVersion": "1.0.0",
+        "name": "Dr. A2A Sovereign Biopharma Gateway",
+        "description": "GxP Validated 21 CFR Part 11 Clinical Study Amendment & Adverse Event Analyzer",
+        "version": "1.0.0",
+        "agentId": "dr-a2a-clinical-gateway",
+        "capabilities": {
+            "streaming": True,
+            "pushNotifications": True,
+            "stateTokens": True,
+            "gxpSanitization": True,
+            "a2ui": True,
+            "webhooks": True,
+            "sub28MicrosecondAst": True,
+        },
+        "endpoints": {
+            "tasks": "/a2a/tasks",
+            "uiAction": "/a2a/ui/action",
+            "health": "/healthz",
+        },
+        "supportedDialects": ["a2ui.v1", "google_card_v2"],
+        "declaredSkills": [
+            {
+                "id": "dose_titration",
+                "name": "Bayesian Dose Titration & Risk Modeling",
+                "description": "Evaluates patient laboratory markers and titrates dosage with 21 CFR Part 11 sign-off.",
+            },
+            {
+                "id": "sdtm_cdisc_eval",
+                "name": "CDISC SDTM Domain Ingest & Sanitization",
+                "description": "Ingests raw EDC AE/LB domains, stripping orchestrator envelopes in <28 µs.",
+            },
+        ],
+        "authentication": {
+            "type": "google_oidc",
+            "serviceAccount": "gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com",
+            "audience": "https://a2a-gateway-prod-uc.a.run.app",
+        },
+    }
+
+
+
 # Serve the Visual Portal Single Page Application
 portal_html_path = Path(__file__).resolve().parent / "static" / "portal.html"
 

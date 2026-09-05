@@ -437,6 +437,15 @@
             </div>
             <span x-show="!sidebarCollapsed" class="truncate text-left">Technical FAQ</span>
           </button>
+
+          <button id="tab-training" @click="currentTab = 'training'" :class="currentTab === 'training' ? 'bg-gradient-to-r from-teal-500 via-cyan-500 to-indigo-500 text-slate-950 font-black shadow-md shadow-cyan-500/20' : 'font-semibold hover:text-cyan-400 hover:bg-slate-800/20 ring-1 ring-cyan-500/20'" :style="currentTab !== 'training' ? 'color: var(--color-text-secondary);' : ''" class="w-full px-3 py-2.5 rounded-xl text-xs transition-all flex items-center space-x-3 group" :title="sidebarCollapsed ? 'Gemini Training Hub' : ''">
+            <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" :class="currentTab === 'training' ? 'bg-slate-950/20 text-slate-950' : 'text-cyan-400 group-hover:scale-110 transition-transform'">
+              <i class="fa-solid fa-graduation-cap text-sm"></i>
+            </div>
+            <span x-show="!sidebarCollapsed" class="truncate text-left flex items-center space-x-1.5">
+              <span>🎓 Training Hub</span>
+            </span>
+          </button>
         </div>
 
       </div>
@@ -1344,6 +1353,1031 @@
 
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- TAB: GEMINI ENTERPRISE USER TRAINING & ONBOARDING HUB                     -->
+    <!-- ========================================================================= -->
+    <div x-show="currentTab === 'training'" class="space-y-6">
+
+      <!-- Hero Header Card -->
+      <div class="glass-card rounded-3xl p-6 md:p-8 border shadow-xl relative overflow-hidden" style="border-color: var(--color-border-card);">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-teal-500/10 via-cyan-500/10 to-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+          <div class="space-y-2 max-w-3xl">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-1 rounded-lg text-xs font-black bg-gradient-to-r from-teal-500/20 via-cyan-500/20 to-indigo-500/20 text-cyan-400 border border-cyan-500/30 uppercase tracking-widest flex items-center gap-1.5">
+                <i class="fa-solid fa-graduation-cap"></i> Enterprise Training Hub
+              </span>
+              <span class="px-3 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">SPEC: A2A v1.0.0</span>
+              <span class="px-3 py-1 rounded-lg text-xs font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 font-mono">GxP 21 CFR Part 11</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-black tracking-tight" style="color: var(--color-text-primary);">
+              Gemini Enterprise User Training & Onboarding Hub
+            </h2>
+            <p class="text-xs md:text-sm font-semibold leading-relaxed" style="color: var(--color-text-secondary);">
+              Interactive 5-step curriculum for registering, configuring, scoping, and invoking Sovereign A2A Agent Swarms inside Google Gemini Enterprise App with sub-28µs AST sanitization and 1-click 21 CFR Part 11 electronic signatures.
+            </p>
+          </div>
+
+          <!-- Quick Stats & View Mode Toggle -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="p-3 rounded-2xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-lg font-black font-mono text-cyan-400">5 Steps</div>
+                <div class="text-[10px] font-bold" style="color: var(--color-text-muted);">Lifecycle Curated</div>
+              </div>
+              <div class="p-3 rounded-2xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="text-lg font-black font-mono text-emerald-400">&lt;28 µs</div>
+                <div class="text-[10px] font-bold" style="color: var(--color-text-muted);">AST Sanitizer Gate</div>
+              </div>
+            </div>
+
+            <!-- View Switcher -->
+            <div class="flex p-1 rounded-2xl border items-center space-x-1" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <button id="btn-mode-interactive" @click="trainingViewMode = 'interactive'" :class="trainingViewMode === 'interactive' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingViewMode !== 'interactive' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Simulator</span>
+              </button>
+              <button id="btn-mode-gallery" @click="trainingViewMode = 'gallery'" :class="trainingViewMode === 'gallery' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingViewMode !== 'gallery' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5">
+                <i class="fa-solid fa-images"></i>
+                <span>Visual Carousel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-Step Progress Bar & Stepper Controls -->
+        <div class="mt-6 pt-6 border-t space-y-4" style="border-color: var(--color-border-subtle);">
+          
+          <!-- Stepper Pills Bar -->
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+            
+            <!-- Step 1 Pill -->
+            <button id="btn-step-1" @click="setTrainingStep(1)" :class="trainingStep === 1 ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 font-black shadow-md' : (trainingStep > 1 ? 'border-emerald-500/40 text-emerald-400 font-bold hover:bg-emerald-500/10' : 'font-semibold hover:text-cyan-400')" :style="trainingStep !== 1 && trainingStep <= 1 ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="p-2.5 rounded-2xl border text-left transition-all flex items-center space-x-2.5 group">
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-mono font-black" :class="trainingStep === 1 ? 'bg-slate-950 text-cyan-400' : (trainingStep > 1 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800/40 text-slate-400')">
+                <span x-show="trainingStep <= 1">1</span>
+                <i x-show="trainingStep > 1" class="fa-solid fa-check text-[10px]"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] font-mono uppercase tracking-wider opacity-75">Step 1</div>
+                <div class="text-xs truncate font-extrabold">Discovery & Spec</div>
+              </div>
+            </button>
+
+            <!-- Step 2 Pill -->
+            <button id="btn-step-2" @click="setTrainingStep(2)" :class="trainingStep === 2 ? 'bg-gradient-to-r from-cyan-500 to-sky-500 text-slate-950 font-black shadow-md' : (trainingStep > 2 ? 'border-emerald-500/40 text-emerald-400 font-bold hover:bg-emerald-500/10' : 'font-semibold hover:text-cyan-400')" :style="trainingStep !== 2 && trainingStep <= 2 ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="p-2.5 rounded-2xl border text-left transition-all flex items-center space-x-2.5 group">
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-mono font-black" :class="trainingStep === 2 ? 'bg-slate-950 text-cyan-400' : (trainingStep > 2 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800/40 text-slate-400')">
+                <span x-show="trainingStep <= 2">2</span>
+                <i x-show="trainingStep > 2" class="fa-solid fa-check text-[10px]"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] font-mono uppercase tracking-wider opacity-75">Step 2</div>
+                <div class="text-xs truncate font-extrabold">IAM & OIDC Trust</div>
+              </div>
+            </button>
+
+            <!-- Step 3 Pill -->
+            <button id="btn-step-3" @click="setTrainingStep(3)" :class="trainingStep === 3 ? 'bg-gradient-to-r from-sky-500 to-indigo-500 text-slate-950 font-black shadow-md' : (trainingStep > 3 ? 'border-emerald-500/40 text-emerald-400 font-bold hover:bg-emerald-500/10' : 'font-semibold hover:text-cyan-400')" :style="trainingStep !== 3 && trainingStep <= 3 ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="p-2.5 rounded-2xl border text-left transition-all flex items-center space-x-2.5 group">
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-mono font-black" :class="trainingStep === 3 ? 'bg-slate-950 text-cyan-400' : (trainingStep > 3 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800/40 text-slate-400')">
+                <span x-show="trainingStep <= 3">3</span>
+                <i x-show="trainingStep > 3" class="fa-solid fa-check text-[10px]"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] font-mono uppercase tracking-wider opacity-75">Step 3</div>
+                <div class="text-xs truncate font-extrabold">Gemini Registry</div>
+              </div>
+            </button>
+
+            <!-- Step 4 Pill -->
+            <button id="btn-step-4" @click="setTrainingStep(4)" :class="trainingStep === 4 ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black shadow-md' : (trainingStep > 4 ? 'border-emerald-500/40 text-emerald-400 font-bold hover:bg-emerald-500/10' : 'font-semibold hover:text-cyan-400')" :style="trainingStep !== 4 && trainingStep <= 4 ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="p-2.5 rounded-2xl border text-left transition-all flex items-center space-x-2.5 group">
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-mono font-black" :class="trainingStep === 4 ? 'bg-white/20 text-white' : (trainingStep > 4 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800/40 text-slate-400')">
+                <span x-show="trainingStep <= 4">4</span>
+                <i x-show="trainingStep > 4" class="fa-solid fa-check text-[10px]"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] font-mono uppercase tracking-wider opacity-75">Step 4</div>
+                <div class="text-xs truncate font-extrabold">RBAC & OU Scoping</div>
+              </div>
+            </button>
+
+            <!-- Step 5 Pill -->
+            <button id="btn-step-5" @click="setTrainingStep(5)" :class="trainingStep === 5 ? 'bg-gradient-to-r from-purple-500 via-rose-500 to-amber-500 text-white font-black shadow-md' : (trainingChatApproved ? 'border-emerald-500/40 text-emerald-400 font-bold hover:bg-emerald-500/10' : 'font-semibold hover:text-cyan-400')" :style="trainingStep !== 5 ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="p-2.5 rounded-2xl border text-left transition-all flex items-center space-x-2.5 group">
+              <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-mono font-black" :class="trainingStep === 5 ? 'bg-white/20 text-white' : (trainingChatApproved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800/40 text-slate-400')">
+                <span>5</span>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] font-mono uppercase tracking-wider opacity-75">Step 5</div>
+                <div class="text-xs truncate font-extrabold">Live Chat & Sign-Off</div>
+              </div>
+            </button>
+
+          </div>
+
+          <!-- Stepper Navigation Controls -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div class="flex items-center space-x-2">
+              <button id="btn-step-prev" @click="prevTrainingStep()" class="px-4 py-2 rounded-xl border text-xs font-bold transition-all flex items-center space-x-1.5 hover:border-cyan-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+                <i class="fa-solid fa-chevron-left text-[11px]"></i>
+                <span>Previous Step</span>
+              </button>
+
+              <button id="btn-step-next" @click="nextTrainingStep()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-black shadow-md transition-all flex items-center space-x-1.5">
+                <span>Next Step</span>
+                <i class="fa-solid fa-chevron-right text-[11px]"></i>
+              </button>
+
+              <button id="btn-step-autoplay" @click="toggleTrainingAutoPlay()" :class="trainingAutoPlay ? 'bg-amber-500 text-slate-950 font-black shadow-md' : 'font-bold hover:border-amber-400'" :style="!trainingAutoPlay ? 'background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-secondary);' : ''" class="px-3.5 py-2 rounded-xl border text-xs transition-all flex items-center space-x-1.5">
+                <i class="fa-solid" :class="trainingAutoPlay ? 'fa-pause' : 'fa-play'"></i>
+                <span x-text="trainingAutoPlay ? 'Pause Tour' : 'Auto Tour'"></span>
+              </button>
+            </div>
+
+            <!-- Active Step Indicator -->
+            <div class="flex items-center space-x-2 text-xs font-mono">
+              <span style="color: var(--color-text-muted);">Current Curriculum:</span>
+              <span class="px-2.5 py-1 rounded-lg font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" x-text="'Step ' + trainingStep + ' of 5'"></span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- INTERACTIVE STEP VIEWS (SIMULATOR MODE)                                -->
+      <!-- ===================================================================== -->
+      <div x-show="trainingViewMode === 'interactive'" class="space-y-6">
+
+        <!-- ------------------------------------------------------------------- -->
+        <!-- STEP 1: PROTOCOL DISCOVERY & CAPABILITIES                           -->
+        <!-- ------------------------------------------------------------------- -->
+        <div id="training-step-1" x-show="trainingStep === 1" class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 md:p-7 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="space-y-2 border-b pb-4" style="border-color: var(--color-border-subtle);">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                  <i class="fa-solid fa-radar"></i>
+                  <span>RFC 8615 Well-Known Endpoint</span>
+                </div>
+                <h3 class="text-xl font-black" style="color: var(--color-text-primary);">Step 1: Protocol Discovery & Capabilities</h3>
+                <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+                  Gemini Enterprise App auto-discovers external A2A agents by dispatching an authenticated discovery handshake to <code class="px-1.5 py-0.5 rounded font-mono text-cyan-400 bg-cyan-500/10">GET /.well-known/agent.json</code>.
+                </p>
+              </div>
+
+              <!-- Technical Verification Checklist -->
+              <div class="space-y-3 text-xs">
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <i class="fa-solid fa-check-circle text-emerald-400 text-sm mt-0.5 shrink-0"></i>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">Universal A2A v1.0.0 Protocol</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Standardized RFC 8615 discovery contract compatible with Gemini Enterprise Swarm Registry.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <i class="fa-solid fa-shield-halved text-cyan-400 text-sm mt-0.5 shrink-0"></i>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">&lt;28 µs In-Memory AST Sanitization</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Enforces zero telemetry leakage by stripping internal orchestrator envelopes prior to response egress.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <i class="fa-solid fa-signature text-purple-400 text-sm mt-0.5 shrink-0"></i>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">48-Hour Stateless HMAC Signatures</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Zero relational database lock contention on FDA 21 CFR Part 11 human approval workflows.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Discovery Ping Action -->
+              <div class="p-4 rounded-2xl border space-y-3" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-bold text-cyan-400">Endpoint Live Probe</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-400">HTTP 200 OK</span>
+                </div>
+                <div class="text-[11px] font-mono" style="color: var(--color-text-muted);">
+                  GET https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json
+                </div>
+                <button id="btn-test-discovery" @click="testDiscoveryPing()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-bolt"></i>
+                  <span>Test Discovery Ping (Live Probe)</span>
+                </button>
+                <div x-show="trainingDiscoveryTested" class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400 flex items-center justify-between font-mono font-bold">
+                  <span>✓ Handshake Latency: <span x-text="trainingDiscoveryLatency"></span></span>
+                  <span>TLS 1.3 Verified</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Code & Schema Inspector -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-6 border space-y-4" style="border-color: var(--color-border-card);">
+              <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--color-border-subtle);">
+                <div class="flex items-center space-x-1.5">
+                  <button @click="trainingCodeTab = 'manifest'" :class="trainingCodeTab === 'manifest' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'manifest' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                    agent.json (Manifest)
+                  </button>
+                  <button @click="trainingCodeTab = 'curl'" :class="trainingCodeTab === 'curl' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'curl' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                    cURL Handshake
+                  </button>
+                  <button @click="trainingCodeTab = 'proto'" :class="trainingCodeTab === 'proto' ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="trainingCodeTab !== 'proto' ? 'color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl text-xs transition-all">
+                    a2a.proto Schema
+                  </button>
+                </div>
+                <span class="font-mono text-[10px] text-cyan-400 font-bold">SHA-256 Verified</span>
+              </div>
+
+              <!-- Manifest Tab -->
+              <div x-show="trainingCodeTab === 'manifest'" class="relative">
+                <pre class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto custom-scrollbar border border-slate-800/80"><code>{
+  <span class="text-cyan-400">"schemaVersion"</span>: <span class="text-emerald-400">"1.0.0"</span>,
+  <span class="text-cyan-400">"protocolVersion"</span>: <span class="text-emerald-400">"1.0.0"</span>,
+  <span class="text-cyan-400">"name"</span>: <span class="text-emerald-400">"Dr. A2A Sovereign Biopharma Gateway"</span>,
+  <span class="text-cyan-400">"agentId"</span>: <span class="text-emerald-400">"dr-a2a-clinical-gateway"</span>,
+  <span class="text-cyan-400">"version"</span>: <span class="text-emerald-400">"1.0.0"</span>,
+  <span class="text-cyan-400">"capabilities"</span>: {
+    <span class="text-sky-400">"streaming"</span>: <span class="text-amber-400">true</span>,
+    <span class="text-sky-400">"pushNotifications"</span>: <span class="text-amber-400">true</span>,
+    <span class="text-sky-400">"stateTokens"</span>: <span class="text-amber-400">true</span>,
+    <span class="text-sky-400">"gxpSanitization"</span>: <span class="text-amber-400">true</span>,
+    <span class="text-sky-400">"a2ui"</span>: <span class="text-amber-400">true</span>,
+    <span class="text-sky-400">"sub28MicrosecondAst"</span>: <span class="text-amber-400">true</span>
+  },
+  <span class="text-cyan-400">"endpoints"</span>: {
+    <span class="text-sky-400">"tasks"</span>: <span class="text-emerald-400">"/a2a/tasks"</span>,
+    <span class="text-sky-400">"uiAction"</span>: <span class="text-emerald-400">"/a2a/ui/action"</span>,
+    <span class="text-sky-400">"health"</span>: <span class="text-emerald-400">"/healthz"</span>
+  },
+  <span class="text-cyan-400">"declaredSkills"</span>: [
+    {
+      <span class="text-sky-400">"id"</span>: <span class="text-emerald-400">"dose_titration"</span>,
+      <span class="text-sky-400">"name"</span>: <span class="text-emerald-400">"Bayesian Dose Titration & Risk Modeling"</span>
+    },
+    {
+      <span class="text-sky-400">"id"</span>: <span class="text-emerald-400">"sdtm_cdisc_eval"</span>,
+      <span class="text-sky-400">"name"</span>: <span class="text-emerald-400">"CDISC SDTM Domain Ingest & Sanitization"</span>
+    }
+  ],
+  <span class="text-cyan-400">"authentication"</span>: {
+    <span class="text-sky-400">"type"</span>: <span class="text-emerald-400">"google_oidc"</span>,
+    <span class="text-sky-400">"serviceAccount"</span>: <span class="text-emerald-400">"gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com"</span>,
+    <span class="text-sky-400">"audience"</span>: <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run.app"</span>
+  }
+}</code></pre>
+              </div>
+
+              <!-- cURL Tab -->
+              <div x-show="trainingCodeTab === 'curl'" class="relative">
+                <pre class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto custom-scrollbar border border-slate-800/80"><code><span class="text-slate-500"># 1. Fetch OIDC Identity Token from Google Cloud Metadata Server</span>
+TOKEN=$(gcloud auth print-identity-token \
+  --audience=<span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run.app"</span>)
+
+<span class="text-slate-500"># 2. Probe RFC 8615 A2A Protocol Discovery Endpoint</span>
+curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json"</span> \
+  -H <span class="text-cyan-400">"Authorization: Bearer $TOKEN"</span> \
+  -H <span class="text-cyan-400">"Accept: application/json"</span> | jq .
+
+<span class="text-slate-500"># 3. Response: HTTP 200 OK in 0.38 ms with A2A Protocol Descriptor</span></code></pre>
+              </div>
+
+              <!-- Proto Tab -->
+              <div x-show="trainingCodeTab === 'proto'" class="relative">
+                <pre class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto custom-scrollbar border border-slate-800/80"><code><span class="text-sky-400">syntax</span> = <span class="text-emerald-400">"proto3"</span>;
+<span class="text-sky-400">package</span> a2a.v1;
+
+<span class="text-cyan-400">service</span> AgentGatewayService {
+  <span class="text-slate-500">// Capability Discovery RPC</span>
+  <span class="text-cyan-400">rpc</span> DiscoverCapabilities(DiscoveryRequest) <span class="text-cyan-400">returns</span> (AgentManifest);
+  <span class="text-slate-500">// Stateless Task Execution</span>
+  <span class="text-cyan-400">rpc</span> ExecuteTask(TaskRequest) <span class="text-cyan-400">returns</span> (TaskResponse);
+  <span class="text-slate-500">// High-Throughput Bidirectional Thought Streaming</span>
+  <span class="text-cyan-400">rpc</span> StreamTask(ExecuteTaskRequest) <span class="text-cyan-400">returns</span> (<span class="text-amber-400">stream</span> StreamTaskResponse);
+  <span class="text-slate-500">// 21 CFR Part 11 Electronic Signature Seal</span>
+  <span class="text-cyan-400">rpc</span> SubmitHitlSignature(HitlSignatureRequest) <span class="text-cyan-400">returns</span> (HitlSignatureResponse);
+}</code></pre>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------- -->
+        <!-- STEP 2: GOOGLE CLOUD IAM & SERVICE ACCOUNT OIDC TRUST               -->
+        <!-- ------------------------------------------------------------------- -->
+        <div id="training-step-2" x-show="trainingStep === 2" class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 md:p-7 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="space-y-2 border-b pb-4" style="border-color: var(--color-border-subtle);">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                  <i class="fa-solid fa-key"></i>
+                  <span>Zero-Trust Service Account Federation</span>
+                </div>
+                <h3 class="text-xl font-black" style="color: var(--color-text-primary);">Step 2: Google Cloud IAM & Service Account OIDC</h3>
+                <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+                  Gemini Enterprise authenticates to sovereign Cloud Run gateways using Google Cloud OpenID Connect (OIDC) identity tokens signed by Google Cloud KMS.
+                </p>
+              </div>
+
+              <!-- Architecture Specifications -->
+              <div class="space-y-3 text-xs">
+                <div class="p-3.5 rounded-2xl border space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="font-extrabold flex items-center justify-between" style="color: var(--color-text-primary);">
+                    <span>Dedicated Service Account</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-sky-500/20 text-sky-400">Principle of Least Privilege</span>
+                  </div>
+                  <div class="font-mono text-[11px] text-cyan-400 break-all">gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com</div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl border space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="font-extrabold flex items-center justify-between" style="color: var(--color-text-primary);">
+                    <span>Scoped IAM Role</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-400">Cloud Run Only</span>
+                  </div>
+                  <div class="font-mono text-[11px] text-emerald-400">roles/run.invoker</div>
+                  <div class="text-[11px]" style="color: var(--color-text-muted);">Strictly prevents access to underlying BigQuery datasets or Compute Engine instances.</div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl border space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="font-extrabold flex items-center justify-between" style="color: var(--color-text-primary);">
+                    <span>Audience (aud) Verification</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-purple-500/20 text-purple-400">Anti-Confused Deputy</span>
+                  </div>
+                  <div class="font-mono text-[11px] text-purple-400 break-all">https://a2a-gateway-prod-uc.a.run.app</div>
+                </div>
+              </div>
+
+              <!-- Simulate OIDC Handshake Button -->
+              <div class="p-4 rounded-2xl border space-y-3" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-bold text-sky-400">Cryptographic OIDC Validator</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-cyan-500/20 text-cyan-400">RS256 2048-bit</span>
+                </div>
+                <button id="btn-test-oidc" @click="testOidcHandshake()" class="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-id-badge"></i>
+                  <span>Simulate Gemini Enterprise OIDC Handshake</span>
+                </button>
+                <div x-show="trainingOidcTested" class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400 flex items-center justify-between font-mono font-bold">
+                  <span>✓ JWT Signature: VALID</span>
+                  <span>1-Hour TTL Verified</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right CLI & Policy Inspector -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-6 border space-y-4" style="border-color: var(--color-border-card);">
+              <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--color-border-subtle);">
+                <span class="font-bold text-xs" style="color: var(--color-text-primary);">Google Cloud CLI IAM Policy Scaffolding</span>
+                <span class="font-mono text-[10px] text-emerald-400 font-bold">Zero-Trust Guardrail</span>
+              </div>
+
+              <pre class="p-4 rounded-2xl bg-slate-950 text-slate-200 font-mono text-[11px] leading-relaxed overflow-x-auto custom-scrollbar border border-slate-800/80"><code><span class="text-slate-500"># 1. Provision Sovereign A2A Invoker Service Account in GCP</span>
+gcloud iam service-accounts create <span class="text-cyan-400">gemini-enterprise-a2a-invoker</span> \
+  --project=<span class="text-emerald-400">"gcp-biopharma-prod"</span> \
+  --description=<span class="text-emerald-400">"Authorized Gemini Enterprise A2A Invoker"</span> \
+  --display-name=<span class="text-emerald-400">"Gemini Enterprise Invoker"</span>
+
+<span class="text-slate-500"># 2. Bind Least-Privilege roles/run.invoker to Target Gateway</span>
+gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gateway-prod</span> \
+  --project=<span class="text-emerald-400">"gcp-biopharma-prod"</span> \
+  --region=<span class="text-emerald-400">"us-central1"</span> \
+  --member=<span class="text-amber-400">"serviceAccount:gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com"</span> \
+  --role=<span class="text-sky-400">"roles/run.invoker"</span></code></pre>
+
+              <!-- Decoded JWT Token Structure -->
+              <div class="space-y-2 pt-2">
+                <div class="text-xs font-bold font-mono text-slate-400">Decoded OIDC Token Claims (Validated in Gateway Middleware)</div>
+                <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-[11px] font-mono text-slate-300 space-y-1">
+                  <div><span class="text-slate-500">iss:</span> <span class="text-emerald-400">"https://accounts.google.com"</span></div>
+                  <div><span class="text-slate-500">aud:</span> <span class="text-cyan-400">"https://a2a-gateway-prod-uc.a.run.app"</span></div>
+                  <div><span class="text-slate-500">sub:</span> <span class="text-amber-400">"gemini-enterprise-a2a-invoker@gcp-biopharma-prod.iam.gserviceaccount.com"</span></div>
+                  <div><span class="text-slate-500">exp:</span> <span class="text-purple-400">3600s (Auto-Rotated by Google KMS)</span></div>
+                  <div><span class="text-slate-500">auth_time:</span> <span class="text-emerald-400">"2026-09-04T19:24:12Z"</span></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------- -->
+        <!-- STEP 3: GEMINI ENTERPRISE ADMIN REGISTRATION                        -->
+        <!-- ------------------------------------------------------------------- -->
+        <div id="training-step-3" x-show="trainingStep === 3" class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 md:p-7 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="space-y-2 border-b pb-4" style="border-color: var(--color-border-subtle);">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                  <i class="fa-solid fa-address-card"></i>
+                  <span>Vertex AI Extensions Console</span>
+                </div>
+                <h3 class="text-xl font-black" style="color: var(--color-text-primary);">Step 3: Gemini Enterprise Admin Registration</h3>
+                <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+                  Enterprise Workspace administrators register the Sovereign Gateway in the Gemini Enterprise Extensions catalog by pointing to the discovery manifest URL.
+                </p>
+              </div>
+
+              <!-- Step-by-Step Instructions -->
+              <div class="space-y-2.5 text-xs">
+                <div class="flex items-start space-x-2.5">
+                  <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold font-mono flex items-center justify-center shrink-0 text-[10px]">1</span>
+                  <span style="color: var(--color-text-secondary);">Open <strong>Google Workspace Admin Console</strong> &rarr; <strong>Gemini Enterprise Extensions</strong>.</span>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                  <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold font-mono flex items-center justify-center shrink-0 text-[10px]">2</span>
+                  <span style="color: var(--color-text-secondary);">Click <strong>"+ Register Custom A2A Agent"</strong> and input agent manifest URL.</span>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                  <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold font-mono flex items-center justify-center shrink-0 text-[10px]">3</span>
+                  <span style="color: var(--color-text-secondary);">Assign mention handle <code class="text-cyan-400 font-mono">@clinical-gateway</code> for employee chat invocation.</span>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                  <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold font-mono flex items-center justify-center shrink-0 text-[10px]">4</span>
+                  <span style="color: var(--color-text-secondary);">Select <strong>Google Cloud Service Account OIDC</strong> as identity exchange protocol.</span>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                  <span class="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold font-mono flex items-center justify-center shrink-0 text-[10px]">5</span>
+                  <span style="color: var(--color-text-secondary);">Provide interactive A2UI action callback endpoint <code class="text-emerald-400 font-mono">/a2ui/action</code>.</span>
+                </div>
+              </div>
+
+              <!-- Quick Tip Banner -->
+              <div class="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-300 space-y-1">
+                <div class="font-bold flex items-center space-x-1.5">
+                  <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                  <span>Zero-Config Dynamic Card Discovery</span>
+                </div>
+                <p class="text-[11px] leading-relaxed opacity-90">
+                  Gemini Enterprise automatically consumes the declared skills from the manifest, establishing typing contracts for A2UI interactive sliders and buttons without custom frontend code.
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Right Interactive Admin Registration Form Mockup -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-6 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--color-border-subtle);">
+                <div class="flex items-center space-x-2">
+                  <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                  <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                  <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                  <span class="text-xs font-bold ml-2" style="color: var(--color-text-primary);">Gemini Enterprise Admin Console &bull; Register A2A Extension</span>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black" :class="trainingExtensionRegistered ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'" x-text="trainingExtensionRegistered ? 'ACTIVE & VERIFIED' : 'PENDING ACTIVATION'"></span>
+              </div>
+
+              <!-- Simulated Form Fields -->
+              <div class="space-y-4 text-xs">
+                <div>
+                  <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Agent Display Name</label>
+                  <input type="text" readonly value="Dr. A2A Sovereign Biopharma Gateway" class="w-full px-3.5 py-2 rounded-xl border font-semibold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Bot Mention Handle</label>
+                    <input type="text" readonly value="@clinical-gateway" class="w-full px-3.5 py-2 rounded-xl border font-mono font-bold text-cyan-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  </div>
+                  <div>
+                    <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Protocol Version</label>
+                    <input type="text" readonly value="Google A2A v1.0.0" class="w-full px-3.5 py-2 rounded-xl border font-mono font-bold text-emerald-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">A2A Discovery Manifest Endpoint</label>
+                  <input type="text" readonly value="https://a2a-gateway-prod-uc.a.run.app/.well-known/agent.json" class="w-full px-3.5 py-2 rounded-xl border font-mono text-xs" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                </div>
+
+                <div>
+                  <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Authentication Mechanism</label>
+                  <input type="text" readonly value="Google Cloud Service Account OIDC (Audience Bound)" class="w-full px-3.5 py-2 rounded-xl border font-semibold text-sky-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                </div>
+
+                <div>
+                  <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Interactive A2UI Action Webhook</label>
+                  <input type="text" readonly value="https://a2a-gateway-prod-uc.a.run.app/a2ui/action" class="w-full px-3.5 py-2 rounded-xl border font-mono text-xs" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
+                </div>
+              </div>
+
+              <!-- Register Extension Action Button -->
+              <div class="pt-2">
+                <button id="btn-register-extension" @click="registerExtension()" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90 text-white font-black text-xs shadow-lg transition-all flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span x-text="trainingExtensionRegistered ? 'Extension Verified & Registered (Click to Re-verify)' : 'Verify & Register Extension in Gemini Enterprise'"></span>
+                </button>
+              </div>
+
+              <div x-show="trainingExtensionRegistered" class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 flex items-center space-x-2">
+                <i class="fa-solid fa-circle-check text-base shrink-0"></i>
+                <span class="font-bold">Extension Verified! Available in chat via @clinical-gateway across permitted Organizational Units.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------- -->
+        <!-- STEP 4: ENTERPRISE RBAC & DEPARTMENT OU SCOPING                    -->
+        <!-- ------------------------------------------------------------------- -->
+        <div id="training-step-4" x-show="trainingStep === 4" class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 md:p-7 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="space-y-2 border-b pb-4" style="border-color: var(--color-border-subtle);">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <i class="fa-solid fa-sitemap"></i>
+                  <span>Google Workspace OU Scoping</span>
+                </div>
+                <h3 class="text-xl font-black" style="color: var(--color-text-primary);">Step 4: Enterprise RBAC & Department OU Scoping</h3>
+                <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+                  Biopharma clinical trial data contains sensitive patient records and GxP protocol decisions. Access to <code class="text-cyan-400 font-mono">@clinical-gateway</code> must be restricted strictly to vetted departments.
+                </p>
+              </div>
+
+              <!-- DLP Guardrail Cards -->
+              <div class="space-y-3 text-xs">
+                <div class="p-3.5 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold" style="color: var(--color-text-primary);">GxP 21 CFR Part 11 Audit Trail</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" x-model="trainingDlpAudit" class="sr-only peer">
+                      <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                  </div>
+                  <div class="text-[11px]" style="color: var(--color-text-muted);">Enforces cryptographic digital signatures on all clinical dose modification events.</div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold" style="color: var(--color-text-primary);">HIPAA PHI Redaction Filter</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" x-model="trainingDlpPii" class="sr-only peer">
+                      <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                  </div>
+                  <div class="text-[11px]" style="color: var(--color-text-muted);">Automatically masks Patient Identifiers (MRN, USUBJID, DOB) prior to Gemini context ingestion.</div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold" style="color: var(--color-text-primary);">CDISC SDTM Sovereign Boundary</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" x-model="trainingDlpCdisc" class="sr-only peer">
+                      <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-500"></div>
+                    </label>
+                  </div>
+                  <div class="text-[11px]" style="color: var(--color-text-muted);">Blocks raw SDTM AE/LB/VS domains from ever egressing outside private biopharma VPC.</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Interactive OU Matrix -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-6 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--color-border-subtle);">
+                <span class="font-bold text-xs" style="color: var(--color-text-primary);">Google Workspace Organizational Unit (OU) Access Scoping</span>
+                <span class="font-mono text-[10px] text-purple-400 font-bold">Role-Based Entitlement</span>
+              </div>
+
+              <!-- Interactive OU Hierarchy Tree -->
+              <div class="space-y-3 text-xs">
+                
+                <!-- Root Corp Node -->
+                <div class="p-3 rounded-2xl border flex items-center justify-between" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-building text-slate-400"></i>
+                    <span class="font-extrabold" style="color: var(--color-text-primary);">Acme Biopharma Global Corp</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono text-slate-400">Root Organization</span>
+                </div>
+
+                <!-- Certified Medical OUs (Enabled) -->
+                <div class="pl-4 space-y-2 border-l-2 border-indigo-500/30">
+                  
+                  <div class="p-3 rounded-2xl border flex items-center justify-between" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                    <div class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-user-doctor text-emerald-400"></i>
+                      <div>
+                        <div class="font-bold" style="color: var(--color-text-primary);">Clinical Operations & Trial Sites</div>
+                        <div class="text-[10px]" style="color: var(--color-text-muted);">Principal Investigators & Study Coordinators</div>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      ENABLED (FULL ACCESS)
+                    </span>
+                  </div>
+
+                  <div class="p-3 rounded-2xl border flex items-center justify-between" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                    <div class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-file-signature text-emerald-400"></i>
+                      <div>
+                        <div class="font-bold" style="color: var(--color-text-primary);">Medical Reviewers & Safety Board</div>
+                        <div class="text-[10px]" style="color: var(--color-text-muted);">Medical Directors (21 CFR Part 11 Signers)</div>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      ENABLED (PART 11 SIGNER)
+                    </span>
+                  </div>
+
+                  <div class="p-3 rounded-2xl border flex items-center justify-between" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                    <div class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                      <div>
+                        <div class="font-bold" style="color: var(--color-text-primary);">Biostatistics & PK/PD Swarm</div>
+                        <div class="text-[10px]" style="color: var(--color-text-muted);">Bayesian Modeling & Variance Analysts</div>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                      ENABLED (READ & MODEL)
+                    </span>
+                  </div>
+
+                </div>
+
+                <!-- Restricted Corporate OUs (Blocked) -->
+                <div class="pl-4 space-y-2 border-l-2 border-rose-500/30">
+                  
+                  <div class="p-3 rounded-2xl border flex items-center justify-between opacity-60" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                    <div class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-briefcase text-rose-400"></i>
+                      <div>
+                        <div class="font-bold" style="color: var(--color-text-primary);">Sales & Commercial Marketing</div>
+                        <div class="text-[10px]" style="color: var(--color-text-muted);">Commercial Division</div>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                      BLOCKED (ZERO EGRESS)
+                    </span>
+                  </div>
+
+                  <div class="p-3 rounded-2xl border flex items-center justify-between opacity-60" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                    <div class="flex items-center space-x-2.5">
+                      <i class="fa-solid fa-users text-rose-400"></i>
+                      <div>
+                        <div class="font-bold" style="color: var(--color-text-primary);">General Corporate Employees</div>
+                        <div class="text-[10px]" style="color: var(--color-text-muted);">Unvetted Internal Enterprise Tenants</div>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                      BLOCKED (NO ACCESS)
+                    </span>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Compliance Note -->
+              <div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-300 flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved text-base shrink-0"></i>
+                <span>Enclave Boundary Enforcement: Any prompt to @clinical-gateway from restricted OUs is rejected at the Google Identity gateway with HTTP 403 Forbidden.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------- -->
+        <!-- STEP 5: LIVE GEMINI CHAT CONSOLE & 1-CLICK HITL SIGN-OFF            -->
+        <!-- ------------------------------------------------------------------- -->
+        <div id="training-step-5" x-show="trainingStep === 5" class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Info Panel -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-6 md:p-7 border space-y-5" style="border-color: var(--color-border-card);">
+              <div class="space-y-2 border-b pb-4" style="border-color: var(--color-border-subtle);">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <i class="fa-solid fa-comments"></i>
+                  <span>End-User Clinical Swarm Invocation</span>
+                </div>
+                <h3 class="text-xl font-black" style="color: var(--color-text-primary);">Step 5: Live Chat Console & 1-Click HITL Sign-off</h3>
+                <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
+                  Clinicians interact with <code class="text-cyan-400 font-mono">@clinical-gateway</code> in the Gemini Enterprise App. Outbound payloads undergo sub-28µs AST sanitization before rendering dynamic A2UI cards with 1-click 21 CFR Part 11 electronic signatures.
+                </p>
+              </div>
+
+              <!-- Process Flow List -->
+              <div class="space-y-3 text-xs">
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 font-mono font-black flex items-center justify-center shrink-0">1</div>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">Clinician Natural Language Prompt</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Clinician prompts @clinical-gateway with patient cohort and laboratory parameters.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 font-mono font-black flex items-center justify-center shrink-0">2</div>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">&lt;28 µs AST Sanitizer Gate</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Strips prohibited orchestration envelopes (__internal_trace__, adk_internal_context) in-memory.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 font-mono font-black flex items-center justify-center shrink-0">3</div>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">Interactive A2UI Dose Card</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Gemini Chat renders a reactive slider; adjusting the dosage recalculates Bayesian adverse event probability dynamically.</div>
+                  </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                  <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-mono font-black flex items-center justify-center shrink-0">4</div>
+                  <div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">1-Click FDA Electronic Seal</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Medical Director clicks Approve & Sign, sealing a 48h stateless HMAC-SHA256 certificate stored in GxP audit log.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reset Simulation Button & Carousel Switch -->
+              <div class="pt-2 space-y-2">
+                <button id="btn-training-reset" @click="resetTrainingChat()" class="w-full py-2 rounded-xl border text-xs font-bold hover:border-cyan-400 transition-all flex items-center justify-center space-x-2" style="border-color: var(--color-border-card); color: var(--color-text-secondary); background-color: var(--color-bg-card);">
+                  <i class="fa-solid fa-rotate-left"></i>
+                  <span>Reset Live Chat Simulation</span>
+                </button>
+                <button @click="trainingViewMode = 'gallery'" class="w-full py-2.5 rounded-xl border border-cyan-500/40 hover:border-cyan-400 bg-cyan-500/10 text-cyan-400 text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-sm">
+                  <i class="fa-solid fa-images"></i>
+                  <span>View All Steps in Screenshot Carousel &rarr;</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Right Gemini Enterprise Chat Simulator -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-6 border space-y-4" style="border-color: var(--color-border-card);">
+              
+              <!-- Chat Header -->
+              <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--color-border-subtle);">
+                <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-slate-950 font-black shadow-md">
+                    <i class="fa-solid fa-robot text-sm"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold flex items-center space-x-1.5" style="color: var(--color-text-primary);">
+                      <span>Gemini Enterprise Chat</span>
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    </div>
+                    <div class="text-[10px] font-mono" style="color: var(--color-text-muted);">Room: Oncology Phase II &bull; MK-3475-087</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    AST: 28 µs
+                  </span>
+                  <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    21 CFR Part 11
+                  </span>
+                </div>
+              </div>
+
+              <!-- Chat Message Stream -->
+              <div class="space-y-4">
+                
+                <!-- 1. Clinician User Message -->
+                <div class="flex items-start space-x-3 justify-end">
+                  <div class="max-w-md p-3.5 rounded-2xl rounded-tr-sm text-xs shadow-md space-y-1 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-medium">
+                    <div class="text-[10px] font-mono opacity-80 flex items-center justify-between">
+                      <span>Dr. Evelyn Reed, MD &bull; Principal Investigator</span>
+                      <span>10:42 AM</span>
+                    </div>
+                    <p class="leading-relaxed">
+                      <span class="font-black underline decoration-cyan-300">@clinical-gateway</span> Calculate recommended dose titration for Cohort B (Subject MK-3475-087) based on cycle 3 ALT/AST labs and produce 21 CFR Part 11 sign-off card.
+                    </p>
+                  </div>
+                  <div class="w-8 h-8 rounded-full bg-teal-500/20 border border-teal-500/30 flex items-center justify-center shrink-0 text-teal-400 text-xs font-bold font-mono">
+                    ER
+                  </div>
+                </div>
+
+                <!-- AST Sanitizer Pipeline Indicator -->
+                <div class="flex items-center justify-center space-x-2 py-1">
+                  <div class="h-px bg-slate-700/50 flex-1"></div>
+                  <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-filter text-[9px]"></i>
+                    <span>AST Sanitizer: Stripped __internal_trace__ in 28 µs &bull; Zero Cloud Egress</span>
+                  </span>
+                  <div class="h-px bg-slate-700/50 flex-1"></div>
+                </div>
+
+                <!-- 2. Gemini Enterprise Bot Response with Interactive A2UI Card -->
+                <div class="flex items-start space-x-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-500 flex items-center justify-center shrink-0 text-slate-950 font-black text-xs">
+                    <i class="fa-solid fa-brain"></i>
+                  </div>
+                  
+                  <div class="w-full space-y-3">
+                    
+                    <div class="p-3 rounded-2xl rounded-tl-sm text-xs font-medium space-y-1" style="background-color: var(--color-bg-card-subtle); color: var(--color-text-secondary); border: 1px solid var(--color-border-subtle);">
+                      <div class="flex items-center justify-between text-[10px] font-mono">
+                        <span class="font-bold text-cyan-400">Dr. A2A Sovereign Biopharma Gateway</span>
+                        <span style="color: var(--color-text-muted);">10:42 AM</span>
+                      </div>
+                      <p class="leading-relaxed">
+                        I evaluated Subject MK-3475-087 Cycle 3 laboratory telemetry. Grade 2 ALT elevation (124 U/L) was detected. Below is the interactive A2UI dose titration card with Bayesian risk projections.
+                      </p>
+                    </div>
+
+                    <!-- Interactive A2UI Titration Card -->
+                    <div class="p-5 rounded-2xl border-2 space-y-4 shadow-lg transition-all" :class="trainingChatApproved ? 'border-emerald-500/60 bg-emerald-500/5' : 'border-cyan-500/40'" style="background-color: var(--color-bg-card);">
+                      
+                      <!-- Card Meta Header -->
+                      <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3" style="border-color: var(--color-border-subtle);">
+                        <div>
+                          <div class="text-xs font-black flex items-center space-x-2" style="color: var(--color-text-primary);">
+                            <i class="fa-solid fa-vial-circle-check text-cyan-400"></i>
+                            <span>CLINICAL DOSE TITRATION RECOMMENDATION</span>
+                          </div>
+                          <div class="text-[10px] font-mono" style="color: var(--color-text-muted);">Study MK-3475-087 &bull; Cohort B &bull; Subject 004</div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          Grade 2 ALT Alert (124 U/L)
+                        </span>
+                      </div>
+
+                      <!-- Interactive Dose Slider -->
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                          <span class="font-bold" style="color: var(--color-text-secondary);">Target Dose Adjustment:</span>
+                          <span class="font-mono text-sm font-black text-cyan-400" x-text="trainingSliderDose + ' mg'"></span>
+                        </div>
+                        <input id="training-dose-slider" type="range" min="100" max="400" step="50" x-model="trainingSliderDose" :disabled="trainingChatApproved" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700 accent-cyan-400">
+                        <div class="flex justify-between text-[10px] font-mono" style="color: var(--color-text-muted);">
+                          <span>100 mg (De-escalation)</span>
+                          <span>250 mg (Standard)</span>
+                          <span>400 mg (Max)</span>
+                        </div>
+                      </div>
+
+                      <!-- Dynamic Risk Counters -->
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="p-2.5 rounded-xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                          <div class="text-xs font-bold" style="color: var(--color-text-muted);">Projected Adverse Event Risk</div>
+                          <div class="text-lg font-black font-mono text-cyan-400" x-text="trainingProjectedRate + '%'"></div>
+                        </div>
+                        <div class="p-2.5 rounded-xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                          <div class="text-xs font-bold" style="color: var(--color-text-muted);">Delta from Baseline</div>
+                          <div class="text-lg font-black font-mono text-amber-400" x-text="trainingDelta + '%'"></div>
+                        </div>
+                      </div>
+
+                      <!-- 1-Click Approve Button -->
+                      <div x-show="!trainingChatApproved" class="pt-1">
+                        <button id="btn-training-approve" @click="approveTrainingChat()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-lg transition-all flex items-center justify-center space-x-2">
+                          <i class="fa-solid fa-signature"></i>
+                          <span>1-Click Approve & Sign (FDA 21 CFR Part 11)</span>
+                        </button>
+                      </div>
+
+                      <!-- 21 CFR Part 11 Electronic Signature Certificate Stamp -->
+                      <div id="training-seal-stamp" x-show="trainingChatApproved" class="p-4 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/50 space-y-3 animate-fade-in">
+                        <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
+                          <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-stamp text-emerald-400 text-base"></i>
+                            <span class="text-xs font-black text-emerald-400 font-mono tracking-wider">21 CFR PART 11 VALIDATED ELECTRONIC SEAL</span>
+                          </div>
+                          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300">COMPLIANT</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                          <div>
+                            <span class="text-slate-400">Signer:</span>
+                            <span class="font-bold text-slate-200 block">Dr. Evelyn Reed, MD</span>
+                          </div>
+                          <div>
+                            <span class="text-slate-400">Role:</span>
+                            <span class="font-bold text-slate-200 block">Principal Investigator</span>
+                          </div>
+                          <div>
+                            <span class="text-slate-400">Dose Approved:</span>
+                            <span class="font-bold text-emerald-400 block" x-text="trainingSliderDose + ' mg'"></span>
+                          </div>
+                          <div>
+                            <span class="text-slate-400">Timestamp:</span>
+                            <span class="font-bold text-slate-200 block truncate" x-text="trainingApprovalTimestamp"></span>
+                          </div>
+                        </div>
+
+                        <div class="pt-1 border-t border-emerald-500/20">
+                          <div class="text-[10px] text-slate-400 font-mono">HMAC-SHA256 Stateless Token Hash (48h TTL):</div>
+                          <div class="text-[10px] font-mono text-emerald-300 break-all" x-text="trainingApprovalHash"></div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- DYNAMIC VISUAL SCREENSHOT CAROUSEL (GALLERY MODE & WALKTHROUGH)       -->
+      <!-- ===================================================================== -->
+      <div id="training-gallery-carousel" x-show="trainingViewMode === 'gallery'" class="glass-card rounded-3xl p-6 md:p-8 border shadow-xl space-y-6" style="border-color: var(--color-border-card);">
+        
+        <!-- Gallery Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4" style="border-color: var(--color-border-subtle);">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black bg-cyan-500/20 text-cyan-400 uppercase tracking-wider">
+                Visual Proof Gallery
+              </span>
+              <span class="text-xs font-bold" style="color: var(--color-text-muted);">
+                High-Resolution Google Chrome Captures
+              </span>
+            </div>
+            <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
+              Start-to-Finish Lifecycle Screenshot Carousel
+            </h3>
+          </div>
+
+          <!-- Carousel Controls -->
+          <div class="flex items-center space-x-2">
+            <button id="btn-gallery-prev" @click="trainingGalleryIndex = (trainingGalleryIndex > 0) ? trainingGalleryIndex - 1 : trainingGallerySlides.length - 1" class="w-10 h-10 rounded-xl border flex items-center justify-center text-xs font-bold hover:border-cyan-400 transition-all" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <span class="px-3 py-2 rounded-xl border text-xs font-mono font-bold" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);" x-text="(trainingGalleryIndex + 1) + ' / ' + trainingGallerySlides.length"></span>
+
+            <button id="btn-gallery-next" @click="trainingGalleryIndex = (trainingGalleryIndex < trainingGallerySlides.length - 1) ? trainingGalleryIndex + 1 : 0" class="w-10 h-10 rounded-xl border flex items-center justify-center text-xs font-bold hover:border-cyan-400 transition-all" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Slide Display -->
+        <template x-if="trainingGallerySlides[trainingGalleryIndex]">
+          <div class="space-y-4">
+            
+            <!-- Slide Title & Objective Banner -->
+            <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-400" x-text="trainingGallerySlides[trainingGalleryIndex].badge"></span>
+                  <span class="text-sm font-black" style="color: var(--color-text-primary);" x-text="trainingGallerySlides[trainingGalleryIndex].title"></span>
+                </div>
+                <div class="text-xs mt-1" style="color: var(--color-text-secondary);" x-text="trainingGallerySlides[trainingGalleryIndex].desc"></div>
+              </div>
+
+              <!-- Fullscreen Zoom Button -->
+              <button @click="openGalleryZoom(trainingGallerySlides[trainingGalleryIndex])" class="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black shadow-md transition-all flex items-center space-x-1.5">
+                <i class="fa-solid fa-maximize"></i>
+                <span>Inspect Fullscreen</span>
+              </button>
+            </div>
+
+            <!-- Screenshot Image Container -->
+            <div class="relative rounded-3xl overflow-hidden border-2 shadow-2xl bg-slate-950/80 group" style="border-color: var(--color-border-card); min-height: 480px;">
+              <img :src="isDark ? trainingGallerySlides[trainingGalleryIndex].darkImg : trainingGallerySlides[trainingGalleryIndex].lightImg" :alt="trainingGallerySlides[trainingGalleryIndex].title" class="w-full h-auto object-contain max-h-[640px] mx-auto transition-transform duration-300 group-hover:scale-[1.01]">
+              
+              <!-- Overlay Pill -->
+              <div class="absolute bottom-4 left-4 px-3 py-1.5 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-700/80 text-xs font-mono text-cyan-300 shadow-xl flex items-center space-x-2">
+                <i class="fa-solid fa-camera"></i>
+                <span x-text="isDark ? 'Dark Theme High-Res Capture' : 'Light Theme High-Res Capture'"></span>
+              </div>
+            </div>
+
+          </div>
+        </template>
+
+        <!-- Thumbnails Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-2">
+          <template x-for="(slide, sIdx) in trainingGallerySlides" :key="sIdx">
+            <button @click="trainingGalleryIndex = sIdx" :class="trainingGalleryIndex === sIdx ? 'ring-2 ring-cyan-400 border-cyan-400 shadow-lg' : 'opacity-70 hover:opacity-100'" class="p-2 rounded-2xl border text-left transition-all space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+              <div class="aspect-video rounded-xl bg-slate-950 overflow-hidden border border-slate-800 flex items-center justify-center relative">
+                <img :src="isDark ? slide.darkImg : slide.lightImg" class="w-full h-full object-cover">
+                <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-slate-950/80 text-cyan-400" x-text="'0' + (sIdx + 1)"></span>
+              </div>
+              <div class="text-[11px] font-bold truncate" style="color: var(--color-text-primary);" x-text="slide.badge"></div>
+            </button>
+          </template>
+        </div>
+
+      </div>
+
+    </div>
+
   </main>
   </div>
 
@@ -1528,6 +2562,32 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- TRAINING SCREENSHOT FULLSCREEN ZOOM MODAL                                 -->
+  <!-- ========================================================================= -->
+  <div x-show="trainingZoomModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
+    <div class="glass-card p-4 md:p-6 rounded-3xl max-w-6xl w-full space-y-4 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="trainingZoomModal = false">
+      <div class="flex justify-between items-center border-b pb-3" style="border-color: var(--color-border-subtle);">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-expand text-cyan-400"></i>
+          <span class="text-sm font-black" style="color: var(--color-text-primary);" x-text="trainingZoomTitle"></span>
+        </div>
+        <button @click="trainingZoomModal = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-auto rounded-2xl bg-slate-950 p-2 flex items-center justify-center">
+        <img :src="trainingZoomImage" :alt="trainingZoomTitle" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl">
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t" style="border-color: var(--color-border-subtle);">
+        <span class="text-xs font-mono" style="color: var(--color-text-muted);">Google Signed Chrome Automated Capture</span>
+        <button @click="trainingZoomModal = false" class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs">Close Inspection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- SLIDE-OVER DRAWER: "DR. A2A" GEMINI OMNI MULTIMODAL COPILOT -->
   <!-- ========================================================================= -->
   <div x-show="assistantOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
@@ -1684,6 +2744,86 @@
         currentUser: null,
         isDark: true,
 
+        // Gemini Enterprise User Training & Onboarding State
+        trainingStep: 1,
+        trainingTotalSteps: 5,
+        trainingAutoPlay: false,
+        trainingTimer: null,
+        trainingViewMode: 'interactive',
+        trainingGalleryIndex: 0,
+        trainingZoomModal: false,
+        trainingZoomImage: '',
+        trainingZoomTitle: '',
+        trainingSliderDose: 300,
+        trainingChatApproved: false,
+        trainingApprovalTimestamp: '',
+        trainingApprovalHash: '',
+        trainingDiscoveryTested: true,
+        trainingDiscoveryLatency: '0.38 ms',
+        trainingOidcTested: false,
+        trainingExtensionRegistered: false,
+        trainingOuScopes: { clinOps: true, biostat: true, medReview: true, marketing: false, sales: false },
+        trainingDlpPii: true,
+        trainingDlpCdisc: true,
+        trainingDlpAudit: true,
+        trainingCodeTab: 'manifest',
+        trainingGallerySlides: [
+          {
+            step: 1,
+            title: 'Step 1: Protocol Discovery & Capabilities',
+            subtitle: 'A2A v1.0.0 RFC 8615 Well-Known URI Manifest',
+            darkImg: '/static/screenshots/dark_training_01_protocol_discovery.png',
+            lightImg: '/static/screenshots/light_training_01_protocol_discovery.png',
+            badge: 'Discovery & Schema',
+            desc: 'Automated agent capability negotiation declaring clinical dose titration, sub-28µs AST sanitization, and 21 CFR Part 11 electronic signature interfaces.'
+          },
+          {
+            step: 2,
+            title: 'Step 2: Google Cloud IAM & Service Account OIDC',
+            subtitle: 'Service Account Token Exchange & Zero-Trust Perimeter',
+            darkImg: '/static/screenshots/dark_training_02_iam_oidc.png',
+            lightImg: '/static/screenshots/light_training_02_iam_oidc.png',
+            badge: 'OIDC & Security',
+            desc: 'Least-privilege Cloud Run invoker role binding with 1-hour JWT token exchange and sovereign biopharma VPC Service Controls.'
+          },
+          {
+            step: 3,
+            title: 'Step 3: Gemini Enterprise Admin Registration',
+            subtitle: 'Vertex AI Extensions & @clinical-gateway Binding',
+            darkImg: '/static/screenshots/dark_training_03_gemini_registry.png',
+            lightImg: '/static/screenshots/light_training_03_gemini_registry.png',
+            badge: 'Admin Registry',
+            desc: 'Registering the sovereign A2A manifest URL and mention handle @clinical-gateway in Gemini Enterprise Admin Console.'
+          },
+          {
+            step: 4,
+            title: 'Step 4: Enterprise RBAC & Department OU Scoping',
+            subtitle: 'Google Workspace Organizational Unit & DLP Enforcement',
+            darkImg: '/static/screenshots/dark_training_04_rbac_ou_scoping.png',
+            lightImg: '/static/screenshots/light_training_04_rbac_ou_scoping.png',
+            badge: 'RBAC & DLP Governance',
+            desc: 'Scoping agent invocation exclusively to Clinical Ops and Medical Directors while restricting unvetted corporate departments.'
+          },
+          {
+            step: 5,
+            title: 'Step 5: Live Chat Console & Interactive A2UI Card',
+            subtitle: 'Sub-28µs AST Sanitization & Dose Slider',
+            darkImg: '/static/screenshots/dark_training_05_chat_card.png',
+            lightImg: '/static/screenshots/light_training_05_chat_card.png',
+            badge: 'Live Gemini Chat',
+            desc: 'Clinician prompts @clinical-gateway in Gemini Enterprise Chat; gateway strips orchestrator envelopes and renders reactive A2UI titration card.'
+          },
+          {
+            step: 6,
+            title: 'Step 5 (Approved): 1-Click 21 CFR Part 11 Electronic Signature',
+            subtitle: '48-Hour Stateless HMAC-SHA256 Electronic Seal',
+            darkImg: '/static/screenshots/dark_training_06_hitl_approved_seal.png',
+            lightImg: '/static/screenshots/light_training_06_hitl_approved_seal.png',
+            badge: '21 CFR Part 11 Seal',
+            desc: 'Medical Director signs off with 1 click; gateway generates tamper-evident HMAC-SHA256 signature stamp stored in GxP audit ledger.'
+          }
+        ],
+
         // Inline Tactile HITL Signature State
         hitlSigned: false,
         hitlTimestamp: '',
@@ -1706,6 +2846,7 @@
           { id: 'nav-integrations', title: 'Open Tool Integrations Hub', subtitle: 'Connect MedDRA, BigQuery, and Veeva Vault', category: 'navigation', icon: 'fa-solid fa-network-wired', iconBg: 'bg-sky-500/10 text-sky-400 border-sky-500/20', badgeClass: 'bg-sky-500/20 text-sky-400 border-sky-500/30', shortcut: 'G I', action: 'integrations' },
           { id: 'nav-kpis', title: 'Open Live KPI Speedometers', subtitle: 'Inspect sub-millisecond latencies and ROI', category: 'navigation', icon: 'fa-solid fa-gauge-high', iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30', shortcut: 'G K', action: 'kpis' },
           { id: 'nav-faq', title: 'Open Technical FAQ Knowledge Base', subtitle: 'Explore in-depth architectural questions & code', category: 'navigation', icon: 'fa-solid fa-circle-question', iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20', badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30', shortcut: 'G F', action: 'faq' },
+          { id: 'nav-training', title: 'Open Gemini Training & Onboarding Hub', subtitle: '5-step curriculum for registering & invoking A2A swarms in Gemini', category: 'navigation', icon: 'fa-solid fa-graduation-cap', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: 'G U', action: 'training' },
           { id: 'nav-overview', title: 'Open Architecture MECE Matrix', subtitle: 'Cross-functional evaluation across 4 personas', category: 'navigation', icon: 'fa-solid fa-table-cells', iconBg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20', badgeClass: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30', shortcut: 'G O', action: 'overview' },
           { id: 'nav-opt1', title: 'Open Option 1: Cloud Run Proxy', subtitle: 'Stateless AST sanitizer with 48h HMAC tokens', category: 'navigation', icon: 'fa-solid fa-cloud', iconBg: 'bg-blue-500/10 text-blue-400 border-blue-500/20', badgeClass: 'bg-blue-500/20 text-blue-400 border-blue-500/30', shortcut: 'G 1', action: 'opt1' },
           { id: 'nav-opt2', title: 'Open Option 2: gRPC Stream', subtitle: 'Typed binary schema with thought streaming', category: 'navigation', icon: 'fa-solid fa-bolt', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G 2', action: 'opt2' },
@@ -1771,7 +2912,8 @@
             'opt2': 'Option 2: gRPC Stream',
             'opt3': 'Option 3: Dual-Plane',
             'alerts_feedback': 'Alerts & Feedback',
-            'faq': 'Technical FAQ & Deep-Dive'
+            'faq': 'Technical FAQ & Deep-Dive',
+            'training': 'Gemini Training Hub'
           };
           return map[tab] || 'Workspace';
         },
@@ -2200,6 +3342,76 @@
               text: "Dr. A2A Omni Analysis: The Enterprise A2A Gateway ensures strict GxP validation by executing AST key sanitization on all outbound payloads in 28 microseconds, sealing 48-hour HMAC tokens before delivering A2UI cards to Gemini Enterprise." 
             });
           }, 600);
+        },
+
+        get trainingProjectedRate() {
+          return ((this.trainingSliderDose / 100) * 2.24).toFixed(2);
+        },
+        get trainingDelta() {
+          const val = ((this.trainingSliderDose / 100) * 2.24) - 4.60;
+          return val >= 0 ? '+' + val.toFixed(2) : val.toFixed(2);
+        },
+
+        setTrainingStep(step) {
+          this.trainingStep = Math.max(1, Math.min(5, step));
+          this.trainingGalleryIndex = this.trainingStep - 1;
+        },
+        nextTrainingStep() {
+          if (this.trainingStep < this.trainingTotalSteps) {
+            this.trainingStep++;
+          } else {
+            this.trainingStep = 1;
+          }
+          this.trainingGalleryIndex = this.trainingStep - 1;
+        },
+        prevTrainingStep() {
+          if (this.trainingStep > 1) {
+            this.trainingStep--;
+          } else {
+            this.trainingStep = this.trainingTotalSteps;
+          }
+          this.trainingGalleryIndex = this.trainingStep - 1;
+        },
+        toggleTrainingAutoPlay() {
+          this.trainingAutoPlay = !this.trainingAutoPlay;
+          if (this.trainingAutoPlay) {
+            this.trainingTimer = setInterval(() => {
+              this.nextTrainingStep();
+            }, 4500);
+          } else if (this.trainingTimer) {
+            clearInterval(this.trainingTimer);
+            this.trainingTimer = null;
+          }
+        },
+        testDiscoveryPing() {
+          this.trainingDiscoveryTested = true;
+          this.triggerSparkleCelebration();
+        },
+        testOidcHandshake() {
+          this.trainingOidcTested = true;
+          this.triggerSparkleCelebration();
+        },
+        registerExtension() {
+          this.trainingExtensionRegistered = true;
+          this.triggerSparkleCelebration();
+        },
+        approveTrainingChat() {
+          this.trainingChatApproved = true;
+          this.trainingApprovalTimestamp = new Date().toISOString();
+          const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+          this.trainingApprovalHash = 'hmac_sha256_' + randomHex;
+          this.triggerSparkleCelebration();
+        },
+        resetTrainingChat() {
+          this.trainingChatApproved = false;
+          this.trainingApprovalTimestamp = '';
+          this.trainingApprovalHash = '';
+          this.trainingSliderDose = 300;
+        },
+        openGalleryZoom(slide) {
+          this.trainingZoomImage = this.isDark ? slide.darkImg : slide.lightImg;
+          this.trainingZoomTitle = slide.title;
+          this.trainingZoomModal = true;
         },
 
         init() {
