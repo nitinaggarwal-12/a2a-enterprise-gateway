@@ -1250,18 +1250,57 @@
               
               <!-- Cyber HUD Header Overlay -->
               <div class="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-                <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-950/80 border border-cyan-500/30 text-[10px] font-mono text-cyan-400 backdrop-blur-md">
+                <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-950/85 border border-cyan-500/30 text-[10px] font-mono text-cyan-400 backdrop-blur-md pointer-events-auto shadow-sm">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                   <span x-text="'STEP ' + heroWorkflowStep + ' OF 5: ' + (heroWorkflowStep === 1 ? 'AGENT REQUEST' : (heroWorkflowStep === 2 ? 'AST SANITIZING' : (heroWorkflowStep === 3 ? 'DOCTOR REVIEW' : (heroWorkflowStep === 4 ? 'CFR11 SIGNING' : 'DISPENSED'))))"></span>
                 </div>
-                <div class="flex items-center space-x-1.5 px-2 py-1 rounded-lg bg-slate-950/80 border border-slate-700/60 text-[9px] font-mono text-slate-300 backdrop-blur-md">
-                  <i class="fa-solid fa-shield-halved text-teal-400"></i>
-                  <span>SOVEREIGN ENCLAVE</span>
+                <!-- Dual-Mode Switcher: High-Res Screenshots vs 3D WebGL Mesh -->
+                <div class="flex items-center space-x-1 p-0.5 rounded-lg bg-slate-950/85 border border-slate-700/60 backdrop-blur-md pointer-events-auto text-[9px] font-mono shadow-md">
+                  <button id="btn-hero-stage-screenshot" @click="heroRightStageMode = 'screenshot'" 
+                    class="px-2 py-0.5 rounded transition-all flex items-center space-x-1" 
+                    :class="heroRightStageMode === 'screenshot' ? 'bg-cyan-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Screenshots</span>
+                  </button>
+                  <button id="btn-hero-stage-3d" @click="heroRightStageMode = '3d'" 
+                    class="px-2 py-0.5 rounded transition-all flex items-center space-x-1" 
+                    :class="heroRightStageMode === '3d' ? 'bg-cyan-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'">
+                    <i class="fa-solid fa-cube"></i>
+                    <span>3D Mesh</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Interactive 3D WebGL Canvas -->
-              <div class="w-full h-[400px] sm:h-[460px] md:h-[480px] relative rounded-xl overflow-hidden bg-slate-950 border border-cyan-500/20 shadow-inner">
+              <!-- Viewport 1: High-Res Visual Screenshots Synchronized with Voiceover -->
+              <div x-show="heroRightStageMode === 'screenshot'" class="w-full h-[400px] sm:h-[460px] md:h-[480px] relative rounded-xl overflow-hidden bg-slate-950 border border-cyan-500/20 shadow-inner flex items-center justify-center p-2 group">
+                <img :src="getHeroStepScreenshot(heroWorkflowStep)" :alt="'Step ' + heroWorkflowStep + ' Architecture Screenshot'" class="w-full h-full object-contain rounded-lg transition-all duration-300">
+
+                <!-- HUD Corner Crosshairs -->
+                <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+
+                <!-- Floating Bottom Caption & Zoom Bar -->
+                <div class="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between p-2 rounded-lg bg-slate-950/85 border border-slate-800 text-[10px] font-mono text-slate-300 backdrop-blur-md">
+                  <div class="flex items-center space-x-2 truncate">
+                    <i class="fa-solid fa-camera text-cyan-400"></i>
+                    <span class="font-bold text-white truncate" x-text="getHeroStepScreenshotTitle(heroWorkflowStep)"></span>
+                  </div>
+                  <button id="btn-hero-zoom-screenshot" @click="openGalleryZoom({
+                    title: getHeroStepScreenshotTitle(heroWorkflowStep),
+                    darkImg: getHeroStepScreenshot(heroWorkflowStep, true),
+                    lightImg: getHeroStepScreenshot(heroWorkflowStep, false),
+                    desc: getHeroStepScript(heroWorkflowStep)
+                  })" class="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-[9px] font-bold flex items-center space-x-1 shrink-0 transition-all active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i>
+                    <span>Zoom 4K</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Viewport 2: Interactive 3D WebGL Canvas -->
+              <div x-show="heroRightStageMode === '3d'" class="w-full h-[400px] sm:h-[460px] md:h-[480px] relative rounded-xl overflow-hidden bg-slate-950 border border-cyan-500/20 shadow-inner" style="display: none;">
                 <canvas id="quantum-mesh-canvas" class="w-full h-full cursor-grab active:cursor-grabbing block"></canvas>
 
                 <!-- HUD Corner Crosshairs -->
@@ -8416,6 +8455,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         heroVoiceSpeaking: false,
         heroCurrentNarrationText: '',
         heroAudioCtx: null,
+        heroRightStageMode: 'screenshot',
         landing3dWireframeVisible: true,
         landing3dCoreGroup: null,
         landing3dWireMesh: null,
@@ -11236,6 +11276,35 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               return "Step 5: Pharmacy Dispenser Executes and Seals Audit Trail. With the signature verified and the anti-replay nonce consumed, the hospital dispenser releases 350 milligrams. An immutable GAMP 5 compliance receipt is recorded.";
             default:
               return "";
+          }
+        },
+
+        getHeroStepScreenshot(step, forceDark = null) {
+          const dark = forceDark !== null ? forceDark : this.isDark;
+          switch(step) {
+            case 1:
+              return dark ? '/static/screenshots/dark_training_01_protocol_discovery.png' : '/static/screenshots/light_training_01_protocol_discovery.png';
+            case 2:
+              return dark ? '/static/screenshots/dark_training_02_iam_oidc.png' : '/static/screenshots/light_training_02_iam_oidc.png';
+            case 3:
+              return dark ? '/static/screenshots/dark_training_05_chat_card.png' : '/static/screenshots/light_training_05_chat_card.png';
+            case 4:
+              return dark ? '/static/screenshots/dark_training_06_hitl_approved_seal.png' : '/static/screenshots/light_training_06_hitl_approved_seal.png';
+            case 5:
+              return dark ? '/static/screenshots/dark_11_hitl_signed.png' : '/static/screenshots/light_11_hitl_signed.png';
+            default:
+              return dark ? '/static/screenshots/dark_training_01_protocol_discovery.png' : '/static/screenshots/light_training_01_protocol_discovery.png';
+          }
+        },
+
+        getHeroStepScreenshotTitle(step) {
+          switch(step) {
+            case 1: return 'Step 1: Agent Protocol & Inbound Threat Interceptor';
+            case 2: return 'Step 2: Sub-28µs In-Memory AST Sanitization Engine';
+            case 3: return 'Step 3: Universal Doctor Review Card (A2UI Multi-Channel)';
+            case 4: return 'Step 4: Stateless 21 CFR Part 11 HMAC-SHA256 Seal';
+            case 5: return 'Step 5: Hospital Pharmacy Dispense & GAMP 5 Ledger';
+            default: return 'Clinical Architecture Blueprint';
           }
         },
 
