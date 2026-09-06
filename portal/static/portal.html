@@ -948,19 +948,31 @@
                 </button>
               </div>
 
-              <!-- Omni Live Audio Teleprompter & Master Audio Player -->
-              <div id="omni-teleprompter-ribbon" class="p-3 rounded-xl border space-y-2.5 text-xs font-mono shadow-sm transition-all" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
-                <!-- Top Status Bar -->
-                <div class="flex items-center justify-between gap-2">
+              <!-- DeepMind Emotional Audio Engine & Multi-Persona Voice Matrix Console -->
+              <div id="omni-teleprompter-ribbon" class="p-3.5 rounded-2xl border space-y-3 text-xs font-mono shadow-sm transition-all" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <!-- Top Status & DeepMind Model Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-2">
                   <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="heroVoiceSpeaking ? 'bg-cyan-400 animate-ping' : 'bg-emerald-400'"></span>
                     <span class="text-[10px] font-black uppercase text-purple-400 flex items-center space-x-1.5 tracking-wider">
                       <i class="fa-solid fa-microphone-lines text-cyan-400"></i>
-                      <span>OMNI CLINICAL AUDIO DIRECTOR</span>
+                      <span>DEEPMIND EMOTIONAL AUDIO ENGINE</span>
                     </span>
-                    <span class="hidden sm:inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">Studio Master</span>
+                    <!-- Model Selector Toggle Pills -->
+                    <div class="inline-flex rounded-lg p-0.5 border text-[9px] font-mono font-bold" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                      <button id="btn-model-gemini-25" @click="deepmindTTSModel = 'gemini-2.5-flash-preview-tts'" :class="deepmindTTSModel === 'gemini-2.5-flash-preview-tts' ? 'bg-cyan-500/20 text-cyan-400 font-black shadow-sm' : 'text-slate-400 hover:text-slate-300'" class="px-2 py-0.5 rounded transition-all">
+                        gemini-2.5-flash-preview-tts
+                      </button>
+                      <button id="btn-model-gemini-31" @click="deepmindTTSModel = 'gemini-3.1-flash-tts-preview'" :class="deepmindTTSModel === 'gemini-3.1-flash-tts-preview' ? 'bg-purple-500/20 text-purple-400 font-black shadow-sm' : 'text-slate-400 hover:text-slate-300'" class="px-2 py-0.5 rounded transition-all">
+                        gemini-3.1-flash-tts-preview
+                      </button>
+                    </div>
                   </div>
                   <div class="flex items-center space-x-2 shrink-0">
+                    <button id="btn-open-voice-matrix" @click="deepmindVoiceModalOpen = true" class="px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold hover:border-cyan-400 transition-all flex items-center space-x-1.5 shadow-sm active:scale-95" style="border-color: var(--color-border-card); background-color: var(--color-bg-card); color: var(--color-text-primary);">
+                      <i class="fa-solid fa-sliders text-cyan-400"></i>
+                      <span>Voice Matrix & Designer</span>
+                    </button>
                     <div class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[9px] text-emerald-400 font-bold uppercase tracking-wider">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                       <span>AV SYNC LOCKED</span>
@@ -968,10 +980,92 @@
                   </div>
                 </div>
 
-                <!-- Live Spoken Transcript Ticker -->
-                <div class="px-3 py-2 rounded-lg border text-xs font-sans transition-all flex items-start space-x-2" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
-                  <i class="fa-solid fa-comment-dots text-cyan-400 mt-0.5 text-xs shrink-0" :class="heroVoiceSpeaking ? 'animate-bounce' : ''"></i>
-                  <span class="leading-relaxed" :class="heroVoiceSpeaking ? 'text-cyan-400 font-bold' : (isDark ? 'text-slate-200' : 'text-slate-800')" x-text="heroCurrentNarrationText || 'Standing by. Click Auto-Play Walkthrough or any step to hear the synchronized clinical voice briefing.'"></span>
+                <!-- C-Suite & Clinical Persona Casting Switcher -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-[10px] font-bold" style="color: var(--color-text-secondary);">
+                    <div class="flex items-center space-x-1.5">
+                      <i class="fa-solid fa-users text-teal-400"></i>
+                      <span>Decide Persona & Voice Matrix Casting:</span>
+                    </div>
+                    <span class="text-[9px] font-mono text-cyan-400" x-text="'Active Voice: ' + deepmindBaseVoice + ' (' + (deepmindBaseVoice === 'Charon' ? 'Deep Baritone' : (deepmindBaseVoice === 'Aoede' ? 'Warm Soprano' : (deepmindBaseVoice === 'Fenrir' ? 'Resonant Bass' : 'Dynamic Tenor'))) + ')'"></span>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                    <!-- ARCHITECT -->
+                    <button id="btn-audio-persona-architect" @click="setAudioPersona('architect')" 
+                            class="p-2 rounded-xl border text-left transition-all active:scale-95"
+                            :class="activePersona === 'architect' ? 'ring-2 ring-teal-400 bg-teal-500/15 border-teal-500/50' : 'hover:border-teal-400/50 border-slate-700/40'"
+                            style="background-color: var(--color-bg-card);">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-[11px] text-teal-400 flex items-center space-x-1">
+                          <span>🏛️</span>
+                          <span>Architect</span>
+                        </span>
+                        <span class="text-[8px] font-mono px-1 py-0.2 rounded bg-teal-500/20 text-teal-300">Charon</span>
+                      </div>
+                      <div class="text-[9px] truncate mt-0.5" style="color: var(--color-text-muted);">Deep Baritone • Enclave</div>
+                    </button>
+                    <!-- CLINICIAN -->
+                    <button id="btn-audio-persona-clinician" @click="setAudioPersona('clinician')" 
+                            class="p-2 rounded-xl border text-left transition-all active:scale-95"
+                            :class="activePersona === 'clinician' ? 'ring-2 ring-emerald-400 bg-emerald-500/15 border-emerald-500/50' : 'hover:border-emerald-400/50 border-slate-700/40'"
+                            style="background-color: var(--color-bg-card);">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-[11px] text-emerald-400 flex items-center space-x-1">
+                          <span>🩺</span>
+                          <span>Clinician</span>
+                        </span>
+                        <span class="text-[8px] font-mono px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300">Aoede</span>
+                      </div>
+                      <div class="text-[9px] truncate mt-0.5" style="color: var(--color-text-muted);">Warm Soprano • Safety</div>
+                    </button>
+                    <!-- COMPLIANCE -->
+                    <button id="btn-audio-persona-compliance" @click="setAudioPersona('compliance')" 
+                            class="p-2 rounded-xl border text-left transition-all active:scale-95"
+                            :class="activePersona === 'compliance' ? 'ring-2 ring-purple-400 bg-purple-500/15 border-purple-500/50' : 'hover:border-purple-400/50 border-slate-700/40'"
+                            style="background-color: var(--color-bg-card);">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-[11px] text-purple-400 flex items-center space-x-1">
+                          <span>⚖️</span>
+                          <span>Compliance</span>
+                        </span>
+                        <span class="text-[8px] font-mono px-1 py-0.2 rounded bg-purple-500/20 text-purple-300">Fenrir</span>
+                      </div>
+                      <div class="text-[9px] truncate mt-0.5" style="color: var(--color-text-muted);">Resonant Bass • Part 11</div>
+                    </button>
+                    <!-- DEVELOPER -->
+                    <button id="btn-audio-persona-developer" @click="setAudioPersona('developer')" 
+                            class="p-2 rounded-xl border text-left transition-all active:scale-95"
+                            :class="activePersona === 'developer' ? 'ring-2 ring-sky-400 bg-sky-500/15 border-sky-500/50' : 'hover:border-sky-400/50 border-slate-700/40'"
+                            style="background-color: var(--color-bg-card);">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-[11px] text-sky-400 flex items-center space-x-1">
+                          <span>💻</span>
+                          <span>Developer</span>
+                        </span>
+                        <span class="text-[8px] font-mono px-1 py-0.2 rounded bg-sky-500/20 text-sky-300">Puck</span>
+                      </div>
+                      <div class="text-[9px] truncate mt-0.5" style="color: var(--color-text-muted);">Dynamic Tenor • APIs</div>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Live Spoken Transcript Ticker with Real-Time Gold Karaoke Subtitles -->
+                <div class="px-3.5 py-2.5 rounded-xl border text-xs font-sans transition-all flex items-start space-x-2.5 min-h-[52px]" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <i class="fa-solid fa-comment-dots text-cyan-400 mt-1 text-xs shrink-0" :class="heroVoiceSpeaking ? 'animate-bounce' : ''"></i>
+                  <div class="flex-1">
+                    <template x-if="karaokeWords.length > 0">
+                      <div class="leading-relaxed flex flex-wrap gap-x-1 gap-y-0.5">
+                        <template x-for="(w, idx) in karaokeWords" :key="idx">
+                          <span :class="karaokeActiveIndex === idx ? 'font-black scale-105 transition-all text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.9)]' : (karaokeActiveIndex > idx ? (isDark ? 'text-slate-400' : 'text-slate-500') : (isDark ? 'text-slate-200' : 'text-slate-800'))"
+                                class="transition-all"
+                                x-text="w.word"></span>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="karaokeWords.length === 0">
+                      <span class="leading-relaxed" :class="heroVoiceSpeaking ? 'text-cyan-400 font-bold' : (isDark ? 'text-slate-200' : 'text-slate-800')" x-text="heroCurrentNarrationText || 'Standing by. Click Auto-Play Walkthrough or any step to hear the synchronized clinical voice briefing.'"></span>
+                    </template>
+                  </div>
                 </div>
 
                 <!-- Embedded HTML5 Audio Player & Direct Link -->
@@ -979,18 +1073,19 @@
                   <div class="flex items-center space-x-2 grow sm:grow-0">
                     <span class="text-[11px] font-sans font-bold flex items-center gap-1.5 shrink-0" style="color: var(--color-text-secondary);">
                       <i class="fa-solid fa-headphones text-cyan-400"></i>
-                      <span>Voice Briefing:</span>
+                      <span x-text="activePersona.charAt(0).toUpperCase() + activePersona.slice(1) + ' Briefing:'"></span>
                     </span>
-                    <audio id="omni-briefing-player" controls preload="metadata" class="h-7 w-56 sm:w-64 text-xs rounded-lg" src="/static/audio/omni_a2a_briefing_full.m4a"></audio>
+                    <audio id="omni-briefing-player" controls preload="metadata" class="h-7 w-56 sm:w-64 text-xs rounded-lg" :src="getHeroStepAudioUrl(heroWorkflowStep)"></audio>
                   </div>
                   <div class="flex items-center space-x-2">
-                    <a id="link-download-audio-briefing" href="/static/audio/omni_a2a_briefing_full.m4a" target="_blank" download="omni_a2a_briefing_full.m4a" class="px-2.5 py-1 rounded-lg border text-[11px] font-mono hover:text-cyan-300 transition-all flex items-center space-x-1.5 shadow-sm active:scale-95" style="border-color: var(--color-border-card); background-color: var(--color-bg-card); color: var(--color-text-primary);">
+                    <a id="link-download-audio-briefing" :href="getPersonaBriefingAudioUrl()" target="_blank" :download="getPersonaBriefingAudioFilename()" class="px-2.5 py-1 rounded-lg border text-[11px] font-mono hover:text-cyan-300 transition-all flex items-center space-x-1.5 shadow-sm active:scale-95" style="border-color: var(--color-border-card); background-color: var(--color-bg-card); color: var(--color-text-primary);">
                       <i class="fa-solid fa-music text-purple-400"></i>
-                      <span>Open .m4a File</span>
+                      <span x-text="'Open ' + activePersona + '.m4a'"></span>
                     </a>
                   </div>
                 </div>
               </div>
+
 
               <!-- Live Interactive Stage Detail Box -->
               <div class="p-4 rounded-2xl border space-y-3" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
@@ -2062,8 +2157,9 @@
                         </div>
                         <span class="font-black text-[9.5px] font-mono truncate max-w-[70px]" style="color: var(--color-text-primary);" x-text="node.label"></span>
                       </div>
-                      <button id="btn-removedagnode" @click="removeDagNode(idx)" class="hover:text-rose-500 text-xs transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
+                      <button :id="'btn-removedagnode-' + idx" @click="removeDagNode(idx)" class="hover:text-rose-500 text-xs transition-colors" style="color: var(--color-text-muted);"><i class="fa-solid fa-xmark"></i></button>
                     </div>
+
                     <p class="text-[9px] font-medium leading-tight line-clamp-2" style="color: var(--color-text-secondary);" x-text="node.desc"></p>
                     <div class="flex items-center justify-between text-[9px] font-mono border-t pt-1" style="border-color: var(--color-border-subtle); color: var(--color-text-muted);">
                       <span class="flex items-center space-x-0.5"><span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span><span>Rx</span></span>
@@ -2822,11 +2918,12 @@
                           <!-- Button List Widget -->
                           <div x-show="widget.buttonList" class="pt-2 flex flex-wrap items-center gap-2">
                             <template x-for="(btn, bIdx) in widget.buttonList?.buttons || []" :key="bIdx">
-                              <button id="btn-executea2uiaction" @click="executeA2UIAction(btn.onClick?.action?.parameters?.find(p => p.key === 'stateToken')?.value, btn.onClick?.action?.parameters?.find(p => p.key === 'actionId')?.value || 'action_' + bIdx)" :class="btn.color ? (btn.color.red > 0.5 ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white') : 'bg-slate-700 text-white'" class="px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all flex items-center space-x-1.5 group">
+                              <button :id="'btn-executea2uiaction-' + bIdx" @click="executeA2UIAction(btn.onClick?.action?.parameters?.find(p => p.key === 'stateToken')?.value, btn.onClick?.action?.parameters?.find(p => p.key === 'actionId')?.value || 'action_' + bIdx)" :class="btn.color ? (btn.color.red > 0.5 ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white') : 'bg-slate-700 text-white'" class="px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all flex items-center space-x-1.5 group">
                                 <i class="fa-solid fa-signature text-xs"></i>
                                 <span x-text="btn.text"></span>
                               </button>
                             </template>
+
                           </div>
                         </div>
                       </template>
@@ -3024,11 +3121,12 @@
               <div class="pt-3 border-t flex flex-wrap items-center justify-between gap-3" style="border-color: var(--color-border-subtle);">
                 <div class="flex flex-wrap items-center gap-2">
                   <template x-for="(act, aIdx) in a2uiTranspiledOutputs?.canonicalA2UI?.actions || []" :key="aIdx">
-                    <button id="btn-executea2uiaction-1" @click="executeA2UIAction(act.stateToken, act.id)" :class="act.style === 'PRIMARY' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black shadow-md' : 'bg-rose-600 hover:bg-rose-500 text-white font-bold'" class="px-4 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 group">
+                    <button :id="'btn-executea2uiaction-canon-' + aIdx" @click="executeA2UIAction(act.stateToken, act.id)" :class="act.style === 'PRIMARY' ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black shadow-md' : 'bg-rose-600 hover:bg-rose-500 text-white font-bold'" class="px-4 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 group">
                       <i class="fa-solid fa-signature text-xs"></i>
                       <span x-text="act.label"></span>
                     </button>
                   </template>
+
                   <button id="btn-sign-with-justification" @click="openJustificationModal(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'action_signed_with_justification')" class="px-3.5 py-2 rounded-xl border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs transition-all flex items-center space-x-1.5">
                     <i class="fa-solid fa-stamp text-xs"></i>
                     <span>21 CFR Part 11 Justification Modal</span>
@@ -3102,10 +3200,12 @@
                         <!-- Actions block -->
                         <div x-show="blk.type === 'actions'" class="flex flex-wrap items-center gap-2 pt-1">
                           <template x-for="(elm, eIdx) in blk.elements || []" :key="eIdx">
-                            <button id="btn-executea2uiaction-2" @click="executeA2UIAction(elm.value, elm.action_id)" :class="elm.style === 'primary' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (elm.style === 'danger' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-slate-700 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
+                            <button :id="'btn-executea2uiaction-slack-' + bIdx + '-' + eIdx" @click="executeA2UIAction(elm.value, elm.action_id)" :class="elm.style === 'primary' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (elm.style === 'danger' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-slate-700 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
                               <span x-text="elm.text?.text"></span>
                             </button>
                           </template>
+
+
                         </div>
 
                         <!-- Context block -->
@@ -3189,10 +3289,11 @@
               <!-- Teams Action.Submit Buttons -->
               <div class="pt-2 border-t flex flex-wrap items-center gap-2" style="border-color: var(--color-border-subtle);">
                 <template x-for="(tAct, taIdx) in a2uiTranspiledOutputs?.teamsAdaptiveCard?.actions || []" :key="taIdx">
-                  <button id="btn-executea2uiaction-3" @click="executeA2UIAction(tAct.data?.stateToken, tAct.data?.actionId)" :class="tAct.style === 'positive' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (tAct.style === 'destructive' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-indigo-600 hover:bg-indigo-500 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
+                  <button :id="'btn-executea2uiaction-teams-' + taIdx" @click="executeA2UIAction(tAct.data?.stateToken, tAct.data?.actionId)" :class="tAct.style === 'positive' ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold' : (tAct.style === 'destructive' ? 'bg-rose-600 hover:bg-rose-500 text-white font-bold' : 'bg-indigo-600 hover:bg-indigo-500 text-white')" class="px-3.5 py-1.5 rounded-lg text-xs shadow transition-all">
                     <span x-text="tAct.title"></span>
                   </button>
                 </template>
+
               </div>
             </div>
           </div>
@@ -3792,7 +3893,7 @@
           <!-- Category Chips -->
           <div class="flex items-center space-x-1.5 overflow-x-auto w-full md:w-auto custom-scrollbar pb-1 md:pb-0">
             <template x-for="cat in faqCategories" :key="cat.id">
-              <button id="btn-faqcategory-cat-id" @click="faqCategory = cat.id" :class="faqCategory === cat.id ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="faqCategory !== cat.id ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl border text-[11px] whitespace-nowrap transition-all flex items-center space-x-1.5">
+              <button :id="'btn-faqcategory-' + cat.id" @click="faqCategory = cat.id" :class="faqCategory === cat.id ? 'bg-cyan-500 text-slate-950 font-black shadow-md' : 'font-semibold hover:text-cyan-400'" :style="faqCategory !== cat.id ? 'background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-secondary);' : ''" class="px-3 py-1.5 rounded-xl border text-[11px] whitespace-nowrap transition-all flex items-center space-x-1.5">
                 <i :class="cat.icon"></i>
                 <span x-text="cat.name"></span>
               </button>
@@ -3807,7 +3908,7 @@
           <div class="glass-card rounded-2xl border overflow-hidden transition-all duration-200 shadow-sm" :style="'border-color: ' + (openFaqId === faq.id ? 'var(--color-border-hover)' : 'var(--color-border-card)') + '; background-color: var(--color-bg-card);'">
             
             <!-- Accordion Header Button -->
-            <button id="btn-openfaqid" @click="openFaqId = (openFaqId === faq.id ? null : faq.id)" class="w-full p-5 text-left flex items-start justify-between space-x-4 focus:outline-none group">
+            <button :id="'btn-openfaq-' + faq.id" @click="openFaqId = (openFaqId === faq.id ? null : faq.id)" class="w-full p-5 text-left flex items-start justify-between space-x-4 focus:outline-none group">
               <div class="flex items-start space-x-3.5">
                 <div class="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 font-mono text-xs font-black transition-all" :class="openFaqId === faq.id ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20' : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'">
                   <span x-text="idx + 1"></span>
@@ -3839,7 +3940,7 @@
                       <i class="fa-solid fa-code text-cyan-400"></i>
                       <span x-text="faq.codeLanguage || 'protobuf'"></span>
                     </span>
-                    <button id="btn-copycode" @click="copyCode(faq.codeSnippet)" class="hover:text-white transition-colors flex items-center space-x-1">
+                    <button :id="'btn-copycode-' + faq.id" @click="copyCode(faq.codeSnippet)" class="hover:text-white transition-colors flex items-center space-x-1">
                       <i class="fa-regular fa-copy"></i>
                       <span>Copy Snippet</span>
                     </button>
@@ -3856,13 +3957,14 @@
                     <i class="fa-solid fa-check-double mr-1"></i> VERIFIED (IQ/OQ/PQ 100%)
                   </span>
                 </div>
-                <button id="btn-executequickprompt" @click="executeQuickPrompt('Explain ' + faq.question + ' in the context of our GxP gateway')" class="px-3 py-1.5 rounded-xl border text-[11px] font-bold hover:border-cyan-400 transition-all flex items-center space-x-1.5" style="border-color: var(--color-border-subtle); color: var(--color-text-primary); background-color: var(--color-bg-card);">
+                <button :id="'btn-executequickprompt-faq-' + faq.id" @click="executeQuickPrompt('Explain ' + faq.question + ' in the context of our GxP gateway')" class="px-3 py-1.5 rounded-xl border text-[11px] font-bold hover:border-cyan-400 transition-all flex items-center space-x-1.5" style="border-color: var(--color-border-subtle); color: var(--color-text-primary); background-color: var(--color-bg-card);">
                   <i class="fa-solid fa-robot text-teal-400"></i>
                   <span>Ask Dr. A2A Omni Co-Pilot</span>
                 </button>
               </div>
 
             </div>
+
           </div>
         </template>
 
@@ -7434,7 +7536,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <!-- Thumbnails Strip -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2.5 pt-2">
           <template x-for="(slide, sIdx) in trainingGallerySlides" :key="sIdx">
-            <button id="btn-traininggalleryindex-sidx" @click="trainingGalleryIndex = sIdx" :class="trainingGalleryIndex === sIdx ? 'ring-2 ring-cyan-400 border-cyan-400 shadow-lg' : 'opacity-70 hover:opacity-100'" class="p-2 rounded-2xl border text-left transition-all space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+            <button :id="'btn-traininggalleryindex-' + sIdx" @click="trainingGalleryIndex = sIdx" :class="trainingGalleryIndex === sIdx ? 'ring-2 ring-cyan-400 border-cyan-400 shadow-lg' : 'opacity-70 hover:opacity-100'" class="p-2 rounded-2xl border text-left transition-all space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <div class="aspect-video rounded-xl bg-slate-950 overflow-hidden border border-slate-800 flex items-center justify-center relative">
                 <img :src="isDark ? slide.darkImg : slide.lightImg" class="w-full h-full object-cover">
                 <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-slate-950/80 text-cyan-400" x-text="(sIdx + 1 < 10 ? '0' : '') + (sIdx + 1)"></span>
@@ -8123,6 +8225,225 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   </div>
 
   <!-- ========================================================================= -->
+  <!-- GOOGLE DEEPMIND 4,000+ PROCEDURAL VOICE MATRIX & AI DESIGNER MODAL        -->
+  <!-- ========================================================================= -->
+  <div id="modal-voice-matrix" x-show="deepmindVoiceModalOpen" @keydown.escape.window="deepmindVoiceModalOpen = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
+    <div class="glass-card p-6 md:p-8 rounded-3xl max-w-4xl w-full space-y-5 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="deepmindVoiceModalOpen = false">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-start border-b pb-4" style="border-color: var(--color-border-subtle);">
+        <div class="space-y-1">
+          <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" x-text="deepmindTTSModel"></span>
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              4,000+ Voice Matrix
+            </span>
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30">
+              Zero Clinical Egress
+            </span>
+          </div>
+          <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
+            Google DeepMind Neural Voice Matrix & Prompt-to-Voice Designer
+          </h3>
+          <p class="text-xs font-medium" style="color: var(--color-text-secondary);">
+            Procedural voice casting, 5-band vocal tract formant convolution, and emotional paralinguistic synthesis powered by Gemini Flash TTS.
+          </p>
+        </div>
+        <button id="btn-close-voice-matrix" @click="deepmindVoiceModalOpen = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto space-y-5 pr-1 text-xs">
+        
+        <!-- 1. Base Neural Resonator Selection -->
+        <div class="space-y-2">
+          <h4 class="font-bold flex items-center space-x-2 text-sm" style="color: var(--color-text-primary);">
+            <i class="fa-solid fa-wave-square text-cyan-400"></i>
+            <span>1. Five Neural Base Resonators (Physical Vocal Tract Models)</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
+            <!-- Charon -->
+            <button id="btn-matrix-voice-charon" @click="deepmindBaseVoice = 'Charon'" 
+                    class="p-3 rounded-2xl border text-left transition-all"
+                    :class="deepmindBaseVoice === 'Charon' ? 'ring-2 ring-teal-400 bg-teal-500/10 border-teal-500' : 'border-slate-700/40 hover:border-slate-500'"
+                    style="background-color: var(--color-bg-card-subtle);">
+              <div class="font-black text-teal-400 text-xs">Charon</div>
+              <div class="text-[10px] font-mono text-slate-400">Deep Baritone</div>
+              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Authoritative sovereign systems architect.</div>
+            </button>
+            <!-- Aoede -->
+            <button id="btn-matrix-voice-aoede" @click="deepmindBaseVoice = 'Aoede'" 
+                    class="p-3 rounded-2xl border text-left transition-all"
+                    :class="deepmindBaseVoice === 'Aoede' ? 'ring-2 ring-emerald-400 bg-emerald-500/10 border-emerald-500' : 'border-slate-700/40 hover:border-slate-500'"
+                    style="background-color: var(--color-bg-card-subtle);">
+              <div class="font-black text-emerald-400 text-xs">Aoede</div>
+              <div class="text-[10px] font-mono text-slate-400">Warm Soprano</div>
+              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Empathetic bedside clinical investigator.</div>
+            </button>
+            <!-- Puck -->
+            <button id="btn-matrix-voice-puck" @click="deepmindBaseVoice = 'Puck'" 
+                    class="p-3 rounded-2xl border text-left transition-all"
+                    :class="deepmindBaseVoice === 'Puck' ? 'ring-2 ring-sky-400 bg-sky-500/10 border-sky-500' : 'border-slate-700/40 hover:border-slate-500'"
+                    style="background-color: var(--color-bg-card-subtle);">
+              <div class="font-black text-sky-400 text-xs">Puck</div>
+              <div class="text-[10px] font-mono text-slate-400">Dynamic Tenor</div>
+              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Agile, rapid cloud & API platform engineer.</div>
+            </button>
+            <!-- Kore -->
+            <button id="btn-matrix-voice-kore" @click="deepmindBaseVoice = 'Kore'" 
+                    class="p-3 rounded-2xl border text-left transition-all"
+                    :class="deepmindBaseVoice === 'Kore' ? 'ring-2 ring-amber-400 bg-amber-500/10 border-amber-500' : 'border-slate-700/40 hover:border-slate-500'"
+                    style="background-color: var(--color-bg-card-subtle);">
+              <div class="font-black text-amber-400 text-xs">Kore</div>
+              <div class="text-[10px] font-mono text-slate-400">Clear Alto</div>
+              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Rigorous scientific auditor with clinical detachment.</div>
+            </button>
+            <!-- Fenrir -->
+            <button id="btn-matrix-voice-fenrir" @click="deepmindBaseVoice = 'Fenrir'" 
+                    class="p-3 rounded-2xl border text-left transition-all"
+                    :class="deepmindBaseVoice === 'Fenrir' ? 'ring-2 ring-purple-400 bg-purple-500/10 border-purple-500' : 'border-slate-700/40 hover:border-slate-500'"
+                    style="background-color: var(--color-bg-card-subtle);">
+              <div class="font-black text-purple-400 text-xs">Fenrir</div>
+              <div class="text-[10px] font-mono text-slate-400">Resonant Bass</div>
+              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Statutory 21 CFR Part 11 regulatory auditor.</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Emotional Tone & Accents -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Emotional Delivery -->
+          <div class="space-y-2 p-3.5 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+            <label class="font-bold flex items-center space-x-1.5" style="color: var(--color-text-primary);">
+              <i class="fa-solid fa-heart-pulse text-rose-400"></i>
+              <span>Emotional Delivery Style:</span>
+            </label>
+            <select id="select-matrix-emotion" x-model="deepmindEmotionalMode" class="w-full p-2 rounded-xl text-xs border outline-none font-mono" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+              <option value="clinical_precision">Clinical Precision (Calm, authoritative, airway breath anchors)</option>
+              <option value="executive_briefing">Executive Briefing (Crisp broadcast cadence, strategic emphasis)</option>
+              <option value="urgent_safety">Urgent Safety Alert (Heightened emotional resonance)</option>
+              <option value="inspirational_vision">Inspirational Frontier (Forward-looking biopharma co-pilot)</option>
+            </select>
+          </div>
+          <!-- Global Accent -->
+          <div class="space-y-2 p-3.5 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+            <label class="font-bold flex items-center space-x-1.5" style="color: var(--color-text-primary);">
+              <i class="fa-solid fa-earth-americas text-teal-400"></i>
+              <span>Global Dialect & Accent:</span>
+            </label>
+            <select id="select-matrix-accent" x-model="deepmindAccent" class="w-full p-2 rounded-xl text-xs border outline-none font-mono" style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);">
+              <option value="us_silicon_valley">US Silicon Valley (Tech Neutral)</option>
+              <option value="us_standard">US Standard (Clinical Broadcast)</option>
+              <option value="uk_rp">UK Received Pronunciation (Oxford/Harley St)</option>
+              <option value="fr_paris">France (Parisian Biopharma)</option>
+              <option value="de_frankfurt">Germany (Frankfurt / BfArM)</option>
+              <option value="jp_tokyo">Japan (Tokyo / PMDA)</option>
+              <option value="in_bangalore">India (Bangalore Bio-Cluster)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3. Web Audio 5-Band Formant Convolver Rack -->
+        <div class="p-3.5 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+          <div class="flex items-center justify-between">
+            <span class="font-bold flex items-center space-x-1.5" style="color: var(--color-text-primary);">
+              <i class="fa-solid fa-sliders text-amber-400"></i>
+              <span>5-Band Vocal Tract Formant Convolver & Warmth DSP</span>
+            </span>
+            <span class="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              +2.5dB @ 180Hz Warmth Active
+            </span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-[10px] font-mono">
+            <div class="p-2 rounded-xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+              <div class="text-cyan-400 font-bold">F1: 520 Hz</div>
+              <div class="text-[9px]" style="color: var(--color-text-muted);">Throat Warmth</div>
+            </div>
+            <div class="p-2 rounded-xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+              <div class="text-emerald-400 font-bold">F2: 1850 Hz</div>
+              <div class="text-[9px]" style="color: var(--color-text-muted);">Oral Clarity</div>
+            </div>
+            <div class="p-2 rounded-xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+              <div class="text-purple-400 font-bold">F3: 2900 Hz</div>
+              <div class="text-[9px]" style="color: var(--color-text-muted);">Timbre ID</div>
+            </div>
+            <div class="p-2 rounded-xl border" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+              <div class="text-amber-400 font-bold">F4: 4200 Hz</div>
+              <div class="text-[9px]" style="color: var(--color-text-muted);">Nasal Brilliance</div>
+            </div>
+            <div class="p-2 rounded-xl border col-span-2 sm:col-span-1" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+              <div class="text-rose-400 font-bold">F5: 9500 Hz</div>
+              <div class="text-[9px]" style="color: var(--color-text-muted);">Harmonic Air</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Prompt-to-Voice Custom AI Voice Designer -->
+        <div class="p-4 rounded-2xl border space-y-3" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+          <div class="flex items-center justify-between">
+            <label class="font-bold flex items-center space-x-1.5 text-sm" style="color: var(--color-text-primary);">
+              <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
+              <span>"Prompt-to-Voice" Custom AI Voice Designer:</span>
+            </label>
+            <span class="text-[9px] font-mono text-purple-400 uppercase tracking-wider font-bold">Generative Casting</span>
+          </div>
+          <p class="text-xs" style="color: var(--color-text-secondary);">
+            Describe any vocal persona in natural language. DeepMind Gemini will extract acoustic timbres, assign vocal tract formants, and cast a persistent voice preset:
+          </p>
+          <div class="space-y-2">
+            <textarea id="input-prompt-to-voice" x-model="customVoicePrompt" rows="2" 
+                      placeholder="e.g. 'Warm British Oxford oncologist with deep empathetic timbre, calm airway breaths, and reassuring bedside cadence'" 
+                      class="w-full p-2.5 rounded-xl border text-xs outline-none focus:ring-2 focus:ring-purple-400 font-sans leading-relaxed"
+                      style="background-color: var(--color-bg-card); border-color: var(--color-border-card); color: var(--color-text-primary);"></textarea>
+            
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap gap-1.5">
+                <button id="btn-chip-oxford-oncologist" @click="customVoicePrompt = 'Oxford Oncologist with empathetic bedside warmth and steady pacing'" class="px-2 py-0.5 rounded text-[10px] border hover:border-purple-400 font-mono text-purple-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">+ Oxford Oncologist</button>
+                <button id="btn-chip-fda-director" @click="customVoicePrompt = 'Statutory FDA Compliance Director with deliberate resonant authority'" class="px-2 py-0.5 rounded text-[10px] border hover:border-teal-400 font-mono text-teal-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">+ FDA Director</button>
+                <button id="btn-chip-cloud-architect" @click="customVoicePrompt = 'Silicon Valley Systems Architect with fast cadence and high-throughput technical focus'" class="px-2 py-0.5 rounded text-[10px] border hover:border-sky-400 font-mono text-sky-400" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">+ Cloud Architect</button>
+              </div>
+              <button id="btn-cast-neural-voice" @click="castCustomVoice()" :disabled="customVoiceDesigning || !customVoicePrompt.trim()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-black text-xs shadow-md active:scale-95 transition-all flex items-center space-x-1.5 disabled:opacity-50">
+                <i class="fa-solid" :class="customVoiceDesigning ? 'fa-spinner fa-spin' : 'fa-wand-sparkles'"></i>
+                <span x-text="customVoiceDesigning ? 'Casting Voice...' : 'Cast Neural Voice'"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Voice Result Display -->
+          <template x-if="customVoiceResult">
+            <div class="p-3 rounded-xl border border-purple-500/30 bg-purple-500/10 space-y-1.5 font-mono text-[11px] text-purple-200">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-white flex items-center space-x-1.5">
+                  <i class="fa-solid fa-check-circle text-emerald-400"></i>
+                  <span x-text="'Voice Cast: ' + customVoiceResult.designedVoice.baseVoice + ' (' + customVoiceResult.designedVoice.timbre + ')'"></span>
+                </span>
+                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold" x-text="customVoiceResult.designedVoice.shareablePersonaToken"></span>
+              </div>
+              <div class="text-[10px] text-slate-300">
+                Resonator assigned: <span class="text-white font-bold" x-text="customVoiceResult.designedVoice.baseVoice"></span> • Accent: <span class="text-white font-bold" x-text="customVoiceResult.designedVoice.accent"></span> • Pitch: <span class="text-white font-bold" x-text="customVoiceResult.designedVoice.pitchSemitones + ' st'"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t flex items-center justify-between" style="border-color: var(--color-border-subtle);">
+        <div class="text-[11px] font-mono" style="color: var(--color-text-muted);">
+          Selected Voice: <strong class="text-cyan-400" x-text="deepmindBaseVoice"></strong> • Model: <strong class="text-purple-400" x-text="deepmindTTSModel"></strong>
+        </div>
+        <button id="btn-done-voice-matrix" @click="deepmindVoiceModalOpen = false; syncHeroPersonaAudio()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-md">
+          Apply & Return
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- TRAINING SCREENSHOT FULLSCREEN ZOOM MODAL                                 -->
   <!-- ========================================================================= -->
   <div x-show="trainingZoomModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
@@ -8456,6 +8777,19 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         heroCurrentNarrationText: '',
         heroAudioCtx: null,
         heroRightStageMode: 'screenshot',
+
+        // DeepMind Emotional Audio Engine & Multi-Persona Voice Matrix State
+        deepmindTTSModel: 'gemini-2.5-flash-preview-tts',
+        deepmindBaseVoice: 'Charon',
+        deepmindEmotionalMode: 'clinical_precision',
+        deepmindAccent: 'us_silicon_valley',
+        deepmindVoiceModalOpen: false,
+        customVoicePrompt: '',
+        customVoiceResult: null,
+        customVoiceDesigning: false,
+        karaokeWords: [],
+        karaokeActiveIndex: -1,
+        karaokeTimer: null,
         landing3dWireframeVisible: true,
         landing3dCoreGroup: null,
         landing3dWireMesh: null,
@@ -8908,8 +9242,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           { id: 'act-byok', title: 'Open BYOK Key Manager', subtitle: 'Manage private LLM and cloud provider credentials', category: 'action', icon: 'fa-solid fa-key', iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30', shortcut: '⌘ K', action: 'action_byok' },
           { id: 'act-sso', title: 'Single Sign-On (SSO) Portal', subtitle: 'Authenticate with Google, Microsoft, Okta, or Ping', category: 'action', icon: 'fa-solid fa-user-shield', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: '⌘ L', action: 'action_sso' },
           { id: 'act-veo-gen', title: 'Generate Veo 2 Video Briefing', subtitle: 'Render 5-act cinematic video from clinical data', category: 'action', icon: 'fa-solid fa-wand-magic-sparkles', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: '⌘ G', action: 'action_veo_gen' },
-          { id: 'act-tamper', title: 'Simulate Cyber Tamper Attack', subtitle: 'Test HTTP 401 rejection on manipulated token', category: 'action', icon: 'fa-solid fa-shield-virus', iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20', badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30', shortcut: '⌘ X', action: 'action_tamper' }
+          { id: 'act-tamper', title: 'Simulate Cyber Tamper Attack', subtitle: 'Test HTTP 401 rejection on manipulated token', category: 'action', icon: 'fa-solid fa-shield-virus', iconBg: 'bg-rose-500/10 text-rose-400 border-rose-500/20', badgeClass: 'bg-rose-500/20 text-rose-400 border-rose-500/30', shortcut: '⌘ X', action: 'action_tamper' },
+          { id: 'act-voice-matrix', title: 'Open DeepMind Voice Matrix & Designer', subtitle: '4,000+ procedural voice casting & prompt-to-voice design', category: 'action', icon: 'fa-solid fa-microphone-lines', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: '⌘ V', action: 'action_voice_matrix' }
         ],
+
 
         get filteredCommands() {
           const q = (this.commandSearchQuery || '').toLowerCase().trim();
@@ -9495,11 +9831,19 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
         selectPersona(persona) {
           this.activePersona = persona;
+          if (persona === 'architect') this.deepmindBaseVoice = 'Charon';
+          else if (persona === 'clinician') this.deepmindBaseVoice = 'Aoede';
+          else if (persona === 'compliance') this.deepmindBaseVoice = 'Fenrir';
+          else if (persona === 'developer') this.deepmindBaseVoice = 'Puck';
+
+          this.syncHeroPersonaAudio();
+
           if (persona === 'architect') this.currentTab = 'dag_studio';
           else if (persona === 'clinician') this.currentTab = 'dose_curve';
           else if (persona === 'compliance') this.currentTab = 'overview';
           else if (persona === 'developer') this.currentTab = 'playground';
         },
+
 
         // Veo 2 Studio Methods
         selectVeoAct(actId) {
@@ -10019,8 +10363,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             else if (cmd.action === 'action_sso') this.ssoModalOpen = true;
             else if (cmd.action === 'action_veo_gen') { this.currentTab = 'veo_studio'; this.generateVeoVideo(); }
             else if (cmd.action === 'action_tamper') { this.currentTab = 'dose_curve'; this.triggerTamperAlert(); }
+            else if (cmd.action === 'action_voice_matrix') { this.deepmindVoiceModalOpen = true; }
             else { this.currentTab = cmd.action; }
           }
+
           this.triggerSparkleCelebration();
         },
 
@@ -10558,6 +10904,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             }, 600);
             return;
           }
+          if (hash.includes('modal-voice-matrix') || hash.includes('voice-matrix') || hash === 'voices' || hash === 'matrix') {
+            this.deepmindVoiceModalOpen = true;
+            return;
+          }
           if (hash.includes('modal-fda-dossier') || hash.includes('fda-dossier') || hash === 'dossier') {
             this.openFdaDossierModal();
             return;
@@ -10693,7 +11043,9 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           // Deep-Linking URL State Synchronizer across Tabs, Modals, and Drawers
           const syncUrlState = () => {
             let targetHash = '';
-            if (this.fdaDossierModalOpen) {
+            if (this.deepmindVoiceModalOpen) {
+              targetHash = '#modal-voice-matrix';
+            } else if (this.fdaDossierModalOpen) {
               targetHash = '#modal-fda-dossier';
             } else if (this.omniDirectorDrawerOpen) {
               targetHash = '#drawer-director';
@@ -10729,6 +11081,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             }
             syncUrlState();
           });
+          this.$watch('deepmindVoiceModalOpen', syncUrlState);
           this.$watch('fdaDossierModalOpen', syncUrlState);
           this.$watch('omniDirectorDrawerOpen', syncUrlState);
           this.$watch('assistantOpen', syncUrlState);
@@ -10750,7 +11103,9 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               }
             }
             if (e.key === 'Escape') {
-              if (this.commandPaletteOpen) {
+              if (this.deepmindVoiceModalOpen) {
+                this.deepmindVoiceModalOpen = false;
+              } else if (this.commandPaletteOpen) {
                 this.commandPaletteOpen = false;
               } else if (this.ssoModalOpen) {
                 this.ssoModalOpen = false;
@@ -11262,20 +11617,152 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           } catch(e) {}
         },
 
-        getHeroStepScript(step) {
-          switch(step) {
-            case 1:
-              return "Step 1: Clinical AI Proposes Escalation. The research agent recommends increasing Paclitaxel from 300 to 350 milligrams. However, the raw payload contains private prompt context and a simulated prompt injection that must never reach dispensing units.";
-            case 2:
-              return "Step 2: In-Memory AST Sanitization. In under 4 microseconds, the gateway strips prohibited memory keys with zero regular-expression backtracking, ensuring clean data enters the sovereign enclave.";
-            case 3:
-              return "Step 3: Universal A2UI Doctor Review Card. Under FDA law, AI agents cannot alter therapy alone. The gateway compiles an interactive mobile card for Doctor Sarah Chen with live vitals and an adjustable dose slider.";
-            case 4:
-              return "Step 4: Stateless 21 CFR Part 11 Electronic Signature. Doctor Chen signs the escalation. The gateway seals a stateless HMAC-SHA256 token, completely eliminating database write-lock contention.";
-            case 5:
-              return "Step 5: Pharmacy Dispenser Executes and Seals Audit Trail. With the signature verified and the anti-replay nonce consumed, the hospital dispenser releases 350 milligrams. An immutable GAMP 5 compliance receipt is recorded.";
-            default:
-              return "";
+        setAudioPersona(persona) {
+          this.activePersona = persona;
+          if (persona === 'architect') this.deepmindBaseVoice = 'Charon';
+          else if (persona === 'clinician') this.deepmindBaseVoice = 'Aoede';
+          else if (persona === 'compliance') this.deepmindBaseVoice = 'Fenrir';
+          else if (persona === 'developer') this.deepmindBaseVoice = 'Puck';
+
+          this.syncHeroPersonaAudio();
+          this.speakHeroStep(this.heroWorkflowStep);
+        },
+
+        getHeroStepScript(step, persona = null) {
+          const p = persona || this.activePersona || 'architect';
+          const scripts = {
+            architect: {
+              1: "Step 1: Clinical AI Proposes Escalation. The research agent initiates an A2A task dispatch across the network perimeter. Notice how the unvetted JSON envelope contains private memory traces and an unauthorized system override targeting the Sovereign Enclave.",
+              2: "Step 2: Sub-28 Microsecond AST Sanitization. The gateway executes our zero-regex AST dictionary compiler. In under four microseconds, the memory payload is purged of untrusted keys before entering the isolated VPC boundary.",
+              3: "Step 3: Universal A2UI Multi-Channel Surface. The gateway maps the validated payload into a declarative A2UI JSON schema, instantly rendering an interactive clinical review surface for Doctor Sarah Chen on web, mobile, and Slack.",
+              4: "Step 4: Stateless 21 CFR Part 11 Electronic Signature. Doctor Chen executes the human-in-the-loop review. The gateway generates an HMAC-SHA256 state token with a 48-hour TTL, completely eliminating database write-lock contention across distributed clusters.",
+              5: "Step 5: Hospital Dispenser Execution and Immutable Ledger. With the cryptographic signature verified and the JTI anti-replay nonce consumed, the hospital dispenser dispenses 350 milligrams. An immutable GAMP 5 audit receipt is sealed."
+            },
+            clinician: {
+              1: "Step 1: Clinical AI Proposes Dose Escalation. The oncology AI analyzes Subject 9042's lab results and recommends increasing Paclitaxel from 300 to 350 milligrams. However, the raw agent message contains unvalidated overrides that must never reach patient infusion pumps.",
+              2: "Step 2: In-Memory AST Safety Sanitization. In under four microseconds, the gateway strips unauthorized parameters, protecting our sovereign clinical enclave from prompt injection attacks.",
+              3: "Step 3: Universal A2UI Doctor Review Card. Under FDA safety regulations, AI agents cannot alter therapy alone. The gateway compiles an interactive clinical review card for Doctor Sarah Chen with real-time toxicity modeling and an adjustable dose slider.",
+              4: "Step 4: Stateless 21 CFR Part 11 Electronic Signature. Doctor Chen confirms patient vitals and signs the titration order. The gateway seals the decision with an HMAC-SHA256 signature, ensuring tamper-evident accountability.",
+              5: "Step 5: Pharmacy Dispenser Releases Therapy. With the clinician's signature verified and the anti-replay token consumed, the hospital pharmacy dispenser releases 350 milligrams. Patient safety is preserved."
+            },
+            compliance: {
+              1: "Step 1: Agent Task Dispatch and Threat Interception. An oncology research agent proposes escalating Paclitaxel to 350 milligrams. The inbound message contains prohibited data leaks that violate regulatory compliance.",
+              2: "Step 2: Sub-28 Microsecond AST Sanitization. The gateway's in-memory AST filter strips prohibited memory envelopes with zero regular-expression backtracking, achieving statutory data integrity compliance.",
+              3: "Step 3: Mandated Human-in-the-Loop Review Surface. In strict adherence to FDA 21 CFR Part 11, therapy changes require licensed medical practitioner oversight. The gateway renders an A2UI review card for Doctor Sarah Chen.",
+              4: "Step 4: Statutory 21 CFR Part 11 Electronic Signature. Doctor Chen signs the electronic record. The gateway generates an HMAC-SHA256 signed state token with 48-hour validity and a unique JTI nonce, satisfying FDA section 11.50.",
+              5: "Step 5: Dispense Verification and Immutable Audit Trail. The pharmacy dispenser verifies the signature, consumes the nonce to prevent replay attacks, and commits an immutable GAMP 5 audit record to the regulatory archive."
+            },
+            developer: {
+              1: "Step 1: REST and gRPC Agent Interception. The client issues an HTTP POST to slash api slash v1 slash intercept. Our gateway intercepts the incoming JSON payload and catches an injection exploit in flight.",
+              2: "Step 2: Sub-4 Microsecond In-Memory AST Parsing. Using Python's native dictionary traversal, our sanitizer strips prohibited keys in 2.5 microseconds, outpacing traditional regex firewalls by four orders of magnitude.",
+              3: "Step 3: Universal A2UI Multi-Target Transpiler. The gateway dynamically transpiles the clinical task into Alpine.js, React, and Slack Block Kit schemas, streaming updates over WebSocket connections.",
+              4: "Step 4: Stateless Cryptographic Token Generation. No database deadlocks here. The gateway computes an HMAC-SHA256 signature using Python standard hmac and caches single-use JTI nonces in memory with automatic eviction.",
+              5: "Step 5: Automated Dispenser API and Event Log. The downstream dispenser service calls the verify endpoint, validates the cryptographic digest in under 1 millisecond, and releases the dose with zero database locking."
+            }
+          };
+          const pGroup = scripts[p] || scripts.architect;
+          return pGroup[step] || "";
+        },
+
+        getHeroStepAudioUrl(step, persona = null) {
+          const p = persona || this.activePersona || 'architect';
+          return `/static/audio/${p}_step${step}.m4a`;
+        },
+
+        getPersonaBriefingAudioUrl(persona = null) {
+          const p = persona || this.activePersona || 'architect';
+          return `/static/audio/briefing_${p}.m4a`;
+        },
+
+        getPersonaBriefingAudioFilename(persona = null) {
+          const p = persona || this.activePersona || 'architect';
+          return `briefing_${p}.m4a`;
+        },
+
+        syncHeroPersonaAudio() {
+          const player = document.getElementById('omni-briefing-player');
+          const dlLink = document.getElementById('link-download-audio-briefing');
+          const targetAudio = this.getHeroStepAudioUrl(this.heroWorkflowStep);
+          if (player) {
+            player.src = targetAudio;
+          }
+          if (dlLink) {
+            dlLink.href = this.getPersonaBriefingAudioUrl();
+            dlLink.download = this.getPersonaBriefingAudioFilename();
+          }
+          this.heroCurrentNarrationText = this.getHeroStepScript(this.heroWorkflowStep);
+          this.initKaraokeTimings(this.heroCurrentNarrationText, 7.5);
+        },
+
+        initKaraokeTimings(text, estimatedDuration = 7.5) {
+          if (!text) {
+            this.karaokeWords = [];
+            this.karaokeActiveIndex = -1;
+            return;
+          }
+          const rawWords = text.trim().split(/\s+/).filter(Boolean);
+          const weights = rawWords.map(w => {
+            let weight = Math.pow(Math.max(w.length, 2), 0.75);
+            if (/[,:;]$/.test(w)) weight += 1.8;
+            if (/[.!?]$|\.\.\.$/.test(w)) weight += 3.2;
+            return weight;
+          });
+          const totalWeight = weights.reduce((sum, val) => sum + val, 0) || 1;
+          let currentStart = 0;
+          this.karaokeWords = rawWords.map((word, idx) => {
+            const dur = (weights[idx] / totalWeight) * estimatedDuration;
+            const item = { word, start: currentStart, end: currentStart + dur };
+            currentStart += dur;
+            return item;
+          });
+          this.karaokeActiveIndex = -1;
+        },
+
+        startKaraokeTicker(durationMs) {
+          if (this.karaokeTimer) clearInterval(this.karaokeTimer);
+          const startTime = Date.now();
+          this.karaokeTimer = setInterval(() => {
+            const elapsed = (Date.now() - startTime) / 1000;
+            const idx = this.karaokeWords.findIndex(w => elapsed >= w.start && elapsed <= w.end);
+            if (idx !== -1) {
+              this.karaokeActiveIndex = idx;
+            } else if (elapsed > (durationMs / 1000)) {
+              clearInterval(this.karaokeTimer);
+              this.karaokeActiveIndex = -1;
+            }
+          }, 70);
+        },
+
+        stopKaraokeTicker() {
+          if (this.karaokeTimer) {
+            clearInterval(this.karaokeTimer);
+            this.karaokeTimer = null;
+          }
+          this.karaokeActiveIndex = -1;
+        },
+
+        async castCustomVoice() {
+          if (!this.customVoicePrompt.trim()) return;
+          this.customVoiceDesigning = true;
+          try {
+            const resp = await fetch('/api/google-labs/tts/design-voice', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: this.customVoicePrompt,
+                archetype: 'research_professor'
+              })
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              this.customVoiceResult = data;
+              this.deepmindBaseVoice = data.designedVoice.baseVoice;
+              this.triggerSparkleCelebration();
+            }
+          } catch(e) {
+            console.error('Voice designer error:', e);
+          } finally {
+            this.customVoiceDesigning = false;
           }
         },
 
@@ -11321,6 +11808,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
           }
+          this.stopKaraokeTicker();
           this.heroVoiceSpeaking = false;
         },
 
@@ -11329,43 +11817,81 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           const script = this.getHeroStepScript(step);
           this.heroCurrentNarrationText = script;
 
-          if (!this.heroVoiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+          // Duration estimate based on word count
+          const wordCount = script.split(/\s+/).filter(Boolean).length;
+          const estDuration = Math.max(4.0, wordCount * 0.38);
+          this.initKaraokeTimings(script, estDuration);
+
+          // Update embedded audio player source
+          const player = document.getElementById('omni-briefing-player');
+          if (player) {
+            player.src = this.getHeroStepAudioUrl(step);
+          }
+
+          if (!this.heroVoiceEnabled) {
             return;
           }
 
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(script);
-          utterance.rate = 1.05;
-          utterance.pitch = 1.0;
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(script);
+            utterance.rate = this.activePersona === 'compliance' ? 0.95 : (this.activePersona === 'developer' ? 1.12 : 1.02);
+            utterance.pitch = this.deepmindBaseVoice === 'Fenrir' ? 0.85 : (this.deepmindBaseVoice === 'Charon' ? 0.9 : (this.deepmindBaseVoice === 'Aoede' ? 1.15 : 1.0));
 
-          const voices = window.speechSynthesis.getVoices();
-          const preferredVoice = voices.find(v => v.lang && v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Alex') || v.name.includes('Daniel')));
-          if (preferredVoice) utterance.voice = preferredVoice;
-
-          this.heroVoiceSpeaking = true;
-
-          utterance.onend = () => {
-            this.heroVoiceSpeaking = false;
-            this.playChime(660, 0.12);
-            // Master clock sync: If auto-playing, audio completion drives the transition!
-            if (this.heroAutoPlayActive && this.heroWorkflowStep === step) {
-              setTimeout(() => {
-                if (this.heroAutoPlayActive && this.heroWorkflowStep < 5) {
-                  this.setHeroWorkflowStep(this.heroWorkflowStep + 1, false);
-                  this.speakHeroStep(this.heroWorkflowStep);
-                } else if (this.heroWorkflowStep >= 5) {
-                  this.stopHeroAutoPlay();
-                }
-              }, 700);
+            const voices = window.speechSynthesis.getVoices();
+            let preferredVoice = null;
+            if (this.activePersona === 'architect') {
+              preferredVoice = voices.find(v => v.name.includes('Daniel') || v.name.includes('Oliver') || v.name.includes('George') || (v.lang && v.lang.startsWith('en-GB')));
+            } else if (this.activePersona === 'clinician') {
+              preferredVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Victoria') || v.name.includes('Karen') || v.name.includes('Natural'));
+            } else if (this.activePersona === 'compliance') {
+              preferredVoice = voices.find(v => v.name.includes('Daniel') || v.name.includes('Fred') || v.name.includes('Reed'));
+            } else if (this.activePersona === 'developer') {
+              preferredVoice = voices.find(v => v.name.includes('Eddy') || v.name.includes('Samantha') || v.name.includes('Alex'));
             }
-          };
+            if (!preferredVoice) {
+              preferredVoice = voices.find(v => v.lang && v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google')));
+            }
+            if (preferredVoice) utterance.voice = preferredVoice;
 
-          utterance.onerror = () => {
-            this.heroVoiceSpeaking = false;
-          };
+            this.heroVoiceSpeaking = true;
+            this.startKaraokeTicker(estDuration * 1000);
 
-          window.speechSynthesis.speak(utterance);
+            utterance.onboundary = (e) => {
+              if (e.name === 'word') {
+                const charIdx = e.charIndex;
+                const textUpToChar = script.substring(0, charIdx);
+                const count = textUpToChar.trim() ? textUpToChar.trim().split(/\s+/).length : 0;
+                this.karaokeActiveIndex = count;
+              }
+            };
+
+            utterance.onend = () => {
+              this.heroVoiceSpeaking = false;
+              this.stopKaraokeTicker();
+              this.playChime(660, 0.12);
+              // Master clock sync: If auto-playing, audio completion drives the transition!
+              if (this.heroAutoPlayActive && this.heroWorkflowStep === step) {
+                setTimeout(() => {
+                  if (this.heroAutoPlayActive && this.heroWorkflowStep < 5) {
+                    this.setHeroWorkflowStep(this.heroWorkflowStep + 1, false);
+                    this.speakHeroStep(this.heroWorkflowStep);
+                  } else if (this.heroWorkflowStep >= 5) {
+                    this.stopHeroAutoPlay();
+                  }
+                }, 700);
+              }
+            };
+
+            utterance.onerror = () => {
+              this.heroVoiceSpeaking = false;
+              this.stopKaraokeTicker();
+            };
+
+            window.speechSynthesis.speak(utterance);
+          }
         },
+
 
         setHeroWorkflowStep(step, userInitiated = true) {
           if (userInitiated) {

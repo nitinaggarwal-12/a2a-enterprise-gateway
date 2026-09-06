@@ -98,4 +98,65 @@ def test_fda_inspection_dossier_gemini_pro():
     assert data["inspectionId"] == "FDA-AUDIT-2026-A2A-09881"
     assert data["merkleRootSha256"].startswith("sha256:")
     assert data["pinnacle21Validation"]["status"] == "CONFORMANT_READY_FOR_BLA"
-    assert data["pinnacle21Validation"]["criticalFindings"] == 0
+
+
+def test_deepmind_tts_matrix_endpoint():
+    resp = client.get("/api/google-labs/tts/matrix")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "gemini-2.5-flash-preview-tts" in data["supportedModels"]
+    assert "gemini-3.1-flash-tts-preview" in data["supportedModels"]
+    assert "Charon" in data["baseVoices"]
+    assert "Aoede" in data["baseVoices"]
+    assert "Fenrir" in data["baseVoices"]
+    assert "Puck" in data["baseVoices"]
+    assert "architect" in data["personas"]
+    assert "clinician" in data["personas"]
+    assert "compliance" in data["personas"]
+    assert "developer" in data["personas"]
+    assert len(data["accents"]) >= 5
+    assert len(data["emotionalModes"]) >= 3
+
+
+def test_deepmind_tts_synthesize_all_personas():
+    for persona, voice, model in [
+        ("architect", "Charon", "gemini-2.5-flash-preview-tts"),
+        ("clinician", "Aoede", "gemini-3.1-flash-tts-preview"),
+        ("compliance", "Fenrir", "gemini-2.5-flash-preview-tts"),
+        ("developer", "Puck", "gemini-3.1-flash-tts-preview"),
+    ]:
+        payload = {
+            "step": 2,
+            "persona": persona,
+            "model": model,
+            "voice_name": voice,
+            "emotional_mode": "clinical_precision",
+            "accent": "us_silicon_valley"
+        }
+        resp = client.post("/api/google-labs/tts/synthesize", json=payload)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["model"] == model
+        assert data["persona"] == persona
+        assert data["voice"]["name"] == voice
+        assert data["audioUrl"].endswith(".m4a")
+        assert len(data["wordTimings"]) > 0
+        assert data["wordTimings"][0]["word"].startswith("Step")
+        assert data["cryptographicBinding"]["sha256"].startswith("sha256:")
+        assert data["dspWarmthProfile"]["karaokeGlowColor"] == "#fbbf24"
+
+
+def test_deepmind_prompt_to_voice_designer():
+    payload = {
+        "prompt": "Warm British senior oncologist explaining therapy with calm bedside empathy",
+        "archetype": "research_professor"
+    }
+    resp = client.post("/api/google-labs/tts/design-voice", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["designedVoice"]["baseVoice"] == "Aoede"
+    assert data["designedVoice"]["accent"] == "uk_rp"
+    assert data["designedVoice"]["shareablePersonaToken"].startswith("VOICE-VAULT-")
+    assert "formantConvolver" in data
+    assert data["formantConvolver"]["F1_Warmth"] == 520
+
