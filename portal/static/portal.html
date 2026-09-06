@@ -948,19 +948,47 @@
                 </button>
               </div>
 
-              <!-- Omni Live Audio Teleprompter & Quality Sync Ribbon -->
-              <div class="px-3.5 py-2 rounded-xl border flex items-center justify-between text-xs font-mono shadow-sm" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
-                <div class="flex items-center space-x-2 truncate">
-                  <span class="w-2 h-2 rounded-full" :class="heroVoiceSpeaking ? 'bg-cyan-400 animate-ping' : 'bg-emerald-400'"></span>
-                  <span class="text-[10px] font-bold uppercase text-purple-400 flex items-center space-x-1">
-                    <i class="fa-solid fa-microphone-lines"></i>
-                    <span>OMNI DIRECTOR:</span>
-                  </span>
-                  <span class="text-[11px] truncate" :class="heroVoiceSpeaking ? 'text-cyan-300 font-bold' : 'text-slate-300'" x-text="heroCurrentNarrationText || 'Standing by. Click Play or any step to hear real-time clinical voice briefing.'"></span>
+              <!-- Omni Live Audio Teleprompter & Master Audio Player -->
+              <div id="omni-teleprompter-ribbon" class="p-3 rounded-xl border space-y-2.5 text-xs font-mono shadow-sm transition-all" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <!-- Top Status Bar -->
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="heroVoiceSpeaking ? 'bg-cyan-400 animate-ping' : 'bg-emerald-400'"></span>
+                    <span class="text-[10px] font-black uppercase text-purple-400 flex items-center space-x-1.5 tracking-wider">
+                      <i class="fa-solid fa-microphone-lines text-cyan-400"></i>
+                      <span>OMNI CLINICAL AUDIO DIRECTOR</span>
+                    </span>
+                    <span class="hidden sm:inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">Studio Master</span>
+                  </div>
+                  <div class="flex items-center space-x-2 shrink-0">
+                    <div class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[9px] text-emerald-400 font-bold uppercase tracking-wider">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>AV SYNC LOCKED</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="hidden sm:flex items-center space-x-1.5 shrink-0 pl-3">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">AUDIO-VISUAL SYNC LOCKED</span>
+
+                <!-- Live Spoken Transcript Ticker -->
+                <div class="px-3 py-2 rounded-lg border text-xs font-sans transition-all flex items-start space-x-2" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
+                  <i class="fa-solid fa-comment-dots text-cyan-400 mt-0.5 text-xs shrink-0" :class="heroVoiceSpeaking ? 'animate-bounce' : ''"></i>
+                  <span class="leading-relaxed" :class="heroVoiceSpeaking ? 'text-cyan-400 font-bold' : (isDark ? 'text-slate-200' : 'text-slate-800')" x-text="heroCurrentNarrationText || 'Standing by. Click Auto-Play Walkthrough or any step to hear the synchronized clinical voice briefing.'"></span>
+                </div>
+
+                <!-- Embedded HTML5 Audio Player & Direct Link -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                  <div class="flex items-center space-x-2 grow sm:grow-0">
+                    <span class="text-[11px] font-sans font-bold flex items-center gap-1.5 shrink-0" style="color: var(--color-text-secondary);">
+                      <i class="fa-solid fa-headphones text-cyan-400"></i>
+                      <span>Voice Briefing:</span>
+                    </span>
+                    <audio id="omni-briefing-player" controls preload="metadata" class="h-7 w-56 sm:w-64 text-xs rounded-lg" src="/static/audio/omni_a2a_briefing_full.m4a"></audio>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <a id="link-download-audio-briefing" href="/static/audio/omni_a2a_briefing_full.m4a" target="_blank" download="omni_a2a_briefing_full.m4a" class="px-2.5 py-1 rounded-lg border text-[11px] font-mono hover:text-cyan-300 transition-all flex items-center space-x-1.5 shadow-sm active:scale-95" style="border-color: var(--color-border-card); background-color: var(--color-bg-card); color: var(--color-text-primary);">
+                      <i class="fa-solid fa-music text-purple-400"></i>
+                      <span>Open .m4a File</span>
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -10482,6 +10510,14 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           const hash = rawHash.replace(/^#\/?/, '').trim();
           
           // 1. Direct Modal & Drawer Deep-Linking
+          if (hash === 'audio-demo' || hash === 'autodemo' || hash === 'audio') {
+            this.currentTab = 'landing';
+            this.heroVoiceEnabled = true;
+            setTimeout(() => {
+              this.startHeroAutoPlay();
+            }, 600);
+            return;
+          }
           if (hash.includes('modal-fda-dossier') || hash.includes('fda-dossier') || hash === 'dossier') {
             this.openFdaDossierModal();
             return;
