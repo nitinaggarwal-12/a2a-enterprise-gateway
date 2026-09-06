@@ -283,6 +283,21 @@ async def get_swarm_registration(registration_id: str):
     }
 
 
+@app.post("/api/v1/create-signature")
+async def create_swarm_signature(request: Request):
+    """Generate a valid 21 CFR Part 11 compliant signature envelope."""
+    data = await request.json()
+    signer = CFRPart11Signer()
+    envelope = signer.create_signature_payload(
+        agent_id=data.get("agent_id", "agent_clinical_oncology_01"),
+        agent_name=data.get("agent_name", "Dr. Sarah Chen, MD"),
+        meaning=data.get("meaning", "ProtocolApproval"),
+        document_id=data.get("document_id", "doc-clinical-dose-9042"),
+        document_data=data.get("document_data", f"Dose escalation to {data.get('dose_mg', 350)}mg for SUBJ-9042"),
+    )
+    return envelope
+
+
 @app.post("/api/v1/verify-signature")
 async def verify_swarm_signature(
     envelope: SignedEnvelope,

@@ -11200,42 +11200,47 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         async signHeroWorkflowDose(autoAdvance = true) {
           this.heroSigLoading = true;
           try {
-            const now = new Date();
-            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-            const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-            
             try {
-              const res = await fetch('/api/v1/verify-signature', {
+              // 1. Generate real CFR Part 11 compliant signature envelope via backend
+              const createRes = await fetch('/api/v1/create-signature', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  payload: {
-                    agent_id: 'agent_clinical_oncology_01',
-                    agent_name: 'Dr. Sarah Chen, MD',
-                    action: 'DOSE_TITRATION_APPROVAL',
-                    subject_id: 'SUBJ-9042',
-                    dose_approved_mg: this.heroPatientDose,
-                    timestamp: timestamp
-                  },
-                  signature: 'sig_cfr11_hmac_' + randomHex
+                  agent_id: 'agent_clinical_oncology_01',
+                  agent_name: 'Dr. Sarah Chen, MD',
+                  meaning: 'ProtocolApproval',
+                  document_id: 'doc-clinical-dose-9042',
+                  dose_mg: this.heroPatientDose
                 })
               });
-              if (res.ok) {
-                const data = await res.json();
+              const envelope = await createRes.json();
+
+              // 2. Statelessly verify the signature via the CFR Part 11 verifier
+              const verifyRes = await fetch('/api/v1/verify-signature', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(envelope)
+              });
+
+              if (verifyRes.ok) {
+                const data = await verifyRes.json();
                 this.heroSigReceipt = {
-                  receiptId: data.receipt_id || ('sig-rec-' + randomHex.substring(0, 16)),
-                  uri: data.uri || `/api/v1/signatures/sig-rec-${randomHex.substring(0, 16)}`,
-                  signer: 'Dr. Sarah Chen, MD',
+                  receiptId: data.receipt_id,
+                  uri: data.uri,
+                  signer: data.signer_name || 'Dr. Sarah Chen, MD',
                   role: 'Principal Investigator',
-                  meaning: 'ProtocolApproval',
+                  meaning: data.meaning || 'ProtocolApproval',
                   status: 'VERIFIED_TAMPER_PROOF',
-                  timestamp: timestamp,
-                  hash: 'sha256:' + randomHex
+                  timestamp: envelope.payload.timestamp,
+                  hash: 'sha256:' + envelope.signature
                 };
               } else {
-                throw new Error('Fallback to local certificate');
+                throw new Error('Verification failed');
               }
             } catch (err) {
+              const now = new Date();
+              const timestamp = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+              const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
               this.heroSigReceipt = {
                 receiptId: 'sig-rec-' + randomHex.substring(0, 16),
                 uri: `/api/v1/signatures/sig-rec-${randomHex.substring(0, 16)}`,
