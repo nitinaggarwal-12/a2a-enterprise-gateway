@@ -15,3 +15,5 @@ scratch/*.png
 *.log
 node_modules/
 /graft/
+
+scratch/
