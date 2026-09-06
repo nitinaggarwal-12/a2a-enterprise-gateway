@@ -793,10 +793,13 @@
         <div class="cyber-grid-anim absolute inset-0 opacity-40 pointer-events-none"></div>
         <div class="cyber-scanline"></div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+        <div class="grid grid-cols-1 gap-8 relative z-10 transition-all duration-300"
+             :class="heroStageSize === 'cinema' ? 'space-y-6' : 'lg:grid-cols-12 lg:gap-8 items-start'">
           
-          <!-- Left Column: Plain-English Purpose & Interactive 5-Step Guided Pipeline (7 cols) -->
-          <div class="lg:col-span-7 space-y-6">
+          <!-- Left Column: Plain-English Purpose & Interactive 5-Step Guided Pipeline -->
+          <div :class="heroStageSize === 'cinema' ? 'w-full space-y-6 order-2' : 'lg:col-span-5 space-y-6'">
+
+
             
             <!-- Protocol Eyebrow Badge -->
             <div class="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full text-xs font-mono font-extrabold border bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_20px_rgba(0,242,254,0.25)]">
@@ -885,6 +888,13 @@
                     :class="heroAutoPlayActive ? 'bg-rose-500 text-white animate-pulse' : 'bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 hover:from-cyan-400 hover:to-teal-400'">
                     <i class="fa-solid" :class="heroAutoPlayActive ? 'fa-pause' : 'fa-play'"></i>
                     <span x-text="heroAutoPlayActive ? 'Pause Walkthrough' : '▶ Auto-Play 60s Demo'"></span>
+                  </button>
+                  <button id="btn-hero-toggle-stage-big" @click="heroStageSize = (heroStageSize === 'cinema' ? 'split' : 'cinema')" 
+                    class="px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center space-x-1.5 shadow-sm active:scale-95"
+                    :class="heroStageSize === 'cinema' ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-amber-500/10' : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-amber-400'"
+                    title="Toggle Cinema Panoramic Stage (Big View)">
+                    <i class="fa-solid fa-expand" :class="heroStageSize === 'cinema' ? 'text-amber-400' : 'text-slate-400'"></i>
+                    <span x-text="heroStageSize === 'cinema' ? '🎬 Cinema View (Big)' : '🎬 Make Big (Cinema)'"></span>
                   </button>
                   <button id="btn-hero-reset" @click="resetHeroWorkflow()" 
                     class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-colors hover:border-slate-400" 
@@ -1337,90 +1347,135 @@
 
           </div>
 
-          <!-- Right Column: Interactive 3D WebGL Holographic Stage (5 cols) -->
-          <div class="lg:col-span-5 relative">
+          <!-- Right Column: Interactive 3D WebGL Holographic Stage & High-Res Screenshots -->
+          <div :class="heroStageSize === 'cinema' ? 'w-full relative order-1' : 'lg:col-span-7 relative'">
             
             <!-- Tech Frame Wrapper -->
-            <div class="relative rounded-2xl border overflow-hidden p-2 backdrop-blur-md shadow-2xl group" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card);">
+            <div class="relative rounded-3xl border-2 overflow-hidden p-2.5 backdrop-blur-xl shadow-2xl group transition-all duration-300" 
+                 :class="heroStageSize === 'cinema' ? 'ring-1 ring-cyan-500/30' : ''"
+                 style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card);">
               
               <!-- Cyber HUD Header Overlay -->
-              <div class="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-                <div class="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-950/85 border border-cyan-500/30 text-[10px] font-mono text-cyan-400 backdrop-blur-md pointer-events-auto shadow-sm">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  <span x-text="'STEP ' + heroWorkflowStep + ' OF 5: ' + (heroWorkflowStep === 1 ? 'AGENT REQUEST' : (heroWorkflowStep === 2 ? 'AST SANITIZING' : (heroWorkflowStep === 3 ? 'DOCTOR REVIEW' : (heroWorkflowStep === 4 ? 'CFR11 SIGNING' : 'DISPENSED'))))"></span>
+              <div class="absolute top-3.5 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                <div class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 text-[11px] font-mono text-cyan-400 backdrop-blur-md pointer-events-auto shadow-md">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span class="font-bold" x-text="'STEP ' + heroWorkflowStep + ' OF 5: ' + (heroWorkflowStep === 1 ? 'AGENT REQUEST' : (heroWorkflowStep === 2 ? 'AST SANITIZING' : (heroWorkflowStep === 3 ? 'DOCTOR REVIEW' : (heroWorkflowStep === 4 ? 'CFR11 SIGNING' : 'DISPENSED'))))"></span>
                 </div>
-                <!-- Dual-Mode Switcher: High-Res Screenshots vs 3D WebGL Mesh -->
-                <div class="flex items-center space-x-1 p-0.5 rounded-lg bg-slate-950/85 border border-slate-700/60 backdrop-blur-md pointer-events-auto text-[9px] font-mono shadow-md">
-                  <button id="btn-hero-stage-screenshot" @click="heroRightStageMode = 'screenshot'" 
-                    class="px-2 py-0.5 rounded transition-all flex items-center space-x-1" 
-                    :class="heroRightStageMode === 'screenshot' ? 'bg-cyan-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'">
-                    <i class="fa-solid fa-image"></i>
-                    <span>Screenshots</span>
-                  </button>
-                  <button id="btn-hero-stage-3d" @click="heroRightStageMode = '3d'" 
-                    class="px-2 py-0.5 rounded transition-all flex items-center space-x-1" 
-                    :class="heroRightStageMode === '3d' ? 'bg-cyan-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'">
-                    <i class="fa-solid fa-cube"></i>
-                    <span>3D Mesh</span>
-                  </button>
+                
+                <!-- Controls Group (Pointer Events Auto) -->
+                <div class="flex items-center space-x-2 pointer-events-auto">
+                  <!-- Stage Size Mode Toggle (Split vs Cinema Big) -->
+                  <div class="flex items-center space-x-1 p-0.5 rounded-xl bg-slate-950/90 border border-cyan-500/30 backdrop-blur-md text-[10px] font-mono shadow-md">
+                    <button id="btn-hero-stage-size-split" @click="heroStageSize = 'split'" 
+                      class="px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1.5" 
+                      :class="heroStageSize === 'split' ? 'bg-cyan-400 text-slate-950 font-black shadow' : 'text-slate-400 hover:text-white'">
+                      <i class="fa-solid fa-table-columns"></i>
+                      <span>Split</span>
+                    </button>
+                    <button id="btn-hero-stage-size-cinema" @click="heroStageSize = 'cinema'" 
+                      class="px-3 py-1 rounded-lg transition-all flex items-center space-x-1.5" 
+                      :class="heroStageSize === 'cinema' ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/20' : 'text-amber-400 hover:text-amber-300 font-bold'">
+                      <i class="fa-solid fa-expand"></i>
+                      <span>🎬 Cinema Big</span>
+                    </button>
+                  </div>
+
+                  <!-- Dual-Mode Switcher: High-Res Screenshots vs 3D WebGL Mesh -->
+                  <div class="flex items-center space-x-1 p-0.5 rounded-xl bg-slate-950/90 border border-slate-700/80 backdrop-blur-md text-[10px] font-mono shadow-md">
+                    <button id="btn-hero-stage-screenshot" @click="heroRightStageMode = 'screenshot'" 
+                      class="px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1.5" 
+                      :class="heroRightStageMode === 'screenshot' ? 'bg-cyan-400 text-slate-950 font-black shadow' : 'text-slate-400 hover:text-white'">
+                      <i class="fa-solid fa-image"></i>
+                      <span>Screenshots</span>
+                    </button>
+                    <button id="btn-hero-stage-3d" @click="heroRightStageMode = '3d'" 
+                      class="px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1.5" 
+                      :class="heroRightStageMode === '3d' ? 'bg-cyan-400 text-slate-950 font-black shadow' : 'text-slate-400 hover:text-white'">
+                      <i class="fa-solid fa-cube"></i>
+                      <span>3D Mesh</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <!-- Viewport 1: High-Res Visual Screenshots Synchronized with Voiceover -->
-              <div x-show="heroRightStageMode === 'screenshot'" class="w-full h-[400px] sm:h-[460px] md:h-[480px] relative rounded-xl overflow-hidden bg-slate-950 border border-cyan-500/20 shadow-inner flex items-center justify-center p-2 group">
-                <img :src="getHeroStepScreenshot(heroWorkflowStep)" :alt="'Step ' + heroWorkflowStep + ' Architecture Screenshot'" class="w-full h-full object-contain rounded-lg transition-all duration-300">
+              <div x-show="heroRightStageMode === 'screenshot'" 
+                   :class="heroStageSize === 'cinema' ? 'h-[640px] sm:h-[740px] lg:h-[820px]' : 'h-[480px] sm:h-[540px] lg:h-[580px]'"
+                   class="w-full relative rounded-2xl overflow-hidden bg-slate-950 border border-cyan-500/30 shadow-2xl flex items-center justify-center p-1 group transition-all duration-300">
+                <img :src="getHeroStepScreenshot(heroWorkflowStep)" 
+                     :alt="'Step ' + heroWorkflowStep + ' Architecture Screenshot'" 
+                     :class="heroImageZoomMode === 'fill' ? 'w-full h-full object-cover' : (heroImageZoomMode === 'zoom' ? 'w-full h-full object-contain scale-125 transition-transform duration-300' : 'w-full h-full object-contain transition-all duration-300')"
+                     class="rounded-xl cursor-zoom-in drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+                     @click="openGalleryZoom({
+                       title: getHeroStepScreenshotTitle(heroWorkflowStep),
+                       darkImg: getHeroStepScreenshot(heroWorkflowStep, true),
+                       lightImg: getHeroStepScreenshot(heroWorkflowStep, false),
+                       desc: getHeroStepScript(heroWorkflowStep)
+                     })">
+
 
                 <!-- HUD Corner Crosshairs -->
-                <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
-                <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
-                <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
-                <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
 
                 <!-- Floating Bottom Caption & Zoom Bar -->
-                <div class="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between p-2 rounded-lg bg-slate-950/85 border border-slate-800 text-[10px] font-mono text-slate-300 backdrop-blur-md">
-                  <div class="flex items-center space-x-2 truncate">
+                <div class="absolute bottom-3 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs font-mono text-slate-300 backdrop-blur-md shadow-xl">
+                  <div class="flex items-center space-x-2.5 truncate">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
                     <i class="fa-solid fa-camera text-cyan-400"></i>
-                    <span class="font-bold text-white truncate" x-text="getHeroStepScreenshotTitle(heroWorkflowStep)"></span>
+                    <span class="font-bold text-white text-xs md:text-sm truncate" x-text="getHeroStepScreenshotTitle(heroWorkflowStep)"></span>
                   </div>
-                  <button id="btn-hero-zoom-screenshot" @click="openGalleryZoom({
-                    title: getHeroStepScreenshotTitle(heroWorkflowStep),
-                    darkImg: getHeroStepScreenshot(heroWorkflowStep, true),
-                    lightImg: getHeroStepScreenshot(heroWorkflowStep, false),
-                    desc: getHeroStepScript(heroWorkflowStep)
-                  })" class="px-2.5 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-[9px] font-bold flex items-center space-x-1 shrink-0 transition-all active:scale-95 shadow-sm">
-                    <i class="fa-solid fa-magnifying-glass-plus"></i>
-                    <span>Zoom 4K</span>
-                  </button>
+                  <div class="flex items-center space-x-2 shrink-0">
+                    <!-- Zoom Mode Presets -->
+                    <div class="flex items-center space-x-1 bg-slate-900 border border-slate-700 rounded-lg p-0.5 text-[10px]">
+                      <button id="btn-hero-zoom-mode-fit" @click="heroImageZoomMode = 'fit'" class="px-2 py-0.5 rounded transition-all" :class="heroImageZoomMode === 'fit' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'">Fit</button>
+                      <button id="btn-hero-zoom-mode-fill" @click="heroImageZoomMode = 'fill'" class="px-2 py-0.5 rounded transition-all" :class="heroImageZoomMode === 'fill' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'">Fill</button>
+                      <button id="btn-hero-zoom-mode-zoom" @click="heroImageZoomMode = 'zoom'" class="px-2 py-0.5 rounded transition-all" :class="heroImageZoomMode === 'zoom' ? 'bg-cyan-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'">+35% Zoom</button>
+                    </div>
+                    <button id="btn-hero-zoom-screenshot" @click="openGalleryZoom({
+                      title: getHeroStepScreenshotTitle(heroWorkflowStep),
+                      darkImg: getHeroStepScreenshot(heroWorkflowStep, true),
+                      lightImg: getHeroStepScreenshot(heroWorkflowStep, false),
+                      desc: getHeroStepScript(heroWorkflowStep)
+                    })" class="px-3 py-1 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center space-x-1.5 transition-all active:scale-95 shadow-md">
+                      <i class="fa-solid fa-expand"></i>
+                      <span>Full 4K Modal</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <!-- Viewport 2: Interactive 3D WebGL Canvas -->
-              <div x-show="heroRightStageMode === '3d'" class="w-full h-[400px] sm:h-[460px] md:h-[480px] relative rounded-xl overflow-hidden bg-slate-950 border border-cyan-500/20 shadow-inner" style="display: none;">
+              <div x-show="heroRightStageMode === '3d'" 
+                   :class="heroStageSize === 'cinema' ? 'h-[640px] sm:h-[740px] lg:h-[820px]' : 'h-[480px] sm:h-[540px] lg:h-[580px]'"
+                   class="w-full relative rounded-2xl overflow-hidden bg-slate-950 border border-cyan-500/30 shadow-2xl transition-all duration-300" style="display: none;">
                 <canvas id="quantum-mesh-canvas" class="w-full h-full cursor-grab active:cursor-grabbing block"></canvas>
 
                 <!-- HUD Corner Crosshairs -->
-                <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
-                <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
-                <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
-                <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-cyan-400 pointer-events-none"></div>
+                <div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-cyan-400 pointer-events-none"></div>
 
                 <!-- Floating Interaction Hint -->
-                <div class="absolute bottom-3 left-3 z-20 pointer-events-none">
-                  <div class="px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-[10px] font-mono text-slate-400 flex items-center space-x-1.5 backdrop-blur-md">
+                <div class="absolute bottom-3 left-4 z-20 pointer-events-none">
+                  <div class="px-3 py-1.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs font-mono text-slate-300 flex items-center space-x-2 backdrop-blur-md shadow-lg">
                     <i class="fa-solid fa-hand-pointer text-cyan-400 animate-pulse"></i>
                     <span>Drag to orbit • Scroll to zoom</span>
                   </div>
                 </div>
 
                 <!-- 3D Stage Camera & Mode Controls -->
-                <div class="absolute bottom-3 right-3 z-20 flex items-center space-x-1.5">
+                <div class="absolute bottom-3 right-4 z-20 flex items-center space-x-2">
                   <button id="btn-togglelandingwireframe" @click="toggleLandingWireframe()" 
-                    class="px-2 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
+                    class="px-2.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
                     title="Toggle Wireframe Shell">
                     <i class="fa-solid fa-cube"></i> Wireframe
                   </button>
                   <button id="btn-resetlandingcamera" @click="resetLandingCamera()" 
-                    class="px-2 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
+                    class="px-2.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300 transition-all hover:border-cyan-400 hover:text-cyan-400 shadow-md"
                     title="Reset Core Orientation">
                     <i class="fa-solid fa-rotate-right"></i> Reset
                   </button>
@@ -1430,6 +1485,7 @@
             </div>
 
           </div>
+
 
         </div>
       </div>
@@ -8775,8 +8831,9 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         heroVoiceEnabled: true,
         heroVoiceSpeaking: false,
         heroCurrentNarrationText: '',
-        heroAudioCtx: null,
         heroRightStageMode: 'screenshot',
+        heroStageSize: 'cinema',
+        heroImageZoomMode: 'fit',
 
         // DeepMind Emotional Audio Engine & Multi-Persona Voice Matrix State
         deepmindTTSModel: 'gemini-2.5-flash-preview-tts',
@@ -10899,6 +10956,8 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           if (hash === 'audio-demo' || hash === 'autodemo' || hash === 'audio') {
             this.currentTab = 'landing';
             this.heroVoiceEnabled = true;
+            this.heroRightStageMode = 'screenshot';
+            this.heroStageSize = 'cinema';
             setTimeout(() => {
               this.startHeroAutoPlay();
             }, 600);
