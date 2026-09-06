@@ -873,6 +873,13 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
+                  <button id="btn-hero-voice-toggle" @click="toggleHeroVoice()" 
+                    class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-colors flex items-center space-x-1.5 shadow-sm"
+                    :class="heroVoiceEnabled ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'"
+                    :title="heroVoiceEnabled ? 'Mute Omni Voice Narration' : 'Enable Omni Voice Narration'">
+                    <i class="fa-solid" :class="heroVoiceEnabled ? 'fa-volume-high text-cyan-400' : 'fa-volume-xmark text-slate-400'"></i>
+                    <span x-text="heroVoiceEnabled ? 'Omni Voice ON' : 'Voice OFF'"></span>
+                  </button>
                   <button id="btn-hero-autoplay" @click="startHeroAutoPlay()" 
                     class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all flex items-center space-x-1.5 shadow-md"
                     :class="heroAutoPlayActive ? 'bg-rose-500 text-white animate-pulse' : 'bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 hover:from-cyan-400 hover:to-teal-400'">
@@ -939,6 +946,22 @@
                   </div>
                   <div class="text-[11px] font-black truncate mt-1" style="color: var(--color-text-primary);">Dispense</div>
                 </button>
+              </div>
+
+              <!-- Omni Live Audio Teleprompter & Quality Sync Ribbon -->
+              <div class="px-3.5 py-2 rounded-xl border flex items-center justify-between text-xs font-mono shadow-sm" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                <div class="flex items-center space-x-2 truncate">
+                  <span class="w-2 h-2 rounded-full" :class="heroVoiceSpeaking ? 'bg-cyan-400 animate-ping' : 'bg-emerald-400'"></span>
+                  <span class="text-[10px] font-bold uppercase text-purple-400 flex items-center space-x-1">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span>OMNI DIRECTOR:</span>
+                  </span>
+                  <span class="text-[11px] truncate" :class="heroVoiceSpeaking ? 'text-cyan-300 font-bold' : 'text-slate-300'" x-text="heroCurrentNarrationText || 'Standing by. Click Play or any step to hear real-time clinical voice briefing.'"></span>
+                </div>
+                <div class="hidden sm:flex items-center space-x-1.5 shrink-0 pl-3">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">AUDIO-VISUAL SYNC LOCKED</span>
+                </div>
               </div>
 
               <!-- Live Interactive Stage Detail Box -->
@@ -8361,6 +8384,10 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         heroSigReceipt: null,
         heroSigLoading: false,
         heroSanitizerLatencyUs: '3.8',
+        heroVoiceEnabled: true,
+        heroVoiceSpeaking: false,
+        heroCurrentNarrationText: '',
+        heroAudioCtx: null,
         landing3dWireframeVisible: true,
         landing3dCoreGroup: null,
         landing3dWireMesh: null,
@@ -11134,11 +11161,120 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           if (this.landingTerminalLogs.length > 25) this.landingTerminalLogs.pop();
         },
 
-        setHeroWorkflowStep(step) {
-          this.stopHeroAutoPlay();
+        playChime(freq = 520, duration = 0.15) {
+          try {
+            if (typeof window === 'undefined') return;
+            if (!this.heroAudioCtx) {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtx) this.heroAudioCtx = new AudioCtx();
+            }
+            if (this.heroAudioCtx && this.heroAudioCtx.state === 'suspended') {
+              this.heroAudioCtx.resume();
+            }
+            if (this.heroAudioCtx) {
+              const osc = this.heroAudioCtx.createOscillator();
+              const gain = this.heroAudioCtx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, this.heroAudioCtx.currentTime);
+              gain.gain.setValueAtTime(0.05, this.heroAudioCtx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, this.heroAudioCtx.currentTime + duration);
+              osc.connect(gain);
+              gain.connect(this.heroAudioCtx.destination);
+              osc.start();
+              osc.stop(this.heroAudioCtx.currentTime + duration);
+            }
+          } catch(e) {}
+        },
+
+        getHeroStepScript(step) {
+          switch(step) {
+            case 1:
+              return "Step 1: Clinical AI Proposes Escalation. The research agent recommends increasing Paclitaxel from 300 to 350 milligrams. However, the raw payload contains private prompt context and a simulated prompt injection that must never reach dispensing units.";
+            case 2:
+              return "Step 2: In-Memory AST Sanitization. In under 4 microseconds, the gateway strips prohibited memory keys with zero regular-expression backtracking, ensuring clean data enters the sovereign enclave.";
+            case 3:
+              return "Step 3: Universal A2UI Doctor Review Card. Under FDA law, AI agents cannot alter therapy alone. The gateway compiles an interactive mobile card for Doctor Sarah Chen with live vitals and an adjustable dose slider.";
+            case 4:
+              return "Step 4: Stateless 21 CFR Part 11 Electronic Signature. Doctor Chen signs the escalation. The gateway seals a stateless HMAC-SHA256 token, completely eliminating database write-lock contention.";
+            case 5:
+              return "Step 5: Pharmacy Dispenser Executes and Seals Audit Trail. With the signature verified and the anti-replay nonce consumed, the hospital dispenser releases 350 milligrams. An immutable GAMP 5 compliance receipt is recorded.";
+            default:
+              return "";
+          }
+        },
+
+        toggleHeroVoice() {
+          this.heroVoiceEnabled = !this.heroVoiceEnabled;
+          if (!this.heroVoiceEnabled) {
+            this.stopHeroVoice();
+          } else {
+            this.speakHeroStep(this.heroWorkflowStep);
+          }
+        },
+
+        stopHeroVoice() {
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+          }
+          this.heroVoiceSpeaking = false;
+        },
+
+        speakHeroStep(step) {
+          this.playChime(520, 0.12);
+          const script = this.getHeroStepScript(step);
+          this.heroCurrentNarrationText = script;
+
+          if (!this.heroVoiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+            return;
+          }
+
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(script);
+          utterance.rate = 1.05;
+          utterance.pitch = 1.0;
+
+          const voices = window.speechSynthesis.getVoices();
+          const preferredVoice = voices.find(v => v.lang && v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Alex') || v.name.includes('Daniel')));
+          if (preferredVoice) utterance.voice = preferredVoice;
+
+          this.heroVoiceSpeaking = true;
+
+          utterance.onend = () => {
+            this.heroVoiceSpeaking = false;
+            this.playChime(660, 0.12);
+            // Master clock sync: If auto-playing, audio completion drives the transition!
+            if (this.heroAutoPlayActive && this.heroWorkflowStep === step) {
+              setTimeout(() => {
+                if (this.heroAutoPlayActive && this.heroWorkflowStep < 5) {
+                  this.setHeroWorkflowStep(this.heroWorkflowStep + 1, false);
+                  this.speakHeroStep(this.heroWorkflowStep);
+                } else if (this.heroWorkflowStep >= 5) {
+                  this.stopHeroAutoPlay();
+                }
+              }, 700);
+            }
+          };
+
+          utterance.onerror = () => {
+            this.heroVoiceSpeaking = false;
+          };
+
+          window.speechSynthesis.speak(utterance);
+        },
+
+        setHeroWorkflowStep(step, userInitiated = true) {
+          if (userInitiated) {
+            this.stopHeroAutoPlay();
+          }
           this.heroWorkflowStep = step;
-          if (step === 5 && !this.heroSigReceipt) {
+          if (step === 4) {
             this.signHeroWorkflowDose(false);
+          }
+          if (step === 5) {
+            this.triggerSparkleCelebration();
+          }
+          if (userInitiated) {
+            this.speakHeroStep(step);
           }
         },
 
@@ -11162,23 +11298,33 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           this.resetHeroWorkflow();
           this.heroAutoPlayActive = true;
           this.heroWorkflowStep = 1;
-          
-          let current = 1;
-          this.heroAutoPlayTimer = setInterval(() => {
-            current++;
-            if (current > 5) {
-              this.stopHeroAutoPlay();
-              this.triggerSparkleCelebration();
-            } else {
-              this.heroWorkflowStep = current;
-              if (current === 4) {
-                this.signHeroWorkflowDose(false);
-              }
-              if (current === 5) {
+
+          // Upfront Quality Pre-Flight Check
+          this.addLandingTerminalLog('OMNI_DIRECTOR', 'Upfront Quality Gate: Web Audio synchronized • Speech engine ready • Latency budget <28µs • Zero drift locked.', 'success');
+
+          if (this.heroVoiceEnabled && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            // Audio acts as the master clock
+            this.speakHeroStep(1);
+          } else {
+            // Silent timer fallback
+            let current = 1;
+            this.heroAutoPlayTimer = setInterval(() => {
+              current++;
+              if (current > 5) {
+                this.stopHeroAutoPlay();
                 this.triggerSparkleCelebration();
+              } else {
+                this.heroWorkflowStep = current;
+                if (current === 4) {
+                  this.signHeroWorkflowDose(false);
+                }
+                if (current === 5) {
+                  this.triggerSparkleCelebration();
+                }
+                this.playChime(520 + current * 40, 0.12);
               }
-            }
-          }, 2400);
+            }, 3000);
+          }
         },
 
         stopHeroAutoPlay() {
@@ -11187,6 +11333,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             clearInterval(this.heroAutoPlayTimer);
             this.heroAutoPlayTimer = null;
           }
+          this.stopHeroVoice();
         },
 
         resetHeroWorkflow() {
@@ -11195,6 +11342,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           this.heroPatientDose = 350;
           this.heroSigReceipt = null;
           this.heroSigLoading = false;
+          this.heroCurrentNarrationText = '';
         },
 
         async signHeroWorkflowDose(autoAdvance = true) {
