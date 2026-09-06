@@ -67,9 +67,9 @@ NODE_PATH=node_modules node scratch/run_dual_theme_e2e.js
    - Both **Dark** (`.dark`) and **Light** (`.light`) modes must maintain crisp contrast ratios.
    - Use CSS custom property variables (`var(--color-bg-card)`, `var(--color-text-primary)`, `var(--color-badge-emerald-text)`) instead of hardcoded hex values in component bodies.
 
-3. **Tactile Micro-Interactions**:
+3. **Tactile Micro-Interactions & Stable Layouts**:
    - Prefer inline stateful cards (like the 1-Click HITL HMAC Certificate) over disruptive browser alert dialogs.
-   - Maintain 3D tilt interaction (`perspective(1000px) rotateX(...)`) on hoverable `.glass-card` elements.
+   - **Zero Tilting Screens**: Strictly prohibit 3D tilt/rotation interactions (`perspective`, `rotateX`, `rotateY`) on screens, containers, and cards. Keep all surfaces stable, planar, and distortion-free.
 
 ---
 
