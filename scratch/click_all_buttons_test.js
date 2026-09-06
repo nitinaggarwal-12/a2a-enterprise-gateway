@@ -116,6 +116,7 @@ async function clickAllButtonsTest() {
   try {
     fs.rmSync(tempProfileDir, { recursive: true, force: true });
   } catch (_) {}
+  process.exit(errors.length > 0 ? 1 : 0);
 }
 
 clickAllButtonsTest().catch(err => {
