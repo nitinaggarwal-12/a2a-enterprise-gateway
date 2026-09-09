@@ -1,7 +1,7 @@
 """End-to-End integration tests for Option 1: Cloud Run Interceptor Gateway.
 
 Tests:
-1. Discovery /.well-known/agent.json
+1. A2A v1 discovery /.well-known/agent-card.json
 2. Health check /healthz
 3. Task dispatch with ADK envelope -> Sanitization -> INPUT_REQUIRED response with A2UI artifact
 4. Interactive UI Action submission with HMAC state token -> Stateless validation -> Output & Push
@@ -19,8 +19,8 @@ if str(GATEWAY_DIR) not in sys.path:
 
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
-from app.security import create_state_token, verify_state_token
+from option1_cloud_run_gateway.app.main import app
+from option1_cloud_run_gateway.app.security import create_state_token, verify_state_token
 
 
 @pytest.fixture
@@ -29,16 +29,54 @@ def client():
 
 
 def test_discovery_endpoint(client):
-    response = client.get("/.well-known/agent.json")
+    response = client.get("/.well-known/agent-card.json")
     assert response.status_code == 200
     data = response.json()
-    assert data["schemaVersion"] == "1.0.0"
-    assert data["protocolVersion"] == "1.0.0"
-    assert data["capabilities"]["gxpSanitization"] is True
-    assert data["capabilities"]["streaming"] is True
-    assert data["capabilities"]["stateTokens"] is True
-    assert data["capabilities"]["a2ui"] is True
-    assert "a2ui.v1" in data["supportedDialects"]
+
+    assert data["name"] == "Enterprise A2A Policy Gateway"
+    assert data["supportedInterfaces"][0]["protocolBinding"] == "JSONRPC"
+    assert data["supportedInterfaces"][0]["protocolVersion"] == "1.0"
+    assert data["capabilities"]["streaming"] is False
+    assert data["capabilities"]["pushNotifications"] is False
+    assert data["capabilities"]["extendedAgentCard"] is False
+    assert data["skills"]
+
+    legacy = client.get("/.well-known/agent.json", follow_redirects=False)
+    assert legacy.status_code == 308
+    assert legacy.headers["location"] == "/.well-known/agent-card.json"
+
+
+def test_a2a_v1_version_negotiation_and_send_message(client):
+    payload = {
+        "jsonrpc": "2.0",
+        "id": "a2a-v1-1",
+        "method": "SendMessage",
+        "params": {
+            "message": {
+                "messageId": "msg-1",
+                "role": "ROLE_USER",
+                "parts": [{"text": "Review demo study"}],
+                "metadata": {"studyId": "DEMO-001", "cohort": "A"},
+            }
+        },
+    }
+    headers = {
+        "Authorization": "Bearer mock-dev-token",
+        "A2A-Version": "1.0",
+    }
+    response = client.post("/a2a/v1", json=payload, headers=headers)
+    assert response.status_code == 200
+    task = response.json()["result"]["task"]
+    assert task["status"]["state"] == "TASK_STATE_INPUT_REQUIRED"
+    assert task["metadata"]["regulatedUse"] == "not-validated"
+
+    unsupported = client.post(
+        "/a2a/v1",
+        json=payload,
+        headers={"Authorization": "Bearer mock-dev-token", "A2A-Version": "1.0.0"},
+    )
+    assert unsupported.status_code == 400
+    assert unsupported.json()["error"]["code"] == -32009
 
 
 def test_healthz_endpoint(client):
@@ -141,7 +179,8 @@ def test_ui_action_stateless_execution(client):
     assert result["studyId"] == "MK-8888-002"
     assert result["cohort"] == "Cohort-A"
     assert result["stateVerified"] is True
-    assert result["audit"]["gxPCompliant"] is True
+    assert result["audit"]["controlEvidenceGenerated"] is True
+    assert result["audit"]["validationStatus"] == "prototype-not-validated"
 
 
 def test_state_token_tampering_rejection(client):
@@ -171,7 +210,7 @@ def test_state_token_tampering_rejection(client):
 
 
 def test_a2ui_omnichannel_transpilation():
-    from app.a2ui_builder import get_a2ui_preset_templates, transpile_a2ui_to_all
+    from option1_cloud_run_gateway.app.a2ui_builder import get_a2ui_preset_templates, transpile_a2ui_to_all
 
     templates = get_a2ui_preset_templates()
     assert "dose_titration" in templates
@@ -189,7 +228,7 @@ def test_a2ui_omnichannel_transpilation():
 
 
 def test_a2ui_jti_nonce_idempotency_guard():
-    from app.security import create_state_token, consume_state_token, reset_jti_registry
+    from option1_cloud_run_gateway.app.security import create_state_token, consume_state_token, reset_jti_registry
     from fastapi import HTTPException
 
     reset_jti_registry()
@@ -211,7 +250,7 @@ def test_a2ui_jti_nonce_idempotency_guard():
 
 
 def test_a2ui_form_controls_and_deviation_template():
-    from app.a2ui_builder import get_a2ui_preset_templates, transpile_a2ui_to_all
+    from option1_cloud_run_gateway.app.a2ui_builder import get_a2ui_preset_templates, transpile_a2ui_to_all
 
     templates = get_a2ui_preset_templates()
     assert "protocol_deviation_triage" in templates
@@ -267,7 +306,7 @@ def test_a2ui_form_controls_and_deviation_template():
 
 
 def test_ui_action_with_form_inputs_and_replay_guard(client):
-    from app.security import create_state_token, reset_jti_registry
+    from option1_cloud_run_gateway.app.security import create_state_token, reset_jti_registry
 
     reset_jti_registry()
     token = create_state_token({
@@ -303,8 +342,8 @@ def test_ui_action_with_form_inputs_and_replay_guard(client):
     assert res1["decision"] == "APPROVED"
     assert res1["formInputs"]["deviationSeverity"] == "Major"
     assert "Liver enzymes" in res1["justification"]
-    assert res1["audit"]["gxPCompliant"] is True
-    assert res1["audit"]["electronicSignature"]["cbfPart11Compliant"] is True
+    assert res1["audit"]["controlEvidenceGenerated"] is True
+    assert res1["audit"]["validationStatus"] == "prototype-not-validated"
 
     # 2. Second Execution (Replay Attack): must be rejected with HTTP 409 Conflict
     resp2 = client.post("/a2a/ui/action", json=action_request, headers=headers)
@@ -314,7 +353,7 @@ def test_ui_action_with_form_inputs_and_replay_guard(client):
 
 def test_portal_a2ui_action_and_electronic_signature():
     from portal.app import app as portal_app
-    from app.security import create_state_token
+    from option1_cloud_run_gateway.app.security import create_state_token
 
     portal_client = TestClient(portal_app)
 
@@ -353,9 +392,10 @@ def test_portal_a2ui_action_and_electronic_signature():
     assert data1["success"] is True
     assert data1["status"] == "COMPLETED"
     assert data1["decision"] == "APPROVED"
-    assert "electronicSignature" in data1
-    assert data1["electronicSignature"]["signerName"] == "Dr. Nitin Aggarwal, MD"
-    assert data1["electronicSignature"]["cbfPart11Compliant"] is True
+    assert "approvalMarker" in data1
+    assert data1["approvalMarker"]["actor"] == "Demo reviewer (not authenticated)"
+    assert data1["approvalMarker"]["cryptographicSignatureCreated"] is False
+    assert data1["approvalMarker"]["regulatoryValidation"] is False
 
     # Check platform-native responses
     platforms = data1["platformResponses"]
@@ -375,7 +415,10 @@ def test_portal_a2ui_action_and_electronic_signature():
     assert data2["idempotencyTriggered"] is True
 
     # 4. Reset idempotency
-    reset_resp = portal_client.post("/api/a2ui/reset-idempotency")
+    reset_resp = portal_client.post(
+        "/api/a2ui/reset-idempotency",
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
     assert reset_resp.status_code == 200
     assert reset_resp.json()["success"] is True
 
@@ -397,19 +440,23 @@ def test_swarm_client_registration(client):
             ]
         }
     }
-    response = client.post("/api/v1/register", json=reg_payload)
+    response = client.post(
+        "/api/v1/register",
+        json=reg_payload,
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "REGISTERED"
     assert data["client_name"] == "Sovereign_Biopharma_Cohort_Swarm_01"
-    assert data["compliance_status"] == "21_CFR_PART_11_CERTIFIED"
+    assert data["compliance_status"] == "CONTROL_PROTOTYPE_NOT_VALIDATED"
     assert "CohortValidation" in data["supported_meanings"]
     assert data["verification_endpoint"] == "/api/v1/verify-signature"
 
 
 def test_swarm_stateless_signature_verification_and_tamper_guard(client):
     """Test CFRPart11Signer envelope verification and cyber-tamper detection."""
-    from app.security import CFRPart11Signer
+    from option1_cloud_run_gateway.app.security import CFRPart11Signer
 
     signer = CFRPart11Signer()
     protocol_doc = b"CLINICAL TRIAL PROTOCOL: Phase IIa sovereign mRNA target mapping..."
@@ -423,22 +470,41 @@ def test_swarm_stateless_signature_verification_and_tamper_guard(client):
     )
 
     # 1. Valid Signature Verification
-    verify_resp = client.post("/api/v1/verify-signature", json=signed_envelope)
+    verify_payload = {
+        **signed_envelope,
+        "document_data": protocol_doc.decode("utf-8"),
+        "max_age_hours": 72,
+    }
+    verify_resp = client.post(
+        "/api/v1/verify-signature",
+        json=verify_payload,
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
     assert verify_resp.status_code == 200
     v_data = verify_resp.json()
     assert v_data["valid"] is True
     assert v_data["signer_id"] == "agent_cohort_matcher_04"
     assert v_data["meaning"] == "CohortValidation"
-    assert v_data["compliance_standard"] == "FDA_21_CFR_PART_11"
+    assert v_data["control_standard"] == "PART_11_ALIGNED_TECHNICAL_CONTROLS"
+    assert v_data["validation_status"] == "PROTOTYPE_NOT_VALIDATED"
 
     # 2. Tamper Attack (Attacker alters document_id or hash)
     tampered_envelope = dict(signed_envelope)
     tampered_envelope["payload"] = dict(signed_envelope["payload"])
     tampered_envelope["payload"]["document_id"] = "protocol_amendment_tampered"
 
-    tamper_resp = client.post("/api/v1/verify-signature", json=tampered_envelope)
+    tampered_payload = {
+        **tampered_envelope,
+        "document_data": protocol_doc.decode("utf-8"),
+        "max_age_hours": 72,
+    }
+    tamper_resp = client.post(
+        "/api/v1/verify-signature",
+        json=tampered_payload,
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
     assert tamper_resp.status_code == 401
-    assert "Verification Failed" in tamper_resp.json()["detail"]
+    assert "verification failed" in tamper_resp.json()["detail"].lower()
 
 
 
