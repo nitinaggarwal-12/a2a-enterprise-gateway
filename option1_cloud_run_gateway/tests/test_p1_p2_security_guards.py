@@ -1,11 +1,11 @@
-"""P1 and P2 Security, Reliability, and Regulatory Compliance Test Suite.
+"""P1 and P2 Security and Reliability Test Suite.
 
 Validates:
 1. Option 2 gRPC Push Dispatcher SSRF guard.
 2. Option 2 gRPC StreamTask cancellation registry memory bounding.
 3. Option 3 Dual-Plane UI Bridge SSRF guard and dynamic UTC audit trail bounding.
 4. Option 1 JSON-RPC 2.0 strict error response conformance (AIP-127).
-5. 21 CFR Part 11 Electronic Signature linking (§ 11.50 / § 11.70) and expiration.
+5. Record-link integrity, signature meaning, and expiration controls.
 6. Sliding window rate limiter DoS protection and 429 response structure.
 7. PromptCanvas export architecture preset validation.
 8. Portal feedback registry bounding (FIFO eviction).
@@ -33,13 +33,17 @@ from option1_cloud_run_gateway.app.rate_limiter import SlidingWindowRateLimiter
 from option1_cloud_run_gateway.app.security import CFRPart11Signer
 from option2_grpc_service.server.push_dispatcher import deliver_task_push_notification
 from option2_grpc_service.server.services import A2AServiceImpl
+from option2_grpc_service.a2a.v1 import a2a_pb2
+from option3_dual_plane.ui_bridge import bridge_service as bridge_module
 from option3_dual_plane.ui_bridge.bridge_service import (
     app as bridge_app,
     DispatchApprovalRequest,
     dispatch_approval,
     AUDIT_TRAIL,
-    MAX_AUDIT_TRAIL,
+    CONSUMED_JTIS,
 )
+from option3_dual_plane.ui_bridge.card_templates import generate_hmac_token
+from option3_dual_plane.backend.config import config as option3_config
 
 portal_client = TestClient(portal_app)
 gateway_client = TestClient(gateway_app)
@@ -68,20 +72,25 @@ async def test_grpc_push_dispatcher_ssrf_guard():
     assert result is False
 
 
-def test_grpc_cancellation_registry_bounded():
-    """Verify A2AServiceImpl._cancelled_tasks is bounded to prevent memory leaks."""
+@pytest.mark.asyncio
+async def test_grpc_cancellation_registry_bounded():
+    """Exercise CancelTask and verify its real registry bound."""
     service = A2AServiceImpl()
-    assert hasattr(service, "_cancelled_tasks")
+    original_max = service.MAX_CANCELLED_TASKS
+    original_batch = service.CANCEL_EVICT_BATCH
+    service.MAX_CANCELLED_TASKS = 20
+    service.CANCEL_EVICT_BATCH = 5
+    try:
+        for i in range(35):
+            request = a2a_pb2.CancelTaskRequest(task_id=f"task-{i}", reason="test")
+            await service.CancelTask(request, None)
+        assert len(service._cancelled_tasks) <= 20
+        assert "task-34" in service._cancelled_tasks
+        assert "task-0" not in service._cancelled_tasks
+    finally:
+        service.MAX_CANCELLED_TASKS = original_max
+        service.CANCEL_EVICT_BATCH = original_batch
 
-    # Fill beyond the 5000 max capacity
-    for i in range(5050):
-        service._cancelled_tasks[f"task-{i}"] = True
-        if len(service._cancelled_tasks) > 5000:
-            service._cancelled_tasks.pop(next(iter(service._cancelled_tasks)), None)
-
-    assert len(service._cancelled_tasks) <= 5000
-    assert "task-5049" in service._cancelled_tasks
-    assert "task-0" not in service._cancelled_tasks
 
 
 @pytest.mark.asyncio
@@ -101,19 +110,42 @@ async def test_dual_plane_ui_bridge_ssrf_guard():
     assert "SSRF Guard" in exc_info.value.detail or "prohibited" in exc_info.value.detail.lower()
 
 
-def test_dual_plane_audit_trail_bounded():
-    """Verify AUDIT_TRAIL list in bridge_service is bounded to MAX_AUDIT_TRAIL."""
-    initial_len = len(AUDIT_TRAIL)
-    # Populate with synthetic entries up to and beyond MAX_AUDIT_TRAIL
-    for i in range(MAX_AUDIT_TRAIL + 50):
-        if len(AUDIT_TRAIL) >= MAX_AUDIT_TRAIL:
-            AUDIT_TRAIL.pop(0)
-        AUDIT_TRAIL.append({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "event": f"TEST_AUDIT_{i}",
-        })
+def test_dual_plane_demo_action_replay_and_audit_bound(monkeypatch):
+    """Exercise the Option 3 callback rather than mutating its list in the test."""
+    AUDIT_TRAIL.clear()
+    CONSUMED_JTIS.clear()
+    monkeypatch.setattr(bridge_module, "MAX_AUDIT_TRAIL", 3)
 
-    assert len(AUDIT_TRAIL) <= MAX_AUDIT_TRAIL
+    for i in range(5):
+        token = generate_hmac_token(
+            {
+                "studyId": "DEMO-001",
+                "cohort": "A",
+                "decision": "APPROVED",
+                "amendment": f"demo-{i}",
+            },
+            option3_config.HMAC_SECRET,
+        )
+        response = bridge_client.post(
+            "/api/v1/bridge/action-callback",
+            json={"stateToken": token, "reviewerEmail": "caller-supplied@example.invalid"},
+        )
+        assert response.status_code == 200
+        record = response.json()["auditRecord"]
+        assert record["actor"] == "Demo reviewer (not authenticated)"
+        assert record["regulatoryValidation"] is False
+
+    assert len(AUDIT_TRAIL) == 3
+
+    replay_token = generate_hmac_token(
+        {"studyId": "DEMO-002", "cohort": "B", "decision": "APPROVED", "amendment": "x"},
+        option3_config.HMAC_SECRET,
+    )
+    first = bridge_client.post("/api/v1/bridge/action-callback", json={"stateToken": replay_token})
+    second = bridge_client.post("/api/v1/bridge/action-callback", json={"stateToken": replay_token})
+    assert first.status_code == 200
+    assert second.status_code == 409
+
 
 
 def test_json_rpc_2_0_error_conformance():
