@@ -11,6 +11,8 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from .config import settings
+
 
 class SlidingWindowRateLimiter:
     """Thread-safe sliding window rate limiter with auto-eviction."""
@@ -32,9 +34,12 @@ class SlidingWindowRateLimiter:
 
     def _get_client_ip(self, request: Request) -> str:
         """Extract client IP from Forwarded / X-Forwarded-For or client host."""
-        forwarded = request.headers.get("x-forwarded-for")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
+        if settings.TRUST_PROXY_HEADERS:
+            forwarded = request.headers.get("x-forwarded-for")
+            if forwarded:
+                # Only safe when the upstream trusted proxy strips caller-supplied
+                # forwarding headers before appending the canonical chain.
+                return forwarded.split(",")[0].strip()
         if request.client and request.client.host:
             return request.client.host
         return "127.0.0.1"
