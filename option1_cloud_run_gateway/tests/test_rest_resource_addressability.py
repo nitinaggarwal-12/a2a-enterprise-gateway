@@ -33,7 +33,7 @@ def test_swarm_client_roa_addressability(portal_client, gateway_client):
     }
 
     # Test on Portal App
-    resp = portal_client.post("/api/v1/register", json=payload)
+    resp = portal_client.post("/api/v1/register", json=payload, headers={"Authorization": "Bearer mock-dev-token"})
     assert resp.status_code == 200
     data = resp.json()
 
@@ -45,7 +45,7 @@ def test_swarm_client_roa_addressability(portal_client, gateway_client):
     assert "registration" in data["_links"]
 
     # Dereference the resource URL (GET /api/v1/swarms/{client_id})
-    get_resp = portal_client.get(data["uri"])
+    get_resp = portal_client.get(data["uri"], headers={"Authorization": "Bearer mock-dev-token"})
     assert get_resp.status_code == 200
     get_data = get_resp.json()
     assert get_data["client_id"] == data["client_id"]
@@ -54,17 +54,17 @@ def test_swarm_client_roa_addressability(portal_client, gateway_client):
 
     # Dereference registration receipt URL
     reg_url = data["_links"]["registration"]["href"]
-    reg_resp = portal_client.get(reg_url)
+    reg_resp = portal_client.get(reg_url, headers={"Authorization": "Bearer mock-dev-token"})
     assert reg_resp.status_code == 200
     assert reg_resp.json()["registration_id"] == data["registration_id"]
 
     # Test on Cloud Run Gateway App
-    gw_resp = gateway_client.post("/api/v1/register", json=payload)
+    gw_resp = gateway_client.post("/api/v1/register", json=payload, headers={"Authorization": "Bearer mock-dev-token"})
     assert gw_resp.status_code == 200
     gw_data = gw_resp.json()
     assert gw_data["uri"] == f"/api/v1/swarms/{gw_data['client_id']}"
 
-    gw_get_resp = gateway_client.get(gw_data["uri"])
+    gw_get_resp = gateway_client.get(gw_data["uri"], headers={"Authorization": "Bearer mock-dev-token"})
     assert gw_get_resp.status_code == 200
     assert gw_get_resp.json()["client_id"] == gw_data["client_id"]
 
@@ -82,8 +82,14 @@ def test_signature_receipt_roa_addressability(portal_client, gateway_client):
         document_data=b"ROA Protocol Safety Dataset Verification",
     )
 
+    verify_payload = {
+        **envelope,
+        "document_data": "ROA Protocol Safety Dataset Verification",
+        "max_age_hours": 72,
+    }
+
     # Test on Portal App
-    resp = portal_client.post("/api/v1/verify-signature", json=envelope)
+    resp = portal_client.post("/api/v1/verify-signature", json=verify_payload, headers={"Authorization": "Bearer mock-dev-token"})
     assert resp.status_code == 200
     data = resp.json()
 
@@ -95,36 +101,46 @@ def test_signature_receipt_roa_addressability(portal_client, gateway_client):
     assert data["_links"]["self"]["href"] == data["uri"]
 
     # Dereference the receipt URL
-    get_resp = portal_client.get(data["uri"])
+    get_resp = portal_client.get(data["uri"], headers={"Authorization": "Bearer mock-dev-token"})
     assert get_resp.status_code == 200
     get_data = get_resp.json()
     assert get_data["receipt_id"] == data["receipt_id"]
     assert get_data["valid"] is True
-    assert get_data["compliance_standard"] == "FDA_21_CFR_PART_11"
+    assert get_data["control_standard"] == "PART_11_ALIGNED_TECHNICAL_CONTROLS"
+    assert get_data["validation_status"] == "PROTOTYPE_NOT_VALIDATED"
 
     # Test on Gateway App
-    gw_resp = gateway_client.post("/api/v1/verify-signature", json=envelope)
+    gw_resp = gateway_client.post("/api/v1/verify-signature", json=verify_payload, headers={"Authorization": "Bearer mock-dev-token"})
     assert gw_resp.status_code == 200
     gw_data = gw_resp.json()
     assert gw_data["uri"] == f"/api/v1/signatures/{gw_data['receipt_id']}"
 
-    gw_get_resp = gateway_client.get(gw_data["uri"])
+    gw_get_resp = gateway_client.get(gw_data["uri"], headers={"Authorization": "Bearer mock-dev-token"})
     assert gw_get_resp.status_code == 200
     assert gw_get_resp.json()["receipt_id"] == gw_data["receipt_id"]
 
 
-def test_fda_dossier_and_benchmark_resources(portal_client):
-    """Verify FDA Dossier and Benchmark resources have unique addressable URLs."""
-    dossier_resp = portal_client.get("/api/v1/dossiers/FDA-AUDIT-2026-A2A-09881")
+def test_demo_dossier_and_benchmark_resource_labels(portal_client):
+    dossier_resp = portal_client.get(
+        "/api/v1/dossiers/FDA-AUDIT-2026-A2A-09881",
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
     assert dossier_resp.status_code == 200
     dossier_data = dossier_resp.json()
     assert dossier_data["dossier_id"] == "FDA-AUDIT-2026-A2A-09881"
-    assert dossier_data["uri"] == "/api/v1/dossiers/FDA-AUDIT-2026-A2A-09881"
-    assert dossier_data["_links"]["self"]["href"] == dossier_data["uri"]
+    assert dossier_data["status"] == "DEMO_TEMPLATE"
+    assert dossier_data["validation_status"] == "NOT_VALIDATED"
 
     bench_resp = portal_client.get("/api/v1/benchmarks/live-empirical-01")
     assert bench_resp.status_code == 200
     bench_data = bench_resp.json()
     assert bench_data["benchmark_id"] == "live-empirical-01"
-    assert bench_data["uri"] == "/api/v1/benchmarks/live-empirical-01"
-    assert bench_data["_links"]["self"]["href"] == bench_data["uri"]
+    assert bench_data["status"] == "STORED_ARTIFACT"
+    assert bench_data["measurement_status"] == "not-live"
+
+
+def test_unknown_resources_fail_closed(portal_client):
+    headers = {"Authorization": "Bearer mock-dev-token"}
+    assert portal_client.get("/api/v1/swarms/does-not-exist", headers=headers).status_code == 404
+    assert portal_client.get("/api/v1/registrations/does-not-exist", headers=headers).status_code == 404
+    assert portal_client.get("/api/v1/signatures/does-not-exist", headers=headers).status_code == 404
