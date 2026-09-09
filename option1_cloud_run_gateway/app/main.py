@@ -67,11 +67,15 @@ logger.handlers = [handler]
 logger.propagate = False
 
 # Initialize FastAPI App
+_EXPOSE_DOCS = settings.APP_ENV.lower() in {"demo", "development"}
 app = FastAPI(
     title="Enterprise A2A Cloud Run Interceptor Gateway",
     version=settings.SERVICE_VERSION,
     description="Enterprise A2A policy gateway with security controls and a non-validated regulated-workflow prototype.",
     lifespan=lifespan,
+    docs_url="/docs" if _EXPOSE_DOCS else None,
+    redoc_url="/redoc" if _EXPOSE_DOCS else None,
+    openapi_url="/openapi.json" if _EXPOSE_DOCS else None,
 )
 
 # CORS setup for web client compatibility (Strict W3C/Fetch spec compliant)
@@ -96,6 +100,12 @@ app.add_middleware(RateLimiterMiddleware)
 
 # Standards-facing A2A v1.0 JSON-RPC surface and Agent Card.
 app.include_router(a2a_v1_router)
+
+
+def require_lab_mode() -> None:
+    """Hide experimental mutation/control APIs unless explicitly enabled."""
+    if not settings.ENABLE_LAB_ENDPOINTS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
 
 
 # Background Worker for Out-of-Band Push Notification
@@ -193,6 +203,7 @@ async def register_swarm_client(
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
     """Register sovereign biopharma agent swarm for stateless 21 CFR Part 11 communication."""
+    require_lab_mode()
     del auth_claims
     client_id = f"swarm-{uuid.uuid4().hex[:12]}"
     reg_id = f"reg-21cfr11-{uuid.uuid4().hex[:16]}"
@@ -240,6 +251,7 @@ async def get_swarm_client(
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
     """Retrieve an existing swarm registration; unknown IDs never fail open."""
+    require_lab_mode()
     del auth_claims
     if client_id not in SWARM_CLIENTS_REGISTRY:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Swarm client not found")
@@ -252,6 +264,7 @@ async def get_swarm_registration(
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
     """Retrieve an existing registration; unknown IDs return 404."""
+    require_lab_mode()
     del auth_claims
     if registration_id not in SWARM_CLIENTS_REGISTRY:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found")
@@ -268,6 +281,7 @@ async def create_swarm_signature(
     Signer identity is derived from verified OIDC claims, never caller input.
     This is a technical control prototype, not a regulatory certification.
     """
+    require_lab_mode()
     data = await request.json()
     document_id = str(data.get("document_id") or "").strip()
     if "document_data" not in data or not document_id:
@@ -307,6 +321,7 @@ async def verify_swarm_signature(
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
     """Verify cryptographic integrity, record linking and signature age."""
+    require_lab_mode()
     del auth_claims
     signer = CFRPart11Signer()
     is_valid, reason = signer.verify_signature(
@@ -347,6 +362,7 @@ async def get_signature_receipt(
     receipt_id: str,
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
+    require_lab_mode()
     del auth_claims
     if receipt_id not in SIGNATURE_RECEIPTS_REGISTRY:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Signature receipt not found")
@@ -359,9 +375,8 @@ async def get_fda_dossier_resource(
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
     """Return a demo dossier template only when lab endpoints are explicitly enabled."""
+    require_lab_mode()
     del auth_claims
-    if not settings.ENABLE_LAB_ENDPOINTS:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
     return {
         "dossier_id": dossier_id,
         "status": "DEMO_TEMPLATE",
