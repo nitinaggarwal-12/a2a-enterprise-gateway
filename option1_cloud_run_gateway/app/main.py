@@ -78,21 +78,27 @@ app = FastAPI(
     openapi_url="/openapi.json" if _EXPOSE_DOCS else None,
 )
 
-# CORS setup for web client compatibility (Strict W3C/Fetch spec compliant)
+# Cross-origin browser access is deny-by-default outside explicit local/demo origins.
+_configured_cors_origins = [
+    origin.strip()
+    for origin in settings.CORS_ALLOWED_ORIGINS.split(",")
+    if origin.strip()
+]
+_local_cors_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:8090",
+    "http://127.0.0.1:8090",
+] if settings.APP_ENV.lower() in {"demo", "development"} else []
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:8090",
-        "http://127.0.0.1:8090",
-    ],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://.*\.run\.app",
+    allow_origins=_local_cors_origins + _configured_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "A2A-Version", "A2A-Extensions"],
 )
 
 from .rate_limiter import RateLimiterMiddleware
@@ -106,6 +112,19 @@ def require_lab_mode() -> None:
     """Hide experimental mutation/control APIs unless explicitly enabled."""
     if not settings.ENABLE_LAB_ENDPOINTS:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    if settings.APP_ENV.lower() in {"staging", "production"}:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 
 # Background Worker for Out-of-Band Push Notification
