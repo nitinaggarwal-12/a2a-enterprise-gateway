@@ -54,7 +54,11 @@ class Settings(BaseSettings):
     # Downstream Agent Routing
     DOWNSTREAM_AGENT_URL: Optional[str] = Field(
         default=None,
-        description="Downstream agent URL (if empty, gateway runs in standalone mock mode)"
+        description="Downstream A2A agent URL. Production requires a durable downstream service."
+    )
+    DOWNSTREAM_ID_TOKEN_AUDIENCE: Optional[str] = Field(
+        default=None,
+        description="Optional Google OIDC audience used to mint a destination-specific ADC ID token for the downstream agent."
     )
     DOWNSTREAM_TIMEOUT_SECONDS: float = Field(
         default=60.0,
