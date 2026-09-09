@@ -15,13 +15,15 @@ from pydantic import ValidationError
 
 from portal.app import app as portal_app
 from option1_cloud_run_gateway.app.main import app as gateway_app
-from option1_cloud_run_gateway.app.config import Settings
+from option1_cloud_run_gateway.app.config import Settings, settings
 from option1_cloud_run_gateway.app.security import (
     is_safe_webhook_url,
     CONSUMED_JTI_REGISTRY,
     _prune_expired_jtis,
     create_state_token,
     reset_jti_registry,
+    get_jti_store,
+    verify_google_oidc,
 )
 from option3_dual_plane.backend.config import PlaneConfig
 
@@ -131,7 +133,7 @@ def test_promptcanvas_xxe_and_entity_bomb_blocked():
 
 
 def test_dynamic_utc_timestamps_iso8601():
-    """Verify audit timestamps are dynamically generated UTC ISO-8601 strings (21 CFR § 11.50)."""
+    """Verify control-evidence timestamps are dynamically generated UTC ISO-8601 strings."""
     token = create_state_token({
         "taskId": "task-test-audit-1",
         "studyId": "MK-3475-001",
