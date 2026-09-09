@@ -25,7 +25,7 @@ async def deliver_task_push_notification(
     state: str,
     output_data: Dict[str, Any],
     token: Optional[str] = None,
-    secret_key: str = "Enterprise-a2a-grpc-push-key-2026",
+    secret_key: Optional[str] = None,
 ) -> bool:
     """Deliver push notification payload to the specified AIP-127 push URL."""
     if not url:
@@ -46,7 +46,10 @@ async def deliver_task_push_notification(
     payload_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
 
     # Generate HMAC-SHA256 signature for payload integrity
-    signing_key = os.getenv("A2A_GRPC_PUSH_SECRET", secret_key)
+    signing_key = os.getenv("A2A_GRPC_PUSH_SECRET") or secret_key
+    if not signing_key:
+        logger.error("[PushDispatcher] A2A_GRPC_PUSH_SECRET is required for push delivery")
+        return False
     signature = hmac.new(signing_key.encode("utf-8"), payload_bytes, hashlib.sha256).hexdigest()
 
     headers = {
