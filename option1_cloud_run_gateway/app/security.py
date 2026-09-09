@@ -162,6 +162,11 @@ class RedisJTIStore(BaseJTIStore):
 
     def is_consumed_and_record(self, jti: str, exp_ts: float, now_ts: float) -> bool:
         if not self._client:
+            if settings.APP_ENV.lower() in {"staging", "production"}:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Distributed replay-protection client is unavailable",
+                )
             return self.fallback.is_consumed_and_record(jti, exp_ts, now_ts)
         try:
             ttl_seconds = max(1, int(exp_ts - now_ts))
