@@ -1,6 +1,6 @@
 """A2UI and Omnichannel Enterprise Surface Builder & Transpiler.
 
-Transpiles canonical A2UI (Agent-to-Agent UI v1.0.0) surfaces into 4 native enterprise targets:
+Transpiles an internal A2UI adapter surface into 4 enterprise targets. Official A2UI v0.9.1 is the current production specification; v1.0 is still a candidate:
 1. Google Workspace Card v2 (Google Chat & Gemini Enterprise Chat Cards)
 2. Web React / Glassmorphic Card (Native Tailwind/Alpine interactive DOM)
 3. Slack Block Kit (Slack Enterprise Grid)
@@ -11,7 +11,7 @@ Also provides biopharma regulated extensions:
 - Pharmacovigilance E2B(R3) 15-Day Expedited Reporting Clock Ticker
 - Multi-Sig Sequential Sign-Off Chains (Biostatistician -> Medical Monitor -> QA Director)
 - Declarative Sliders, Input Forms, and Sortable Clinical Data Grids
-- 21 CFR Part 11 Stateless JTI Nonce-Guarded HMAC State Tokens
+- Part 11-aligned control prototype Stateless JTI Nonce-Guarded HMAC State Tokens
 """
 
 import uuid
@@ -93,15 +93,15 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
         "dose_titration": {
             "id": "dose_titration",
             "name": "Phase III Dose Titration & Toxicity Sign-Off",
-            "description": "Interactive dosage slider with real-time Bayesian toxicity variance calculation and 21 CFR Part 11 approval buttons.",
+            "description": "Interactive dosage slider with real-time Bayesian toxicity variance calculation and Part 11-aligned control prototype approval buttons.",
             "category": "Clinical Safety",
             "a2ui": {
-                "schemaVersion": "1.0.0",
+                "schemaVersion": "adapter-1.0",
                 "surfaceType": "a2ui_card",
                 "id": f"card-dose-{task_dose}",
                 "header": {
                     "title": "Clinical Study Amendment: MK-3475-087",
-                    "subtitle": "Cohort-B Dose Titration | Protocol v4.2 | 21 CFR Part 11 Electronic Signature",
+                    "subtitle": "Cohort-B Dose Titration | Protocol v4.2 | Part 11-aligned control prototype Electronic Signature",
                     "statusBadge": "PENDING_APPROVAL",
                     "avatarIcon": "fa-dna",
                 },
@@ -113,7 +113,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
                             {"label": "Protocol Number", "value": "MK-3475-087"},
                             {"label": "Patient Population", "value": "Cohort-B (Advanced NSCLC, n=240)"},
                             {"label": "Current Baseline Dose", "value": "400 mg IV Q3W"},
-                            {"label": "Regulatory Standard", "value": "21 CFR Part 11 / GxP Class 1"},
+                            {"label": "Regulatory Standard", "value": "Part 11-aligned control prototype / GxP validation required"},
                         ],
                     },
                     {
@@ -140,7 +140,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
                     },
                     {
                         "type": "sequential_multisig",
-                        "title": "21 CFR Part 11 Approval Chain",
+                        "title": "Part 11-aligned control prototype Approval Chain",
                         "steps": [
                             {"role": "Lead Biostatistician", "name": "Dr. Elena Vance, PhD", "status": "APPROVED", "timestamp": "2026-09-03 14:12 UTC", "hash": "sig-hmac-vance-91f82"},
                             {"role": "Medical Monitor", "name": "Dr. R. Patel, MD", "status": "CURRENT_REVIEWER", "timestamp": "Awaiting Decision", "hash": "PENDING"},
@@ -174,7 +174,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
             "description": "15-day expedited reporting clock ticker, MedDRA v26.1 preferred terms, and health authority submission dispatch.",
             "category": "Pharmacovigilance",
             "a2ui": {
-                "schemaVersion": "1.0.0",
+                "schemaVersion": "adapter-1.0",
                 "surfaceType": "a2ui_card",
                 "id": f"card-pv-{task_pv}",
                 "header": {
@@ -238,7 +238,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
             "description": "Interactive sortable data table with double-blind role-based masking (DSMB unblinded vs blinded investigator).",
             "category": "Data Management",
             "a2ui": {
-                "schemaVersion": "1.0.0",
+                "schemaVersion": "adapter-1.0",
                 "surfaceType": "a2ui_card",
                 "id": "card-lab-grid-001",
                 "header": {
@@ -291,7 +291,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
             "description": "Manufacturing deviation triage, root cause analysis, and 3-tier electronic signature release.",
             "category": "GMP Manufacturing",
             "a2ui": {
-                "schemaVersion": "1.0.0",
+                "schemaVersion": "adapter-1.0",
                 "surfaceType": "a2ui_card",
                 "id": f"card-gmp-{task_gmp}",
                 "header": {
@@ -322,7 +322,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
                 "actions": [
                     {
                         "id": "action_qa_release",
-                        "label": "21 CFR Part 11 Electronic Batch Release",
+                        "label": "Part 11-aligned control prototype Electronic Batch Release",
                         "style": "PRIMARY",
                         "actionType": "SUBMIT_STATE",
                         "targetUrl": "/a2a/ui/action",
@@ -345,12 +345,12 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
             "description": "Interactive GxP form controls: text input for medical justification, dropdown for deviation classification, radio buttons for subject action, and scheduled amendment date picker.",
             "category": "Clinical Operations",
             "a2ui": {
-                "schemaVersion": "1.0.0",
+                "schemaVersion": "adapter-1.0",
                 "surfaceType": "a2ui_card",
                 "id": f"card-deviation-{task_dev}",
                 "header": {
                     "title": "Protocol Deviation Triage: Study MK-3475-087",
-                    "subtitle": "Subject US-101-0014 | Site 101 (Boston Clinical Research) | 21 CFR Part 11",
+                    "subtitle": "Subject US-101-0014 | Site 101 (Boston Clinical Research) | Part 11-aligned control prototype",
                     "statusBadge": "DEVIATION_PENDING_REVIEW",
                     "avatarIcon": "fa-clipboard-check",
                 },
@@ -399,7 +399,7 @@ def get_a2ui_preset_templates() -> Dict[str, Any]:
                         "type": "text_input",
                         "id": "justification_rationale",
                         "name": "justificationRationale",
-                        "label": "Medical Director Justification & Clinical Rationale (21 CFR Part 11 § 11.50)",
+                        "label": "Medical Director Justification & Clinical Rationale (Part 11-aligned control prototype § 11.50)",
                         "multiline": True,
                         "placeholder": "Enter detailed clinical rationale, safety monitoring plan, and institutional IRB/IEC notification summary...",
                         "defaultValue": "Subject exhibited transient Grade 1 nausea with normal AST/ALT liver enzymes. Safety profile permits continuation with weekly hepatic biomarker surveillance.",
@@ -616,7 +616,7 @@ def transpile_a2ui_to_google_card_v2(a2ui_card: Dict[str, Any], unblind: bool = 
             button_widgets.append(btn)
 
         google_sections.append({
-            "header": "Human-in-the-Loop Sign-Off (21 CFR Part 11)",
+            "header": "Human-in-the-Loop Sign-Off (Part 11-aligned control prototype)",
             "widgets": [{"buttonList": {"buttons": button_widgets}}],
         })
 
@@ -809,7 +809,7 @@ def transpile_a2ui_to_slack_block_kit(a2ui_card: Dict[str, Any], unblind: bool =
         "elements": [
             {
                 "type": "mrkdwn",
-                "text": "🔒 *21 CFR Part 11 Stateless JTI Nonce Guard* | Sealed by Google A2A Gateway v1.0.0",
+                "text": "🔒 *Part 11-aligned control prototype Stateless JTI Nonce Guard* | Sealed by Google A2A Gateway v1.0.0",
             }
         ],
     })
@@ -1005,7 +1005,7 @@ def transpile_a2ui_to_web_glassmorphic(a2ui_card: Dict[str, Any], unblind: bool 
     card = dict(inner)
     card["unblindedView"] = unblind
     card["transpiledAt"] = "2026-09-04T00:00:00Z"
-    card["targetFramework"] = "Tailwind CSS + Alpine.js v3 + 21 CFR Part 11 Web Component"
+    card["targetFramework"] = "Tailwind CSS + Alpine.js v3 + Part 11-aligned control prototype Web Component"
 
     for sec in card.get("sections", []):
         if sec.get("type") == "data_grid" and unblind:
@@ -1036,8 +1036,8 @@ def transpile_a2ui_to_all(a2ui_card: Dict[str, Any], unblind: bool = False) -> D
         "webGlassmorphic": transpile_a2ui_to_web_glassmorphic(a2ui_card, unblind=unblind),
         "dialects": ["google_card_v2", "slack_block_kit", "teams_adaptive_card", "web_glassmorphic"],
         "isUnblinded": unblind,
-        "schemaVersion": "1.0.0",
-        "gxpAudited": True,
+        "schemaVersion": "adapter-1.0",
+        "gxpAudited": False,\n        "validationStatus": "prototype-not-validated",
     }
 
 
@@ -1049,6 +1049,7 @@ def build_clinical_review_surface(
     protocol_version: str = "v4.2",
     variance_pct: float = 2.14,
     findings: Optional[str] = None,
+    approver_subject: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Build a dual-dialect A2UI and Google Card v2 surface with JTI nonce-guarded state tokens."""
     if findings is None:
@@ -1064,6 +1065,7 @@ def build_clinical_review_surface(
         "decision": "APPROVED",
         "protocolVersion": protocol_version,
         "pushUrl": push_url,
+        "approverSub": approver_subject,
     })
 
     reject_token = create_state_token({
@@ -1073,15 +1075,16 @@ def build_clinical_review_surface(
         "decision": "REJECTED",
         "protocolVersion": protocol_version,
         "pushUrl": push_url,
+        "approverSub": approver_subject,
     })
 
     a2ui_flat = {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "adapter-1.0",
         "surfaceType": "a2ui_card",
         "id": f"card-review-{task_id}",
         "header": {
             "title": f"Clinical Study Amendment Sign-off: {study_id}",
-            "subtitle": f"Cohort {cohort} | Protocol {protocol_version} | 21 CFR Part 11 Audit Trail",
+            "subtitle": f"Cohort {cohort} | Protocol {protocol_version} | Electronic review control prototype",
             "statusBadge": "PENDING_APPROVAL",
         },
         "sections": [
@@ -1091,7 +1094,7 @@ def build_clinical_review_surface(
                     {"label": "Study Protocol", "value": study_id},
                     {"label": "Patient Cohort", "value": cohort},
                     {"label": "Safety Variance", "value": f"+{variance_pct}%"},
-                    {"label": "GXP Compliance Level", "value": "Validated - GxP Class 1"},
+                    {"label": "GXP Compliance Level", "value": "Validated - GxP validation required"},
                 ],
             },
             {
