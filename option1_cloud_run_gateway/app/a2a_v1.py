@@ -5,6 +5,7 @@ implements the standards-facing discovery and core JSON-RPC operations using
 A2A v1.0 field names and version negotiation.
 """
 
+import asyncio
 from collections import OrderedDict
 from datetime import datetime, timezone
 import hashlib
@@ -20,7 +21,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from .a2ui_builder import build_clinical_review_surface
 from .config import settings
 from .sanitizer import sanitize_a2a_envelope, sanitize_payload
-from .security import verify_google_oidc
+from .security import mint_downstream_id_token, verify_google_oidc
 
 
 router = APIRouter()
@@ -173,6 +174,20 @@ async def _proxy_to_downstream(payload: Dict[str, Any], version: str, extensions
     }
     if extensions:
         headers["A2A-Extensions"] = extensions
+    if settings.DOWNSTREAM_ID_TOKEN_AUDIENCE:
+        try:
+            token = await asyncio.to_thread(
+                mint_downstream_id_token,
+                settings.DOWNSTREAM_ID_TOKEN_AUDIENCE,
+            )
+        except Exception:
+            return _jsonrpc_error(
+                payload.get("id"),
+                -32006,
+                "Downstream authentication is unavailable",
+                503,
+            )
+        headers["Authorization"] = f"Bearer {token}"
     async with httpx.AsyncClient(timeout=settings.DOWNSTREAM_TIMEOUT_SECONDS) as client:
         response = await client.post(target, json=sanitize_a2a_envelope(payload), headers=headers)
     try:
