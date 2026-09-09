@@ -76,7 +76,14 @@ class Settings(BaseSettings):
             raise ValueError("ALLOW_DEV_AUTH may only be enabled when APP_ENV=development")
 
         if env in {"staging", "production"}:
-            insecure_defaults = {"secret", "changeme", "default", "test"}
+            insecure_defaults = {
+                "secret",
+                "changeme",
+                "default",
+                "test",
+                # Historical repository default is permanently compromised once published.
+                "enterprise-gxp-clinical-vault-super-secure-hmac-sha256-key-2026",
+            }
             if (
                 not self.JWT_SECRET
                 or self.JWT_SECRET.startswith("ephemeral-")
