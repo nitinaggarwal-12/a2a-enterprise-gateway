@@ -151,3 +151,18 @@ def test_dynamic_utc_timestamps_iso8601():
     now_dt = datetime.now(timezone.utc)
     delta_seconds = abs((now_dt - parsed_dt).total_seconds())
     assert delta_seconds < 60, f"Timestamp {verified_at_str} is not fresh UTC (delta: {delta_seconds}s)"
+
+
+
+def test_dev_auth_requires_explicit_opt_in(monkeypatch):
+    from fastapi import HTTPException
+
+    monkeypatch.setattr(settings, "APP_ENV", "development")
+    monkeypatch.setattr(settings, "ALLOW_DEV_AUTH", False)
+    with pytest.raises(HTTPException) as exc_info:
+        verify_google_oidc(None)
+    assert exc_info.value.status_code == 401
+
+    monkeypatch.setattr(settings, "ALLOW_DEV_AUTH", True)
+    claims = verify_google_oidc(None)
+    assert claims["auth_mode"] == "explicit-dev-bypass"
