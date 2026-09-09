@@ -1,8 +1,8 @@
 """Cloud Run Interceptor Gateway Main Application.
 
 Stateless FastAPI gateway between Gemini Enterprise (GE) and Enterprise Enterprise Agent Platform.
-Provides zero-metadata leakage sanitization, SSE stream passthrough, OIDC auth verification,
-and cryptographic state token sealing for 48+ hr Human-in-the-Loop workflows.
+Provides policy sanitization, authenticated A2A routing, sanitized streaming,
+and cryptographic state tokens for Human-in-the-Loop workflows.
 """
 
 import json
@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from .config import settings
-from .sanitizer import sanitize_headers, sanitize_payload
+from .sanitizer import sanitize_a2a_envelope, sanitize_headers, sanitize_payload, sanitize_sse_event
 from .security import (
     consume_state_token,
     verify_google_oidc,
@@ -29,6 +29,7 @@ from .security import (
     is_safe_webhook_url,
 )
 from .a2ui_builder import build_clinical_review_surface
+from .a2a_v1 import router as a2a_v1_router
 
 
 @asynccontextmanager
@@ -69,7 +70,7 @@ logger.propagate = False
 app = FastAPI(
     title="Enterprise A2A Cloud Run Interceptor Gateway",
     version=settings.SERVICE_VERSION,
-    description="Production-ready GxP-compliant stateless interceptor gateway for Agent-to-Agent communication.",
+    description="Enterprise A2A policy gateway with security controls and a non-validated regulated-workflow prototype.",
     lifespan=lifespan,
 )
 
@@ -92,6 +93,9 @@ app.add_middleware(
 
 from .rate_limiter import RateLimiterMiddleware
 app.add_middleware(RateLimiterMiddleware)
+
+# Standards-facing A2A v1.0 JSON-RPC surface and Agent Card.
+app.include_router(a2a_v1_router)
 
 
 # Background Worker for Out-of-Band Push Notification
@@ -118,13 +122,13 @@ async def dispatch_push_notification(push_url: str, task_id: str, decision: str,
                     "cohort": cohort,
                     "decision": decision,
                     "signedOffAt": now_utc,
-                    "auditedBy": "Dr. Medical Director (GxP e-Sign)",
-                    "compliance": "21 CFR Part 11 Electronic Signature Verified",
+                    "auditedBy": "authenticated gateway reviewer",
+                    "controlEvidence": "cryptographic approval token verified; regulatory validation not asserted",
                 },
             },
             "id": str(uuid.uuid4()),
         }
-        headers = {"Content-Type": "application/json", "X-Enterprise-GxP-Gateway": "Verified"}
+        headers = {"Content-Type": "application/json", "X-Enterprise-Policy-Gateway": "Controls-Verified"}
         client = getattr(app.state, "http_client", None)
         close_client = False
         if client is None or client.is_closed:
@@ -146,33 +150,6 @@ async def dispatch_push_notification(push_url: str, task_id: str, decision: str,
         )
 
 
-# Discovery Endpoint
-@app.get("/.well-known/agent.json")
-async def get_agent_discovery():
-    """Expose standard A2A discovery card metadata (v1.0.0)."""
-    return {
-        "schemaVersion": "1.0.0",
-        "protocolVersion": "1.0.0",
-        "name": "Enterprise Clinical Agent Gateway",
-        "description": "GxP Validated 21 CFR Part 11 Clinical Study Amendment & Adverse Event Analyzer",
-        "version": settings.SERVICE_VERSION,
-        "capabilities": {
-            "streaming": True,
-            "pushNotifications": True,
-            "stateTokens": True,
-            "gxpSanitization": True,
-            "a2ui": True,
-            "webhooks": True,
-        },
-        "endpoints": {
-            "tasks": "/a2a/tasks",
-            "uiAction": "/a2a/ui/action",
-            "health": "/healthz",
-        },
-        "supportedDialects": ["a2ui.v1", "google_card_v2"],
-    }
-
-
 # Health Check
 @app.get("/")
 @app.get("/health")
@@ -184,6 +161,8 @@ async def health_check():
         "service": settings.SERVICE_NAME,
         "environment": settings.APP_ENV,
         "version": settings.SERVICE_VERSION,
+        "securityMode": "explicit-dev-bypass" if settings.ALLOW_DEV_AUTH else "oidc-required",
+        "regulatedUse": "prototype-not-validated",
     }
 
 
@@ -200,6 +179,8 @@ class SwarmRegistrationPayload(BaseModel):
 class SignedEnvelope(BaseModel):
     payload: Dict[str, Any]
     signature: str
+    document_data: Any
+    max_age_hours: int = Field(default=72, ge=1, le=720)
 
 
 SWARM_CLIENTS_REGISTRY: Dict[str, Any] = {}
@@ -209,8 +190,10 @@ SIGNATURE_RECEIPTS_REGISTRY: Dict[str, Any] = {}
 @app.post("/api/v1/register")
 async def register_swarm_client(
     payload: SwarmRegistrationPayload,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
     """Register sovereign biopharma agent swarm for stateless 21 CFR Part 11 communication."""
+    del auth_claims
     client_id = f"swarm-{uuid.uuid4().hex[:12]}"
     reg_id = f"reg-21cfr11-{uuid.uuid4().hex[:16]}"
     now_iso = datetime.now(timezone.utc).isoformat()
@@ -235,7 +218,7 @@ async def register_swarm_client(
         "registered_at": now_iso,
         "gateway_target": payload.gateway_target or "https://a2a-gateway-638420508320.us-central1.run.app",
         "security_scheme": payload.security_scheme,
-        "compliance_status": "21_CFR_PART_11_CERTIFIED",
+        "compliance_status": "CONTROL_PROTOTYPE_NOT_VALIDATED",
         "supported_meanings": supported_meanings,
         "verification_endpoint": "/api/v1/verify-signature",
         "uri": f"/api/v1/swarms/{client_id}",
@@ -244,7 +227,7 @@ async def register_swarm_client(
             "registration": {"href": f"/api/v1/registrations/{reg_id}"},
             "verify": {"href": "/api/v1/verify-signature"},
         },
-        "message": "Sovereign Swarm registered statelessly with 21 CFR Part 11 electronic signature compliance."
+        "message": "Swarm registration created for a Part 11-aligned control prototype; customer validation is required."
     }
     SWARM_CLIENTS_REGISTRY[client_id] = record
     SWARM_CLIENTS_REGISTRY[reg_id] = record
@@ -252,64 +235,90 @@ async def register_swarm_client(
 
 
 @app.get("/api/v1/swarms/{client_id}")
-async def get_swarm_client(client_id: str):
-    """Retrieve unique sovereign biopharma agent swarm by client_id."""
-    if client_id in SWARM_CLIENTS_REGISTRY:
-        return SWARM_CLIENTS_REGISTRY[client_id]
-    return {
-        "client_id": client_id,
-        "status": "ACTIVE_REGISTERED",
-        "organization": "Sovereign Therapeutics Corp",
-        "security_scheme": "HMAC-SHA256",
-        "compliance_status": "21_CFR_PART_11_CERTIFIED",
-        "uri": f"/api/v1/swarms/{client_id}",
-        "_links": {
-            "self": {"href": f"/api/v1/swarms/{client_id}"},
-            "verify": {"href": "/api/v1/verify-signature"},
-        }
-    }
+async def get_swarm_client(
+    client_id: str,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
+):
+    """Retrieve an existing swarm registration; unknown IDs never fail open."""
+    del auth_claims
+    if client_id not in SWARM_CLIENTS_REGISTRY:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Swarm client not found")
+    return SWARM_CLIENTS_REGISTRY[client_id]
 
 
 @app.get("/api/v1/registrations/{registration_id}")
-async def get_swarm_registration(registration_id: str):
-    """Retrieve registration details by registration_id."""
-    if registration_id in SWARM_CLIENTS_REGISTRY:
-        return SWARM_CLIENTS_REGISTRY[registration_id]
-    return {
-        "registration_id": registration_id,
-        "status": "VALID",
-        "uri": f"/api/v1/registrations/{registration_id}",
-        "_links": {"self": {"href": f"/api/v1/registrations/{registration_id}"}}
-    }
+async def get_swarm_registration(
+    registration_id: str,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
+):
+    """Retrieve an existing registration; unknown IDs return 404."""
+    del auth_claims
+    if registration_id not in SWARM_CLIENTS_REGISTRY:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found")
+    return SWARM_CLIENTS_REGISTRY[registration_id]
 
 
 @app.post("/api/v1/create-signature")
-async def create_swarm_signature(request: Request):
-    """Generate a valid 21 CFR Part 11 compliant signature envelope."""
+async def create_swarm_signature(
+    request: Request,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
+):
+    """Create identity-bound cryptographic control evidence.
+
+    Signer identity is derived from verified OIDC claims, never caller input.
+    This is a technical control prototype, not a regulatory certification.
+    """
     data = await request.json()
+    document_id = str(data.get("document_id") or "").strip()
+    if "document_data" not in data or not document_id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="document_id and document_data are required",
+        )
+    if auth_claims.get("email_verified") is False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Verified signer identity is required")
+
+    signer_id = str(auth_claims.get("sub") or "").strip()
+    signer_name = str(auth_claims.get("name") or auth_claims.get("email") or signer_id).strip()
+    if not signer_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="OIDC subject is required")
+
     signer = CFRPart11Signer()
-    envelope = signer.create_signature_payload(
-        agent_id=data.get("agent_id", "agent_clinical_oncology_01"),
-        agent_name=data.get("agent_name", "Dr. Sarah Chen, MD"),
-        meaning=data.get("meaning", "ProtocolApproval"),
-        document_id=data.get("document_id", "doc-clinical-dose-9042"),
-        document_data=data.get("document_data", f"Dose escalation to {data.get('dose_mg', 350)}mg for SUBJ-9042"),
-    )
+    try:
+        envelope = signer.create_signature_payload(
+            agent_id=signer_id,
+            agent_name=signer_name,
+            meaning=data.get("meaning", "ProtocolApproval"),
+            document_id=document_id,
+            document_data=data["document_data"],
+            extra_metadata={
+                "identity_source": "google_oidc",
+                "validation_status": "prototype-not-validated",
+            },
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     return envelope
 
 
 @app.post("/api/v1/verify-signature")
 async def verify_swarm_signature(
     envelope: SignedEnvelope,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
-    """Statelessly verify a 21 CFR Part 11 compliant HMAC-SHA256 signature envelope."""
+    """Verify cryptographic integrity, record linking and signature age."""
+    del auth_claims
     signer = CFRPart11Signer()
-    is_valid, reason = signer.verify_signature({"payload": envelope.payload, "signature": envelope.signature})
+    is_valid, reason = signer.verify_signature(
+        {"payload": envelope.payload, "signature": envelope.signature},
+        document_data=envelope.document_data,
+        max_age_hours=envelope.max_age_hours,
+    )
 
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"21 CFR Part 11 Verification Failed: {reason}",
+            detail=f"Electronic-signature verification failed: {reason}",
         )
 
     receipt_id = f"sig-rec-{hashlib.sha256(envelope.signature.encode()).hexdigest()[:16]}"
@@ -322,13 +331,11 @@ async def verify_swarm_signature(
         "document_id": envelope.payload.get("document_id"),
         "document_hash": envelope.payload.get("document_hash"),
         "verified_at": datetime.now(timezone.utc).isoformat(),
-        "compliance_standard": "FDA_21_CFR_PART_11",
-        "audit_status": "VALID_STATELESS_SIGNATURE",
+        "control_standard": "PART_11_ALIGNED_TECHNICAL_CONTROLS",
+        "validation_status": "PROTOTYPE_NOT_VALIDATED",
+        "audit_status": "CRYPTOGRAPHIC_LINK_VERIFIED",
         "uri": f"/api/v1/signatures/{receipt_id}",
-        "_links": {
-            "self": {"href": f"/api/v1/signatures/{receipt_id}"},
-            "document": {"href": f"/api/v1/documents/{envelope.payload.get('document_id', 'doc-1')}"}
-        },
+        "_links": {"self": {"href": f"/api/v1/signatures/{receipt_id}"}},
         "message": reason,
     }
     SIGNATURE_RECEIPTS_REGISTRY[receipt_id] = receipt
@@ -336,31 +343,31 @@ async def verify_swarm_signature(
 
 
 @app.get("/api/v1/signatures/{receipt_id}")
-async def get_signature_receipt(receipt_id: str):
-    """Retrieve statutory 21 CFR Part 11 signature verification receipt by receipt_id."""
-    if receipt_id in SIGNATURE_RECEIPTS_REGISTRY:
-        return SIGNATURE_RECEIPTS_REGISTRY[receipt_id]
-    return {
-        "receipt_id": receipt_id,
-        "valid": True,
-        "compliance_standard": "FDA_21_CFR_PART_11",
-        "uri": f"/api/v1/signatures/{receipt_id}",
-        "_links": {"self": {"href": f"/api/v1/signatures/{receipt_id}"}}
-    }
+async def get_signature_receipt(
+    receipt_id: str,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
+):
+    del auth_claims
+    if receipt_id not in SIGNATURE_RECEIPTS_REGISTRY:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Signature receipt not found")
+    return SIGNATURE_RECEIPTS_REGISTRY[receipt_id]
 
 
 @app.get("/api/v1/dossiers/{dossier_id}")
-async def get_fda_dossier_resource(dossier_id: str):
-    """Retrieve FDA 21 CFR Part 11 & GAMP 5 inspection dossier resource by ID."""
+async def get_fda_dossier_resource(
+    dossier_id: str,
+    auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
+):
+    """Return a demo dossier template only when lab endpoints are explicitly enabled."""
+    del auth_claims
+    if not settings.ENABLE_LAB_ENDPOINTS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
     return {
         "dossier_id": dossier_id,
-        "inspection_id": "FDA-AUDIT-2026-A2A-09881",
-        "status": "CONFORMANT_READY_FOR_BLA",
-        "compliance": "21_CFR_PART_11",
+        "status": "DEMO_TEMPLATE",
+        "validation_status": "NOT_VALIDATED",
+        "compliance_mapping": "21_CFR_PART_11_REFERENCE_ONLY",
         "uri": f"/api/v1/dossiers/{dossier_id}",
-        "_links": {
-            "self": {"href": f"/api/v1/dossiers/{dossier_id}"}
-        }
     }
 
 
@@ -462,7 +469,7 @@ async def handle_task_dispatch(
             )
 
     # 1. Sanitize incoming payload (Drop adk_metadata, _adk, __adk*, ge_context, etc.)
-    cleaned_payload = sanitize_payload(incoming_json)
+    cleaned_payload = sanitize_a2a_envelope(incoming_json)
     cleaned_headers = sanitize_headers(dict(request.headers))
 
     logger.info(
@@ -494,14 +501,28 @@ async def handle_task_dispatch(
         content_type = response.headers.get("content-type", "")
         if "text/event-stream" in content_type:
             async def event_generator():
+                buffer = b""
                 try:
                     async for chunk in response.aiter_raw():
                         if await request.is_disconnected():
                             logger.info("Client disconnected during SSE stream; stopping upstream consumption.")
                             break
-                        yield chunk
+                        buffer += chunk
+                        buffer = buffer.replace(b"\r\n", b"\n")
+                        while b"\n\n" in buffer:
+                            raw_event, buffer = buffer.split(b"\n\n", 1)
+                            if raw_event.strip():
+                                yield sanitize_sse_event(raw_event + b"\n\n")
+                    if buffer.strip():
+                        yield sanitize_sse_event(buffer + b"\n\n")
                 except Exception as exc:
-                    logger.warning(f"Error during SSE stream passthrough: {exc}")
+                    logger.error(f"Upstream SSE event blocked by gateway policy: {exc}")
+                    safe_error = {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "error": {"code": -32603, "message": "Upstream stream blocked by gateway policy"},
+                    }
+                    yield ("data: " + json.dumps(safe_error) + "\n\n").encode("utf-8")
                 finally:
                     await response.aclose()
                     if close_client:
@@ -526,10 +547,17 @@ async def handle_task_dispatch(
                 sanitized_resp = sanitize_payload(resp_json)
                 return JSONResponse(content=sanitized_resp, status_code=response.status_code)
             except Exception:
-                return Response(
-                    content=resp_bytes,
-                    status_code=response.status_code,
-                    media_type=content_type,
+                logger.error("Blocked non-JSON downstream response on policy gateway")
+                return JSONResponse(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    content={
+                        "jsonrpc": "2.0",
+                        "id": cleaned_payload.get("id"),
+                        "error": {
+                            "code": -32006,
+                            "message": "Downstream returned a response that cannot be safely normalized",
+                        },
+                    },
                 )
 
     # 3. Standalone Mode: Generate HITL Input Required Response with Sealed A2UI Artifact
@@ -563,6 +591,7 @@ async def handle_task_dispatch(
         push_url=push_url,
         protocol_version="v4.2",
         variance_pct=2.14,
+        approver_subject=auth_claims.get("sub"),
     )
 
     response_body = {
@@ -649,6 +678,19 @@ async def handle_ui_action(
     # Atomically verify signature and consume JTI nonce statelessly (guards against replay attacks)
     state_claims = consume_state_token(state_token)
 
+    bound_subject = state_claims.get("approverSub")
+    current_subject = auth_claims.get("sub")
+    if bound_subject and bound_subject != current_subject:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Approval token is bound to a different authenticated subject",
+        )
+    if not bound_subject and settings.APP_ENV.lower() in {"staging", "production"}:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unbound legacy approval tokens are not accepted in staging/production",
+        )
+
     task_id = state_claims.get("taskId", "unknown-task")
     study_id = state_claims.get("studyId", "unknown-study")
     cohort = state_claims.get("cohort", "unknown-cohort")
@@ -693,11 +735,13 @@ async def handle_ui_action(
                 "tokenExpiresAt": state_claims.get("exp"),
                 "jtiNonce": state_claims.get("jti"),
                 "verifiedAt": now_utc,
-                "gxPCompliant": True,
-                "electronicSignature": {
-                    "meaning": "I verify that I am the authorized clinical investigator and have reviewed all patient safety data.",
+                "controlEvidenceGenerated": True,
+                "validationStatus": "prototype-not-validated",
+                "authenticatedSubject": current_subject,
+                "electronicSignatureControl": {
+                    "meaning": "Authenticated user executed the bound review action.",
                     "timestamp": now_utc,
-                    "cbfPart11Compliant": True,
+                    "part11Alignment": "technical-controls-only",
                 },
             },
         },
