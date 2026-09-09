@@ -1,9 +1,10 @@
 """Declarative A2UI Card Schemas for Clinical Dossier Approvals.
 
-Plane 2 (Interaction Surface): Constructs clean, validated A2UI cards
+Plane 2 (Interaction Surface): Constructs clean, project-specific A2UI adapter cards
 with signed HMAC state tokens for Human-in-the-Loop decision capture.
 """
 
+import uuid
 from typing import Any, Dict
 from jose import jwt
 from datetime import datetime, timezone, timedelta
@@ -16,7 +17,8 @@ def generate_hmac_token(payload: Dict[str, Any], secret: str, ttl_hours: int = 4
     token_dict.update({
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(hours=ttl_hours)).timestamp()),
-        "iss": "Enterprise-plane2-bridge-service",
+        "iss": "option3-plane2-demo-bridge",
+        "jti": token_dict.get("jti") or f"option3-{uuid.uuid4().hex}",
     })
     return jwt.encode(token_dict, secret, algorithm="HS256")
 
@@ -54,7 +56,7 @@ def render_approval_card(
     card_id = f"a2ui-card-{study_id}-{cohort}"
 
     a2ui_card = {
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "adapter-1.0",
         "surfaceType": "a2ui_card",
         "id": card_id,
         "title": f"Clinical Study Amendment Approval: {study_id}",
@@ -70,7 +72,7 @@ def render_approval_card(
                     {"label": "Study Protocol", "value": study_id},
                     {"label": "Target Cohort", "value": cohort},
                     {"label": "Safety Variance", "value": f"+{variance_pct}%"},
-                    {"label": "Demarcation", "value": "Plane 1 Vertex AI (Zero ADK Envelopes)"},
+                    {"label": "Demarcation", "value": "Plane 1 demo execution path"},
                 ],
             },
             {
