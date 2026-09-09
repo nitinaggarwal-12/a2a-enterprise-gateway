@@ -1,5 +1,9 @@
 # Engineering Guide: Context Management, Skills Architecture & Evolution
 
+> [!CAUTION]
+> **Historical design artifact — not current implementation evidence.** This document contains earlier targets, examples, proposed controls, performance assumptions, and/or regulatory language. Do not use it to claim current A2A conformance, production readiness, performance, zero leakage, or regulatory compliance. Current source of truth: `README.md`, `SECURITY.md`, `ARCHITECTURE.md`, `RUNBOOK.md`, executable code, and CI evidence.
+
+
 This document details the architectural decisions, context layers, documentation suite, executable skills, and knowledge graph evaluations implemented for the **Enterprise A2A Gateway** (`a2a-enterprise-gateway`).
 
 ---
