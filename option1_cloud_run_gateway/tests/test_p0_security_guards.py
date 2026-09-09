@@ -166,3 +166,12 @@ def test_dev_auth_requires_explicit_opt_in(monkeypatch):
     monkeypatch.setattr(settings, "ALLOW_DEV_AUTH", True)
     claims = verify_google_oidc(None)
     assert claims["auth_mode"] == "explicit-dev-bypass"
+
+
+
+def test_option3_rejects_non_demo_deployment():
+    with pytest.raises(ValidationError):
+        PlaneConfig(APP_ENV="production")
+
+    with pytest.raises(ValidationError):
+        PlaneConfig(APP_ENV="staging")
