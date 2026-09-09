@@ -1,17 +1,21 @@
-"""Real Live Empirical Performance & Benchmark Suite.
+"""Local socket integration benchmark suite.
 
-Executes actual socket connections against live running instances of:
+This suite starts repository services on loopback and measures those local
+processes. Results are NOT Cloud Run/Railway/production measurements and do not
+constitute regulatory validation.
+
+Executes actual socket connections against locally started instances of:
 - Option 1: Cloud Run Gateway (HTTP/1.1 REST + SSE)
 - Option 2: a2a.v1 gRPC Server (HTTP/2 Binary RPC)
 - Option 3: Dual-Plane Architecture (REST + Direct Vertex AI loop)
 
-Measures REAL numbers:
+Measures local-process observations:
 - Process startup / cold-start time (ms)
 - Resident Set Size (RSS) memory consumption (MB)
 - E2E Network round-trip latencies over TCP socket (p50, p90, p95, p99 in ms)
 - Wire payload sizes in bytes
 - Real throughput (requests/sec) under concurrency
-- GxP schema validation pass/fail rate (with and without gateway)
+- strict demo schema acceptance/rejection for a finite adversarial corpus
 """
 
 import asyncio
@@ -21,6 +25,7 @@ import subprocess
 import sys
 import time
 import statistics
+from datetime import datetime, timezone
 import psutil
 from pathlib import Path
 from typing import Any, Dict, List
@@ -35,11 +40,12 @@ sys.path.insert(0, str(ROOT_DIR / "option1_cloud_run_gateway"))
 sys.path.insert(0, str(ROOT_DIR / "option2_grpc_service"))
 sys.path.insert(0, str(ROOT_DIR / "option3_dual_plane"))
 
+from option1_cloud_run_gateway.app.sanitizer import sanitize_a2a_envelope
 from option2_grpc_service.a2a.v1 import a2a_pb2, a2a_pb2_grpc
 
 
-# Enterprise Downstream GxP Strict Schema Validator (21 CFR Part 11 strict parser)
-class EnterpriseStrictGxPClinicalPayload(BaseModel):
+# Finite demo strict schema used only to exercise undeclared-field rejection.
+class StrictDemoClinicalPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")  # Strictly rejects ANY undeclared keys!
     jsonrpc: str
     method: str
@@ -47,14 +53,20 @@ class EnterpriseStrictGxPClinicalPayload(BaseModel):
     id: str
 
 
-async def measure_server_cold_start(command: List[str], health_check_fn, timeout: float = 10.0):
-    """Start server process and measure exact milliseconds until socket is responsive."""
+async def measure_server_cold_start(
+    command: List[str],
+    health_check_fn,
+    timeout: float = 10.0,
+    env: Dict[str, str] | None = None,
+):
+    """Start a local server process and measure until its loopback health check responds."""
     t_start = time.perf_counter()
     proc = subprocess.Popen(
         command,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         cwd=str(ROOT_DIR),
+        env=env,
     )
     is_ready = False
     while (time.perf_counter() - t_start) < timeout:
@@ -77,7 +89,7 @@ async def measure_server_cold_start(command: List[str], health_check_fn, timeout
 
 async def main():
     print("=" * 80)
-    print("🔬 RUNNING LIVE REAL-WORLD EMPIRICAL BENCHMARK MEASUREMENTS")
+    print("🔬 RUNNING LOCAL SOCKET INTEGRATION BENCHMARKS (NOT PRODUCTION)")
     print("=" * 80)
 
     results = {}
@@ -104,7 +116,14 @@ async def main():
         "--log-level", "error",
     ]
 
-    opt1_proc, opt1_ps, opt1_cold_start_ms, opt1_idle_mb = await measure_server_cold_start(opt1_cmd, opt1_health)
+    opt1_env = os.environ.copy()
+    opt1_env["APP_ENV"] = "development"
+    opt1_env["ALLOW_DEV_AUTH"] = "true"
+    opt1_env["ENABLE_LAB_ENDPOINTS"] = "false"
+    opt1_env["JWT_SECRET"] = "local-benchmark-only-secret-with-at-least-32-characters"
+    opt1_proc, opt1_ps, opt1_cold_start_ms, opt1_idle_mb = await measure_server_cold_start(
+        opt1_cmd, opt1_health, env=opt1_env
+    )
     print(f"   Option 1 Cold Start: {opt1_cold_start_ms} ms | Idle RSS Memory: {opt1_idle_mb} MB")
 
     # Measure 500 Real HTTP/1.1 Socket Round-Trips with Contaminated Payload
@@ -127,14 +146,17 @@ async def main():
 
     opt1_latencies_ms = []
     opt1_action_latencies_ms = []
-    gxp_rejected_without_gateway = 0
-    gxp_passed_with_gateway = 0
+    strict_schema_rejected_raw = False
+    strict_schema_accepted_sanitized = False
 
-    # Test GxP schema rejection without gateway
     try:
-        EnterpriseStrictGxPClinicalPayload.model_validate(contaminated_req)
+        StrictDemoClinicalPayload.model_validate(contaminated_req)
     except Exception:
-        gxp_rejected_without_gateway = 1  # Successfully caught by GxP validator
+        strict_schema_rejected_raw = True
+
+    sanitized_for_validation = sanitize_a2a_envelope(contaminated_req)
+    StrictDemoClinicalPayload.model_validate(sanitized_for_validation)
+    strict_schema_accepted_sanitized = True
 
     sample_state_token = None
 
@@ -155,21 +177,35 @@ async def main():
             if i == 0:
                 resp_json = resp.json()
                 sample_state_token = resp_json["result"]["artifact"]["a2ui"]["actions"][0]["stateToken"]
-                # Test sanitized payload against strict GxP schema
-                sanitized_input = resp_json["result"]["artifact"]["a2ui"]
-                gxp_passed_with_gateway = 1
+                # Token captured only for size reporting; replay benchmark uses unique tokens.
 
         t_end_all = time.perf_counter()
         opt1_throughput_rps = round(500.0 / (t_end_all - t_start_all), 1)
 
-        # Measure 500 live UI Action Callbacks with sealed token
-        action_req = {
-            "jsonrpc": "2.0",
-            "method": "a2a.ui.action",
-            "params": {"stateToken": sample_state_token},
-            "id": "action-bench-01",
-        }
-        for _ in range(500):
+        # Pre-generate unique state tokens through the running gateway. Reusing one
+        # token would correctly trigger the replay guard after the first action.
+        action_tokens = []
+        for i in range(500):
+            token_req = json.loads(json.dumps(contaminated_req))
+            token_req["id"] = f"token-prep-{i}"
+            token_req["params"]["taskId"] = f"task-action-{i}"
+            token_resp = await client.post(
+                f"{opt1_url}/a2a/tasks",
+                json=token_req,
+                headers={"Authorization": "Bearer mock-dev-token"},
+            )
+            assert token_resp.status_code == 200
+            action_tokens.append(
+                token_resp.json()["result"]["artifact"]["a2ui"]["actions"][0]["stateToken"]
+            )
+
+        for i, state_token in enumerate(action_tokens):
+            action_req = {
+                "jsonrpc": "2.0",
+                "method": "a2a.ui.action",
+                "params": {"stateToken": state_token},
+                "id": f"action-bench-{i}",
+            }
             t0 = time.perf_counter()
             resp = await client.post(
                 f"{opt1_url}/a2a/ui/action",
@@ -179,6 +215,19 @@ async def main():
             t1 = time.perf_counter()
             assert resp.status_code == 200
             opt1_action_latencies_ms.append((t1 - t0) * 1000.0)
+
+        # Explicitly prove replay is rejected.
+        replay_resp = await client.post(
+            f"{opt1_url}/a2a/ui/action",
+            json={
+                "jsonrpc": "2.0",
+                "method": "a2a.ui.action",
+                "params": {"stateToken": action_tokens[0]},
+                "id": "replay-check",
+            },
+            headers={"Authorization": "Bearer mock-dev-token"},
+        )
+        assert replay_resp.status_code == 409
 
     opt1_peak_mb = round(opt1_ps.memory_info().rss / (1024 * 1024), 2)
     opt1_proc.terminate()
@@ -192,11 +241,13 @@ async def main():
         "task_dispatch_latency_p95_ms": round(statistics.quantiles(opt1_latencies_ms, n=20)[18], 3),
         "task_dispatch_latency_p99_ms": round(statistics.quantiles(opt1_latencies_ms, n=100)[98], 3),
         "ui_action_latency_p50_ms": round(statistics.median(opt1_action_latencies_ms), 3),
-        "real_throughput_rps": opt1_throughput_rps,
+        "local_sequential_throughput_rps": opt1_throughput_rps,
         "wire_payload_request_bytes": raw_req_bytes,
         "hmac_state_token_bytes": len(sample_state_token.encode("utf-8")),
-        "gxp_rejection_without_gateway": "100% (Payload REJECTED by strict 21 CFR Part 11 parser)",
-        "gxp_rejection_with_gateway": "0% (100% GxP Validated)",
+        "strict_demo_schema_rejected_raw_payload": strict_schema_rejected_raw,
+        "strict_demo_schema_accepted_sanitized_payload": strict_schema_accepted_sanitized,
+        "replay_guard_verified": True,
+        "validation_scope": "finite local demo corpus; not GxP/Part 11 validation",
     }
 
     # =========================================================================
@@ -265,7 +316,7 @@ async def main():
         "task_dispatch_latency_p90_ms": round(statistics.quantiles(opt2_latencies_ms, n=10)[8], 3),
         "task_dispatch_latency_p95_ms": round(statistics.quantiles(opt2_latencies_ms, n=20)[18], 3),
         "task_dispatch_latency_p99_ms": round(statistics.quantiles(opt2_latencies_ms, n=100)[98], 3),
-        "real_throughput_rps": opt2_throughput_rps,
+        "local_sequential_throughput_rps": opt2_throughput_rps,
         "wire_payload_request_bytes": grpc_msg_bytes,
         "transport_layer": "gRPC over HTTP/2 (Binary Protobuf)",
         "client_ingress_requirement": "gRPC-Web / Envoy Ingress Bridge required",
@@ -282,10 +333,9 @@ async def main():
 
     async def opt3_health():
         try:
-            async with httpx.AsyncClient(timeout=0.2) as c:
-                r1 = await c.get(f"{bridge_url}/healthz")
-                r2 = await c.get(f"{ge_url}/healthz")
-                return r1.status_code == 200 and r2.status_code == 200
+            async with httpx.AsyncClient(timeout=0.2) as client:
+                response = await client.get(f"{bridge_url}/healthz")
+                return response.status_code == 200
         except Exception:
             return False
 
@@ -302,7 +352,9 @@ async def main():
         "--log-level", "error",
     ]
 
-    opt3_proc, opt3_ps, opt3_cold_start_ms, opt3_idle_mb = await measure_server_cold_start(opt3_cmd, opt3_health)
+    opt3_proc, opt3_ps, opt3_cold_start_ms, opt3_idle_mb = await measure_server_cold_start(
+        opt3_cmd, opt3_health, env=opt3_env
+    )
     print(f"   Option 3 Cold Start: {opt3_cold_start_ms} ms | Idle RSS Memory: {opt3_idle_mb} MB")
 
     # Measure 100 Real Plane 1 + Plane 2 Round-Trips
@@ -341,20 +393,30 @@ async def main():
         "peak_memory_mb": opt3_peak_mb,
         "end_to_end_pipeline_latency_p50_ms": round(statistics.median(opt3_latencies_ms), 3),
         "end_to_end_pipeline_latency_p95_ms": round(statistics.quantiles(opt3_latencies_ms, n=20)[18], 3),
-        "real_throughput_rps": opt3_throughput_rps,
-        "vpc_data_isolation": "100% Sovereign (Zero egress to chat wrappers)",
+        "local_sequential_throughput_rps": opt3_throughput_rps,
+        "data_isolation_claim": "NOT_MEASURED_BY_THIS_LOCAL_TEST",
     }
 
     # Print clean summary
     print("\n" + "=" * 80)
-    print(" EMPIRICAL LIVE TEST RESULTS SUMMARY (MEASURED OVER TCP SOCKETS)")
+    print(" LOCAL SOCKET TEST RESULTS SUMMARY (LOOPBACK ONLY)")
     print("=" * 80)
     print(json.dumps(results, indent=2))
 
-    # Save to disk
+    report = {
+        "benchmark_timestamp": datetime.now(timezone.utc).isoformat(),
+        "evidence": {
+            "environment": "local_loopback_processes",
+            "productionMeasurement": False,
+            "regulatoryValidation": False,
+            "source": "benchmarks/live_real_load_test.py",
+        },
+        "metrics": results,
+    }
+
     out_file = ROOT_DIR / "benchmarks" / "live_empirical_results.json"
-    out_file.write_text(json.dumps(results, indent=2))
-    print(f"\n Saved verified empirical metrics to {out_file}")
+    out_file.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(f"\n Saved local integration metrics to {out_file}")
 
 
 if __name__ == "__main__":
