@@ -1,8 +1,7 @@
-"""A2AService Servicer Implementation.
+"""Repository-specific experimental gRPC service implementation.
 
-Implements AIP-127 compliant ExecuteTask, StreamTask, and CancelTask RPCs.
-Guarantees binary type safety, zero metadata envelope pollution, and asynchronous
-push callbacks.
+The protobuf contract is useful for transport experiments but is not asserted to
+be the standards-facing A2A v1 contract.
 """
 
 import asyncio
@@ -18,10 +17,24 @@ logger = logging.getLogger("grpc_services")
 
 
 class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
-    """Implementation of canonical a2a.v1 A2AService."""
+    """Experimental repository-specific gRPC service."""
+
+    MAX_CANCELLED_TASKS = 5000
+    CANCEL_EVICT_BATCH = 1000
 
     def __init__(self):
         self._cancelled_tasks: Dict[str, bool] = {}
+
+    def _record_cancellation(self, task_id: str) -> None:
+        """Bound cancellation markers even for arbitrary CancelTask calls."""
+        if task_id in self._cancelled_tasks:
+            self._cancelled_tasks[task_id] = True
+            return
+        while len(self._cancelled_tasks) >= self.MAX_CANCELLED_TASKS:
+            batch = min(self.CANCEL_EVICT_BATCH, len(self._cancelled_tasks))
+            for key in list(self._cancelled_tasks.keys())[:batch]:
+                self._cancelled_tasks.pop(key, None)
+        self._cancelled_tasks[task_id] = True
 
     async def ExecuteTask(
         self,
@@ -47,9 +60,9 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
             "studyId": study_id,
             "cohort": cohort,
             "variancePct": 2.14,
-            "status": "VALIDATED",
-            "compliance": "GxP 21 CFR Part 11 Compliant",
-            "binaryDeserialization": "Protobuf Strictly Typed (Zero ADK Envelopes)",
+            "status": "DEMO_COMPLETED",
+            "validationStatus": "NOT_REGULATORY_VALIDATION",
+            "binaryDeserialization": "Repository-specific Protobuf typed payload",
         })
 
         input_struct = struct_pb2.Struct()
@@ -101,7 +114,7 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
             (a2a_pb2.TaskState.WORKING, f"Extracting adverse event records for {cohort} (MedDRA v26.1)...", False),
             (a2a_pb2.TaskState.WORKING, "Computing Bayesian variance score across primary safety endpoints...", False),
             (a2a_pb2.TaskState.WORKING, "Variance computed: 2.14% elevation in Grade 3 ALT/AST metrics.", False),
-            (a2a_pb2.TaskState.WORKING, "Drafting Protocol Amendment v4.2 recommendations & GxP audit log...", False),
+            (a2a_pb2.TaskState.WORKING, "Drafting demo Protocol Amendment v4.2 recommendation...", False),
             (a2a_pb2.TaskState.INPUT_REQUIRED, "Dossier complete. Human-in-the-Loop review required by Medical Director.", True),
         ]
 
@@ -157,9 +170,5 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
         """Cancel an in-flight streaming or background task."""
         task_id = request.task_id
         logger.info(f"[CancelTask] Cancelling task {task_id}. Reason: {request.reason}")
-        if len(self._cancelled_tasks) > 5000:
-            oldest_keys = list(self._cancelled_tasks.keys())[:1000]
-            for k in oldest_keys:
-                self._cancelled_tasks.pop(k, None)
-        self._cancelled_tasks[task_id] = True
+        self._record_cancellation(task_id)
         return empty_pb2.Empty()
