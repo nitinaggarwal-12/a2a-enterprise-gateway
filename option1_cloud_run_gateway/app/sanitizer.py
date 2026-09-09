@@ -1,46 +1,95 @@
-"""Sanitizer module for stripping proprietary Google ADK metadata and envelope headers.
+"""Policy sanitization for A2A payloads, headers, and SSE events.
 
-Enterprise GxP validation parsers (21 CFR Part 11 strict schema compliance) require
-complete elimination of undeclared metadata fields and vendor-specific envelopes.
+This module is intentionally fail-closed for transport metadata and obvious
+credential material. It is not a substitute for tenant-specific DLP policies,
+but it prevents the gateway from forwarding known orchestration internals and
+credential-bearing fields by default.
 """
 
+import json
+import re
 from typing import Any, Dict, List, Set, Union
 
 
-# Prohibited metadata keys exact match set
 PROHIBITED_KEYS: Set[str] = {
     "adk_metadata",
     "_adk",
     "ge_context",
     "agent_metadata",
+    "adk_internal_context",
+    "__internal_trace__",
+    "system_override",
 }
 
-# Header prefixes to strip before reverse-proxying downstream
+SENSITIVE_KEY_TOKENS = (
+    "password",
+    "passwd",
+    "secret",
+    "access_token",
+    "refresh_token",
+    "id_token",
+    "api_key",
+    "apikey",
+    "private_key",
+    "client_secret",
+    "credential",
+)
+
 STRIP_HEADER_PREFIXES = (
     "x-google-adk",
     "x-goog-",
     "x-adk",
 )
 
+STRIP_HEADERS = {
+    "authorization",
+    "proxy-authorization",
+    "cookie",
+    "set-cookie",
+    "x-api-key",
+    "host",
+    "content-length",
+    "connection",
+    "keep-alive",
+    "proxy-connection",
+    "transfer-encoding",
+    "te",
+    "trailer",
+    "upgrade",
+    "forwarded",
+    "x-forwarded-for",
+    "x-forwarded-host",
+    "x-forwarded-proto",
+}
+
+_TEXT_SECRET_PATTERNS = (
+    re.compile(r"(?i)bearer\\s+[A-Za-z0-9._~+/=-]{12,}"),
+    re.compile(r"(?i)(api[_ -]?key|client[_ -]?secret|password)\\s*[:=]\\s*[^\\s,;]{6,}"),
+)
+
 
 def is_prohibited_key(key: str) -> bool:
-    """Check if a dictionary key matches prohibited metadata criteria."""
+    """Return True for internal metadata and obvious credential-bearing keys."""
     if not isinstance(key, str):
         return False
     lower_key = key.lower().strip()
     if lower_key in PROHIBITED_KEYS:
         return True
-    if lower_key.startswith("__adk"):
+    if lower_key.startswith("__adk") or lower_key.startswith("_adk_"):
         return True
-    return False
+    normalized = lower_key.replace("-", "_")
+    return any(token in normalized for token in SENSITIVE_KEY_TOKENS)
+
+
+def _sanitize_text(value: str) -> str:
+    cleaned = value
+    for pattern in _TEXT_SECRET_PATTERNS:
+        cleaned = pattern.sub("[REDACTED_BY_GATEWAY]", cleaned)
+    return cleaned
 
 
 def sanitize_payload(obj: Any) -> Any:
-    """Recursively sanitize Python primitives, dictionaries, and lists.
-
-    Removes any dictionary key that matches prohibited ADK metadata fields
-    or starts with '__adk'.
-    """
+    """Recursively remove prohibited metadata and credential-bearing fields."""
     if isinstance(obj, dict):
         cleaned_dict: Dict[str, Any] = {}
         for key, value in obj.items():
@@ -48,36 +97,74 @@ def sanitize_payload(obj: Any) -> Any:
                 continue
             cleaned_dict[key] = sanitize_payload(value)
         return cleaned_dict
-    elif isinstance(obj, list):
+    if isinstance(obj, list):
         return [sanitize_payload(item) for item in obj]
-    elif isinstance(obj, tuple):
+    if isinstance(obj, tuple):
         return tuple(sanitize_payload(item) for item in obj)
-    elif isinstance(obj, set):
+    if isinstance(obj, set):
         return {sanitize_payload(item) for item in obj}
-    else:
-        return obj
+    if isinstance(obj, str):
+        return _sanitize_text(obj)
+    return obj
+
+
+def sanitize_a2a_envelope(obj: Any) -> Dict[str, Any]:
+    """Sanitize an A2A/JSON-RPC envelope and drop undeclared top-level wrappers.
+
+    Only protocol envelope fields are forwarded. Extension data belongs under
+    metadata/params rather than as arbitrary top-level vendor fields.
+    """
+    if not isinstance(obj, dict):
+        raise ValueError("A2A payload must be a JSON object")
+
+    allowed_top_level = {"jsonrpc", "method", "params", "id", "metadata"}
+    cleaned = sanitize_payload(obj)
+    return {key: value for key, value in cleaned.items() if key in allowed_top_level}
 
 
 def sanitize_headers(headers: Union[Dict[str, str], List[tuple]]) -> Dict[str, str]:
-    """Strip all incoming HTTP headers starting with x-google-adk, x-goog-, or x-adk.
+    """Prepare caller headers for downstream forwarding.
 
-    Also ensures hop-by-hop headers like host/content-length are handled cleanly.
+    Caller credentials and proxy-derived identity headers are never forwarded;
+    downstream credentials must be minted explicitly for the destination.
     """
     cleaned: Dict[str, str] = {}
-
-    if isinstance(headers, dict):
-        items = headers.items()
-    else:
-        items = headers
+    items = headers.items() if isinstance(headers, dict) else headers
 
     for key, value in items:
         lower_key = str(key).lower().strip()
-        # Check if key starts with any prohibited prefix
         if any(lower_key.startswith(prefix) for prefix in STRIP_HEADER_PREFIXES):
             continue
-        # Strip hop-by-hop headers if forwarding
-        if lower_key in {"host", "content-length"}:
+        if lower_key in STRIP_HEADERS:
             continue
         cleaned[str(key)] = str(value)
 
     return cleaned
+
+
+def sanitize_sse_event(event: bytes) -> bytes:
+    """Sanitize one complete Server-Sent Event.
+
+    A2A streaming data frames are expected to carry JSON. Non-JSON data frames
+    are rejected rather than bypassing the policy boundary.
+    """
+    text = event.decode("utf-8")
+    output: List[str] = []
+    for line in text.splitlines():
+        if not line.startswith("data:"):
+            output.append(line)
+            continue
+
+        raw_data = line[5:].lstrip()
+        if not raw_data:
+            output.append("data:")
+            continue
+        try:
+            payload = json.loads(raw_data)
+        except json.JSONDecodeError as exc:
+            raise ValueError("Non-JSON SSE data frame rejected by gateway policy") from exc
+
+        sanitized = sanitize_payload(payload)
+        output.append("data: " + json.dumps(sanitized, separators=(",", ":"), ensure_ascii=False))
+
+    return ("\\n".join(output) + "\\n\\n").encode("utf-8")
