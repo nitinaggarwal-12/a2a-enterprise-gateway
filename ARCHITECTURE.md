@@ -1,121 +1,243 @@
-# Architecture Specification: Enterprise A2A Gateway
+# Current Architecture
 
-## 1. Executive Summary
+This document describes the current repository implementation after the enterprise-hardening pass.
 
-The **Enterprise A2A Gateway** provides a sovereign, high-throughput gateway implementing the **Google Agent-to-Agent (A2A) v1.0.0 Protocol** tailored for regulated biopharma clinical trial swarms and multi-agent coordination. It bridges internal clinical EDC systems (CDISC SDTM domains) and sovereign LLM agents with external enterprise workspaces (Gemini Enterprise, Slack, Microsoft Teams).
+> The architecture experiments in Option 2/Option 3 and the public portal are not equivalent to a validated production control plane.
 
----
+## 1. Runtime surfaces
 
-## 2. Core Architectural Pillars
+### Production-oriented gateway
+
+`option1_cloud_run_gateway.app.main:app`
+
+Responsibilities:
+
+1. verify caller OIDC identity
+2. expose the standards-facing A2A v1 JSON-RPC interface
+3. normalize/sanitize payloads and transport headers
+4. prevent caller credential forwarding
+5. mint optional destination-specific downstream identity
+6. enforce callback/SSRF rules
+7. generate subject-bound HITL state
+8. atomically consume approval JTIs
+9. sanitize supported downstream response formats
+
+### Demo/verification portal
+
+`portal.app:app`
+
+Responsibilities:
+
+- interactive product demonstration
+- local architecture experiments
+- stored benchmark visualization
+- A2UI adapter examples
+- explicitly gated lab APIs
+
+The portal is not the recommended public production gateway/control-plane deployment. Separate it from production gateway/admin services for real enterprise deployments.
+
+## 2. A2A v1 interface
 
 ```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                          ENTERPRISE A2A GATEWAY ARCHITECTURE                           │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   [ External Client Planes ]                                                           │
-│   Gemini Enterprise • WebRTC Teleprompter • A2UI Card Surfaces • Slack / Teams        │
-│                                ▲                                                       │
-│                                │ TLS 1.3 / mTLS Boundary                               │
-│                                ▼                                                       │
-│   [ A2A Enterprise Gateway ]                                                           │
-│   ┌──────────────────────────┬──────────────────────────┬──────────────────────────┐   │
-│   │ Option 1: Cloud Run HTTP │ Option 2: a2a.v1 gRPC    │ Option 3: Dual-Plane     │   │
-│   │ REST / A2UI Transpiler   │ Protobuf Binary Stream   │ Sovereign VPC Demarcation│   │
-│   └──────────────────────────┴──────────────────────────┴──────────────────────────┘   │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │ Core Security & Regulatory Filter Pipeline:                                    │   │
-│   │ • In-Memory AST ADK Sanitizer (< 28 µs, Zero Regex Backtracking)               │   │
-│   │ • Stateless 48-hour HMAC-SHA256 Token Sealer (FDA 21 CFR Part 11)              │   │
-│   │ • Micro-second Latency Telemetry & Audit Logger                                │   │
-│   └────────────────────────────────────────────────────────────────────────────────┘   │
-│                                ▲                                                       │
-│                                │ Private Service Connect / PSC                         │
-│                                ▼                                                       │
-│   [ Sovereign Internal Plane ]                                                         │
-│   Vertex AI Sovereign Mesh • CDISC SDTM Data Enclave • BigLake Iceberg Catalog         │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+GET  /.well-known/agent-card.json
+POST /a2a/v1
+A2A-Version: 1.0
 ```
 
----
+The Agent Card publishes a JSON-RPC binding and only advertises implemented capabilities.
 
-## 3. The Three Production Deployment Archetypes
+Current demo implementation:
 
-### Option 1: Cloud Run HTTP/JSON Interceptor Proxy
-- **Role**: Serverless, auto-scaling RESTful gateway designed for standard webhook dispatch, A2UI card transformations, and rapid developer onboarding.
-- **Protocol**: HTTP/2 + JSON over TLS 1.3.
-- **Latency Profile**: Sub-5ms proxy overhead + 28 µs AST sanitization.
-- **Features**: Translates raw LLM outputs into compliant JSON Adaptive Card schemas (A2UI) delivered to Google Workspace.
+- SendMessage
+- GetTask
+- ListTasks
+- CancelTask
 
-### Option 2: Native `a2a.v1` gRPC Protobuf Binary Service
-- **Role**: High-frequency inter-agent binary streaming service implementing Google's formal `a2a.v1.0.0` protocol buffer definitions (`protos/a2a.proto`).
-- **Protocol**: HTTP/2 multiplexed gRPC streams.
-- **Thought Streaming**: Streams typed intermediate reasoning tokens (`StreamTaskResponse`) to client orchestrators before final task completion.
-- **Performance**: 0.42 ms serialization latency with zero JSON overhead.
+Not advertised:
 
-### Option 3: Outside-In Dual-Plane Demarcation
-- **Role**: Strict physical network separation isolating proprietary biopharma infrastructure from public model training boundaries.
-- **Sovereign Internal Plane**: Encloses clinical EDC databases, patient SDTM tables (AE, LB, DM domains), and private Vertex AI model fine-tunes inside a dedicated GCP VPC Service Controls perimeter.
-- **External Collaborative Plane**: Encloses Gemini Enterprise and user frontends.
-- **Demarcation Proxy**: Single ingress/egress transit checkpoint stripping proprietary internal context.
+- streaming on the v1 surface
+- push notifications on the v1 surface
+- extended Agent Card
 
----
+Unsupported calls return explicit A2A errors.
 
-## 4. AST ADK Key Sanitizer Engine
+The older `/.well-known/agent.json` path is a deprecation redirect.
 
-To prevent unintentional data leakage of internal system instructions, agent reasoning envelopes, or ADK session data, the gateway executes an in-memory recursive Abstract Syntax Tree (AST) key stripper:
+## 3. Request trust pipeline
 
-```python
-PROHIBITED_KEYS = {
-    "__internal_trace__",
-    "adk_internal_context",
-    "prompt_injection_flag",
-    "raw_system_prompt",
-    "__system_instructions__"
-}
-
-def sanitize_payload_ast(payload: dict) -> dict:
-    """Recursive in-memory dictionary traversal executing in < 28 µs."""
-    clean_dict = {}
-    for k, v in payload.items():
-        if k in PROHIBITED_KEYS or (isinstance(k, str) and k.startswith("__")):
-            continue
-        if isinstance(v, dict):
-            clean_dict[k] = sanitize_payload_ast(v)
-        elif isinstance(v, list):
-            clean_dict[k] = [sanitize_payload_ast(i) if isinstance(i, dict) else i for i in v]
-        else:
-            clean_dict[k] = v
-    return clean_dict
+```text
+Untrusted caller
+   |
+   v
+[OIDC audience verification]
+   |
+   v
+[A2A/JSON-RPC structural validation]
+   |
+   v
+[policy sanitizer]
+   |- known orchestration metadata removed
+   |- credential-bearing fields removed
+   |- top-level envelope allowlisted
+   |- caller auth/cookies/proxy headers removed
+   |
+   v
+[tenant/data policy -- deployment responsibility]
+   |
+   v
+[destination-specific ADC ID token, optional]
+   |
+   v
+[downstream A2A agent]
 ```
 
-### Key Performance Characteristics:
-- **Zero Regex Backtracking**: Avoids catastrophic regex backtracking and CPU spikes under deep JSON nesting.
-- **Deterministic Latency**: Benchmarked at ~5.95 µs across 10,000 runs, well within the 28 µs regulatory budget.
+The sanitizer is one layer. A production data-governance architecture should add explicit schemas, tenant authorization, DLP/classification, tool policy, and output policy.
 
----
+## 4. Response policy
 
-## 5. Stateless 21 CFR Part 11 Electronic Signature Architecture
+JSON downstream responses are sanitized before returning.
 
-FDA regulatory mandates require that clinical trial dosing decisions maintain tamper-evident audit trails linking signer identity, timestamp, and meaning.
+For the legacy SSE proxy path, the gateway buffers complete SSE events and requires JSON `data:` frames. Each JSON frame is sanitized. Opaque data frames are rejected.
 
-### Elimination of Database Lock Contention
-Rather than maintaining centralized relational database state machines that suffer from lock contention under concurrent clinical review, the gateway utilizes **Stateless 48-Hour HMAC-SHA256 State Tokens**:
+Opaque non-JSON responses on the policy proxy are rejected rather than passed through unsanitized.
 
-1. **Token Sealing**:
-   $$\text{Signature} = \text{HMAC-SHA256}\Big(\text{SecretKey}, \; \text{JSON}(\text{State} \parallel \text{Signer} \parallel \text{TTL})\Big)$$
-2. **Payload Delivery**: Sealed state token is embedded directly into the A2UI approval card dispatched to the Medical Director.
-3. **Verification**:
-   When approved, the gateway validates `hmac.compare_digest(token_sig, expected_sig)`. Any payload manipulation immediately triggers an HTTP 401 Security Guard alert.
+## 5. Human approval controls
 
----
+```text
+Task requires review
+   |
+   v
+state token
+  - task context
+  - decision
+  - approver subject
+  - iss / iat / exp / jti
+   |
+   v
+user authenticates
+   |
+   v
+subject equality check
+   |
+   v
+atomic JTI consume
+   |
+   +--> first execution: accepted
+   |
+   +--> replay: 409
+```
 
-## 6. Multimodal Visual Verification Portal
+Demo/development can use an in-process JTI ledger.
 
-The frontend portal (`portal/static/portal.html`) serves as the multimodal demonstration and verification cockpit:
-- **Three.js WebGL Engine**: 60fps undulating terrain wireframe, rotating 3D double-helix Veo stage, and icosahedron copilot avatar.
-- **Google DeepMind Veo 2 Studio**: Generates 5-Act 4K video briefing storyboards with orbital 3D camera controls.
-- **Gemini Omni Live Voice & Teleprompter**: Bidirectional WebRTC audio equalizer with real-time speech-to-text transcript ticker.
-- **Omni Command Palette (`⌘K`)**: Instant keyboard search indexing all 12 studios, 4 personas, and Technical FAQ.
-- **Information Density Switcher**: Viewport toggle between `Comfortable` and `Compact` spacing.
+Staging/production require a distributed atomic Redis/Memorystore ledger and fail closed when it is missing/unavailable.
+
+## 6. Key rotation
+
+- `JWT_SECRET`: current signing key
+- `JWT_PREVIOUS_SECRET`: optional verify-only previous key
+
+New tokens use the current key. Verification can temporarily accept the previous key during controlled rotation.
+
+The published historical default secret is rejected.
+
+For higher assurance, migrate the signing primitive to KMS/HSM.
+
+## 7. Webhook/egress boundary
+
+Production callback policy requires:
+
+- HTTPS
+- exact hostname in `WEBHOOK_ALLOWED_HOSTS`
+- public routable address
+- no link-local/cloud metadata/private/special-use target
+
+This application check should be paired with network-level egress controls.
+
+## 8. Browser boundary
+
+Cross-origin access:
+
+- local demo/development origins are explicitly listed
+- production origins come only from `CORS_ALLOWED_ORIGINS`
+- no wildcard Railway/Cloud Run origin rule
+
+Baseline security headers are applied. Interactive OpenAPI/Swagger docs are disabled outside demo/development on the production-oriented gateway.
+
+## 9. Regulated-control model
+
+The code demonstrates technical building blocks such as:
+
+- identity
+- record hash linkage
+- signature meaning
+- timestamp
+- replay prevention
+- audit metadata
+
+These are not sufficient for a blanket Part 11/GxP claim.
+
+The protected lab signing APIs:
+
+- are disabled by default
+- require OIDC authentication
+- derive signer ID/name from auth claims
+- require canonical document content for record-link verification
+
+Their resource registries remain in-memory demos and therefore are not a regulated system of record.
+
+## 10. Option 2 / Option 3
+
+`option2_grpc_service/` and `option3_dual_plane/` are architecture experiments. Benchmarking them locally can inform design choices, but local timing must not be represented as production performance.
+
+Before adopting either as a production plane, require:
+
+- production identity model
+- durable state
+- deployment manifests/IaC
+- health/readiness
+- telemetry
+- security policy parity
+- load/failure tests
+- protocol conformance tests
+- operational runbook
+- rollback/DR plan
+
+## 11. Recommended target decomposition
+
+For enterprise production, split the current combined experience into independently deployed surfaces:
+
+```text
+A2A Data Plane Gateway
+  - protocol
+  - identity
+  - policy
+  - routing
+  - telemetry
+
+Admin / Trust Control Plane
+  - agent registry
+  - policy configuration
+  - transaction traces
+  - evidence
+  - operational health
+
+Demo / Labs
+  - A2UI examples
+  - architecture experiments
+  - simulations
+  - benchmark viewers
+```
+
+This reduces attack surface and prevents a demo feature from inheriting production authority.
+
+## 12. Evidence hierarchy
+
+Do not infer implementation from screenshots or strategy slides.
+
+Use this order:
+
+1. code at the deployed commit
+2. CI results
+3. environment-specific test evidence
+4. README / SECURITY / this document / RUNBOOK
+5. historical design documents and screenshots
