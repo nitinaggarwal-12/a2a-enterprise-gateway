@@ -455,7 +455,10 @@ async def transpile_a2ui_endpoint(request: Request):
 
 @app.post("/api/a2ui/action")
 async def execute_a2ui_action(request: Request):
-    """Execute action with 21 CFR Part 11 JTI nonce-guarded state token consumption."""
+    """Execute a public demo action with JTI replay protection.
+
+    This endpoint does not create an attributable electronic signature.
+    """
     body = await request.json()
     token = body.get("stateToken")
     action_id = body.get("actionId", "action_unknown")
@@ -475,16 +478,16 @@ async def execute_a2ui_action(request: Request):
         decision = claims.get("decision", "EXECUTED")
         task_id = claims.get("taskId", "task-unknown")
 
-        electronic_signature = {
-            "signerName": body.get("signerName", "Dr. Nitin Aggarwal, MD (Principal Investigator)"),
-            "signerRole": body.get("signerRole", "Global Medical Monitor & Clinical Safety Chair"),
-            "meaning": body.get("signatureMeaning", "Approval of Clinical Protocol Amendment & Patient Disposition (21 CFR Part 11 § 11.50)"),
-            "justification": justification or "Protocol criteria met.",
+        approval_marker = {
+            "actor": "Demo reviewer (not authenticated)",
+            "meaning": body.get("signatureMeaning", "Demo approval action"),
+            "justification": justification or "Demo criteria acknowledged.",
             "formInputs": form_inputs,
             "timestamp": now_iso,
             "jti": claims.get("jti"),
-            "cbfPart11Compliant": True,
-            "tamperEvidentSeal": f"HMAC-SHA256:{claims.get('jti', '')[:12]}...VERIFIED",
+            "cryptographicSignatureCreated": False,
+            "regulatoryValidation": False,
+            "marker": "JTI-REPLAY-PROTECTED-DEMO",
         }
 
         # Platform-Native Action Responses
@@ -497,16 +500,16 @@ async def execute_a2ui_action(request: Request):
                     "cardId": f"card_signed_{task_id}",
                     "card": {
                         "header": {
-                            "title": f"✅ Signed: {decision}",
-                            "subtitle": f"Signer: {electronic_signature['signerName']} | 21 CFR Part 11 Sealed",
+                            "title": f"✅ Action Executed: {decision}",
+                            "subtitle": "Demo action marker • not an electronic signature",
                         },
                         "sections": [
                             {
                                 "widgets": [
                                     {
                                         "decoratedText": {
-                                            "topLabel": "Electronic Signature Meaning",
-                                            "text": f"<b>{electronic_signature['meaning']}</b>",
+                                            "topLabel": "Demo Action Meaning",
+                                            "text": f"<b>{approval_marker['meaning']}</b>",
                                         }
                                     },
                                     {
@@ -540,7 +543,7 @@ async def execute_a2ui_action(request: Request):
                 },
                 {
                     "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"*Signer:* {electronic_signature['signerName']}\n*Timestamp:* `{now_iso}`\n*JTI Nonce:* `{claims.get('jti')}`"}
+                    "text": {"type": "mrkdwn", "text": f"*Actor:* Demo reviewer (not authenticated)\n*Timestamp:* `{now_iso}`\n*JTI Nonce:* `{claims.get('jti')}`"}
                 },
                 {
                     "type": "section",
@@ -555,7 +558,7 @@ async def execute_a2ui_action(request: Request):
             "body": [
                 {
                     "type": "TextBlock",
-                    "text": f"✅ Signed: {decision}",
+                    "text": f"✅ Action Executed: {decision}",
                     "weight": "Bolder",
                     "size": "Medium",
                     "color": "Good"
@@ -563,9 +566,9 @@ async def execute_a2ui_action(request: Request):
                 {
                     "type": "FactSet",
                     "facts": [
-                        {"title": "Signer", "value": electronic_signature["signerName"]},
-                        {"title": "Role", "value": electronic_signature["signerRole"]},
-                        {"title": "Meaning", "value": electronic_signature["meaning"]},
+                        {"title": "Actor", "value": approval_marker["actor"]},
+                        {"title": "Validation", "value": "Demo only - not validated"},
+                        {"title": "Meaning", "value": approval_marker["meaning"]},
                         {"title": "JTI Nonce", "value": claims.get("jti", "")},
                         {"title": "Justification", "value": justification or "Protocol criteria met."},
                     ]
@@ -582,7 +585,7 @@ async def execute_a2ui_action(request: Request):
             "jti": claims.get("jti"),
             "formInputs": form_inputs,
             "justification": justification,
-            "electronicSignature": electronic_signature,
+            "approvalMarker": approval_marker,
             "platformResponses": {
                 "googleWorkspace": google_action_response,
                 "slackBlockKit": slack_action_response,
@@ -591,9 +594,9 @@ async def execute_a2ui_action(request: Request):
             "audit": {
                 "verifiedAt": now_iso,
                 "controlEvidenceGenerated": True,
-                "signatureType": "21 CFR Part 11 Stateless JTI Nonce-Guarded Electronic Signature",
+                "evidenceType": "JTI replay-protected demo action",
                 "idempotencyEnforced": True,
-                "electronicSignature": electronic_signature,
+                "approvalMarker": approval_marker,
             },
         }
     except HTTPException as exc:
@@ -611,10 +614,11 @@ async def execute_a2ui_action(request: Request):
 
 
 @app.post("/api/a2ui/reset-idempotency")
-async def reset_a2ui_idempotency():
-    """Reset JTI registry for interactive demonstration or testing."""
+async def reset_a2ui_idempotency(authorization: Optional[str] = Header(None)):
+    """Reset JTI registry only in explicitly enabled authenticated lab mode."""
+    require_lab_access(authorization)
     reset_jti_registry()
-    return {"success": True, "message": "JTI registry cleared successfully"}
+    return {"success": True, "message": "Demo JTI registry cleared"}
 
 
 
