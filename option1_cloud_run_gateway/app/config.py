@@ -25,6 +25,10 @@ class Settings(BaseSettings):
         default=False,
         description="Expose experimental/demo mutation endpoints. Disabled by default."
     )
+    TRUST_PROXY_HEADERS: bool = Field(
+        default=False,
+        description="Trust X-Forwarded-For only when an upstream trusted proxy strips caller-supplied forwarding headers."
+    )
     HOST: str = Field(default="0.0.0.0", description="Server host")
     PORT: int = Field(default=8080, description="Server port")
     LOG_LEVEL: str = Field(default="INFO", description="Logging level")
