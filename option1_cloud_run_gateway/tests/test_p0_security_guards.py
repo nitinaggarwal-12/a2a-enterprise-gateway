@@ -187,3 +187,12 @@ def test_production_requires_distributed_replay_store(monkeypatch):
     with pytest.raises(HTTPException) as exc_info:
         get_jti_store()
     assert exc_info.value.status_code == 503
+
+
+
+def test_production_webhook_requires_exact_allowlist(monkeypatch):
+    monkeypatch.setattr(settings, "APP_ENV", "production")
+    monkeypatch.setattr(settings, "WEBHOOK_ALLOWED_HOSTS", "allowed.example.com")
+    safe, reason = is_safe_webhook_url("https://blocked.example.net/hook")
+    assert safe is False
+    assert "allowlist" in reason.lower()
