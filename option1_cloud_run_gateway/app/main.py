@@ -5,6 +5,7 @@ Provides policy sanitization, authenticated A2A routing, sanitized streaming,
 and cryptographic state tokens for Human-in-the-Loop workflows.
 """
 
+import asyncio
 import json
 import logging
 import hashlib
@@ -27,6 +28,7 @@ from .security import (
     verify_state_token,
     CFRPart11Signer,
     is_safe_webhook_url,
+    mint_downstream_id_token,
 )
 from .a2ui_builder import build_clinical_review_surface
 from .a2a_v1 import router as a2a_v1_router
@@ -522,10 +524,34 @@ async def handle_task_dispatch(
             client = httpx.AsyncClient(timeout=settings.DOWNSTREAM_TIMEOUT_SECONDS)
             close_client = True
 
+        downstream_headers = dict(cleaned_headers)
+        if settings.DOWNSTREAM_ID_TOKEN_AUDIENCE:
+            try:
+                destination_token = await asyncio.to_thread(
+                    mint_downstream_id_token,
+                    settings.DOWNSTREAM_ID_TOKEN_AUDIENCE,
+                )
+            except Exception as exc:
+                logger.error("Unable to mint downstream workload identity token")
+                if close_client:
+                    await client.aclose()
+                return JSONResponse(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    content={
+                        "jsonrpc": "2.0",
+                        "id": cleaned_payload.get("id"),
+                        "error": {
+                            "code": -32006,
+                            "message": "Downstream authentication is unavailable",
+                        },
+                    },
+                )
+            downstream_headers["Authorization"] = f"Bearer {destination_token}"
+
         req = client.build_request(
             method="POST",
             url=target_url,
-            headers=cleaned_headers,
+            headers=downstream_headers,
             json=cleaned_payload,
         )
 
