@@ -1,6 +1,7 @@
 """Configuration for Option 3 Dual-Plane Architecture."""
 
 import os
+import secrets
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, model_validator
 
@@ -10,6 +11,8 @@ class PlaneConfig(BaseSettings):
         env_file=".env",
         extra="ignore"
     )
+
+    APP_ENV: str = Field(default="demo", description="Option 3 is a demo/development architecture experiment")
 
     # GCP Vertex AI Configuration (Plane 1)
     GCP_PROJECT_ID: str = Field(default="Enterprise-clinical-gxp-prod", description="GCP Project ID")
@@ -27,26 +30,23 @@ class PlaneConfig(BaseSettings):
 
     # Security
     HMAC_SECRET: str = Field(
-        default="Enterprise-plane2-hitl-signing-key-gxp-2026",
-        description="HMAC secret for state token signatures"
+        default_factory=lambda: "option3-ephemeral-" + secrets.token_urlsafe(48),
+        description="Demo HMAC secret. This experimental plane is not production-hardened."
     )
 
     @model_validator(mode="after")
-    def validate_production_secrets(self) -> "PlaneConfig":
-        """Enforce strict secret entropy in production to prevent hardcoded key exploits."""
-        if os.getenv("APP_ENV", "").lower() == "production":
-            insecure_defaults = [
-                "Enterprise-plane2-hitl-signing-key-gxp-2026",
-                "secret",
-                "changeme",
-                "default",
-                "test",
-            ]
-            if not self.HMAC_SECRET or self.HMAC_SECRET in insecure_defaults or len(self.HMAC_SECRET) < 32:
-                raise ValueError(
-                    "CRITICAL GxP SECURITY VIOLATION: Default or weak HMAC_SECRET cannot be used in production! "
-                    "Configure a strong cryptographic secret (>= 32 characters) via HMAC_SECRET environment variable."
-                )
+    def validate_environment(self) -> "PlaneConfig":
+        """Prevent accidental deployment of the experimental plane as production."""
+        env = (self.APP_ENV or os.getenv("APP_ENV", "demo")).lower()
+        if env in {"staging", "production"}:
+            raise ValueError(
+                "Option 3 dual-plane service is an architecture experiment and is not "
+                "production-hardened. Use the Option 1 policy gateway or complete "
+                "identity, durable audit, replay, key-management, and operational controls first."
+            )
+        historical_secret = "enterprise-plane2-hitl-signing-key-gxp-2026"
+        if self.HMAC_SECRET.lower() == historical_secret:
+            raise ValueError("Historical published Option 3 HMAC secret is permanently rejected")
         return self
 
 
