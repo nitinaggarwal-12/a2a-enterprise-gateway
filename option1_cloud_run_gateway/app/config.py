@@ -64,6 +64,10 @@ class Settings(BaseSettings):
         default="",
         description="Comma-separated exact webhook hostnames allowed in staging/production. Empty means deny all external push callbacks."
     )
+    CORS_ALLOWED_ORIGINS: str = Field(
+        default="",
+        description="Comma-separated exact HTTPS origins permitted for cross-origin browser access. Same-origin access needs no entry."
+    )
 
     @model_validator(mode="after")
     def validate_production_secrets(self) -> "Settings":
