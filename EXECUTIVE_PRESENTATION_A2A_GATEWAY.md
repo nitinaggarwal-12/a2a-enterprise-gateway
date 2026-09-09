@@ -1,5 +1,9 @@
 # Executive Architecture Presentation: Sovereign Agent-to-Agent (A2A) Integration for Enterprise
 
+> [!CAUTION]
+> **Historical design artifact — not current implementation evidence.** This document contains earlier targets, examples, proposed controls, performance assumptions, and/or regulatory language. Do not use it to claim current A2A conformance, production readiness, performance, zero leakage, or regulatory compliance. Current source of truth: `README.md`, `SECURITY.md`, `ARCHITECTURE.md`, `RUNBOOK.md`, executable code, and CI evidence.
+
+
 **Prepared for:** Enterprise Enterprise Architecture, Clinical AI Governance & Security Review Board  
 **Topic:** Resolving Gemini Enterprise Metadata Injection, GxP Compliance & 48-Hour Human-in-the-Loop (HITL) Lifecycles  
 **Date:** September 2026 | **Version:** 1.0.0 (GxP Validated)
