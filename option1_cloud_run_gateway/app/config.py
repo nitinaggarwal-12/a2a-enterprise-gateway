@@ -56,6 +56,10 @@ class Settings(BaseSettings):
         default=60.0,
         description="HTTP timeout when proxying to downstream agent"
     )
+    WEBHOOK_ALLOWED_HOSTS: str = Field(
+        default="",
+        description="Comma-separated exact webhook hostnames allowed in staging/production. Empty means deny all external push callbacks."
+    )
 
     @model_validator(mode="after")
     def validate_production_secrets(self) -> "Settings":
