@@ -387,8 +387,8 @@
           <!-- Badges & Active Workspace (Expanded) -->
           <div x-show="!sidebarCollapsed" class="space-y-2 pt-1 animate-fade-in">
             <div class="flex items-center space-x-1.5">
-              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);">SPEC: A2A v1.0.0</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">GxP 21 CFR Part 11</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-cyan-bg); color: var(--color-badge-cyan-text); border-color: var(--color-badge-cyan-border);">SPEC: A2A v1.0</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold border shadow-sm" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">GxP Part 11-aligned controls</span>
             </div>
 
             <!-- Workspace Context Pill -->
@@ -767,8 +767,8 @@
           <span class="uppercase text-[10px] font-black" :class="isDark ? 'text-purple-200' : 'text-purple-950'" x-text="omniLayoutMode"></span>
         </button>
 
-        <!-- 1-Click FDA 21 CFR Part 11 Inspection Dossier Generator (Gemini 2.5 Pro) -->
-        <button id="btn-fda-dossier-top" @click="openFdaDossierModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs shadow-md flex items-center space-x-1.5 active:scale-95 transition-all" title="Generate Audit-Ready FDA 21 CFR Part 11 Regulatory Dossier">
+        <!-- 1-Click FDA Part 11-aligned controls Inspection Dossier Generator (Gemini 2.5 Pro) -->
+        <button id="btn-fda-dossier-top" @click="openFdaDossierModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs shadow-md flex items-center space-x-1.5 active:scale-95 transition-all" title="Generate Audit-Ready FDA Part 11-aligned controls Regulatory Dossier">
           <i class="fa-solid fa-file-shield text-xs"></i>
           <span>1-Click FDA Dossier</span>
           <span class="text-[9px] px-1 rounded bg-slate-950/20 text-slate-950 font-mono font-bold">Pro</span>
@@ -804,7 +804,7 @@
             <!-- Protocol Eyebrow Badge -->
             <div class="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full text-xs font-mono font-extrabold border bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_20px_rgba(0,242,254,0.25)]">
               <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-              <span>GOOGLE A2A v1.0.0 PROTOCOL • ENTERPRISE CLINICAL SAFETY GATEWAY</span>
+              <span>A2A v1.0 PROTOCOL • ENTERPRISE CLINICAL SAFETY GATEWAY</span>
             </div>
 
             <!-- Grand Clear Headline -->
@@ -816,7 +816,7 @@
               <p class="text-xs sm:text-sm md:text-base leading-relaxed max-w-2xl" style="color: var(--color-text-secondary);">
                 Autonomous AI agents in healthcare cannot communicate or make clinical decisions without guardrails. 
                 This Gateway <span class="font-bold text-cyan-400">sanitizes agent payloads in 3.8 µs</span>, 
-                enforces <span class="font-bold text-emerald-400">mandatory doctor sign-off (21 CFR Part 11)</span>, and 
+                enforces <span class="font-bold text-emerald-400">mandatory doctor sign-off (Part 11-aligned controls)</span>, and 
                 seals <span class="font-bold text-purple-400">immutable GAMP 5 audit logs</span> before medication is released.
               </p>
             </div>
@@ -841,7 +841,7 @@
 
               <div class="p-3 rounded-2xl border backdrop-blur-sm" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                 <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1">
-                  <i class="fa-solid fa-signature"></i><span>21 CFR Part 11</span>
+                  <i class="fa-solid fa-signature"></i><span>Part 11-aligned controls</span>
                 </div>
                 <div class="text-xl font-black text-purple-400 font-mono mt-0.5">HMAC Seal</div>
                 <div class="text-[10px] truncate" style="color: var(--color-text-muted);">Stateless Verification</div>
@@ -851,7 +851,7 @@
                 <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400 flex items-center space-x-1">
                   <i class="fa-solid fa-shield-halved"></i><span>Data Egress</span>
                 </div>
-                <div class="text-xl font-black text-rose-400 font-mono mt-0.5">Zero Leak</div>
+                <div class="text-xl font-black text-rose-400 font-mono mt-0.5">Policy Filter</div>
                 <div class="text-[10px] truncate" style="color: var(--color-text-muted);">Sovereign Enclave</div>
               </div>
             </div>
@@ -1165,7 +1165,7 @@
                       <div class="text-emerald-400 font-bold text-[10px] uppercase">Clean Enclave Payload:</div>
                       <div class="text-emerald-300 font-bold">✓ "subject_id": "SUBJ-9042"</div>
                       <div class="text-emerald-300 font-bold">✓ "dose_proposed_mg": 350</div>
-                      <div class="text-[10px] text-slate-400 pt-1">100% GxP validated for clinical review.</div>
+                      <div class="text-[10px] text-slate-400 pt-1">Demo workflow — customer regulated-workflow validation required.</div>
                     </div>
                   </div>
 
@@ -1244,11 +1244,11 @@
                   </div>
                 </div>
 
-                <!-- STEP 4: 21 CFR PART 11 SIGNATURE -->
+                <!-- STEP 4: PART 11-ALIGNED CONTROLS SIGNATURE -->
                 <div x-show="heroWorkflowStep === 4" class="space-y-3" style="display: none;">
                   <div class="flex items-center justify-between text-xs">
                     <span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 font-mono font-bold border border-amber-500/30">
-                      STEP 4: Stateless 21 CFR Part 11 Electronic Signature
+                      STEP 4: Stateless Part 11-aligned controls Electronic Signature
                     </span>
                     <span class="text-[10px] font-mono text-amber-400 font-bold">HMAC-SHA256 • 48h TTL</span>
                   </div>
@@ -1304,7 +1304,7 @@
                     <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 font-mono font-bold border border-emerald-500/30">
                       STEP 5: Pharmacy Dispenser Executes &amp; Seals Audit Log
                     </span>
-                    <span class="text-[10px] font-mono text-emerald-400 font-bold">Status: Dispensed • 100% GxP</span>
+                    <span class="text-[10px] font-mono text-emerald-400 font-bold">Status: Demo complete • Validation required</span>
                   </div>
 
                   <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
@@ -1494,11 +1494,11 @@
       <div class="rounded-2xl border py-3 overflow-hidden relative shadow-sm" style="background-color: var(--color-bg-card); border-color: var(--color-border-subtle);">
         <div class="marquee-track flex items-center space-x-8 text-xs font-mono font-bold whitespace-nowrap">
           <div class="flex items-center space-x-8 shrink-0">
-            <span class="flex items-center space-x-2 text-cyan-400"><i class="fa-solid fa-atom"></i><span>GOOGLE A2A v1.0.0 COMPLIANT</span></span>
+            <span class="flex items-center space-x-2 text-cyan-400"><i class="fa-solid fa-atom"></i><span>A2A v1.0 COMPATIBILITY MODE</span></span>
             <span class="text-slate-500">•</span>
-            <span class="flex items-center space-x-2 text-emerald-400"><i class="fa-solid fa-bolt"></i><span>SUB-28µs IN-MEMORY AST SANITIZER</span></span>
+            <span class="flex items-center space-x-2 text-emerald-400"><i class="fa-solid fa-bolt"></i><span>IN-MEMORY POLICY SANITIZER</span></span>
             <span class="text-slate-500">•</span>
-            <span class="flex items-center space-x-2 text-purple-400"><i class="fa-solid fa-signature"></i><span>21 CFR PART 11 HMAC-SHA256 SEAL</span></span>
+            <span class="flex items-center space-x-2 text-purple-400"><i class="fa-solid fa-signature"></i><span>PART 11-ALIGNED CONTROLS HMAC-SHA256 SEAL</span></span>
             <span class="text-slate-500">•</span>
             <span class="flex items-center space-x-2 text-teal-400"><i class="fa-solid fa-cloud"></i><span>CLOUD RUN INTERCEPTOR PROXY</span></span>
             <span class="text-slate-500">•</span>
@@ -1511,11 +1511,11 @@
           </div>
           <!-- Duplicate loop for seamless infinite marquee -->
           <div class="flex items-center space-x-8 shrink-0">
-            <span class="flex items-center space-x-2 text-cyan-400"><i class="fa-solid fa-atom"></i><span>GOOGLE A2A v1.0.0 COMPLIANT</span></span>
+            <span class="flex items-center space-x-2 text-cyan-400"><i class="fa-solid fa-atom"></i><span>A2A v1.0 COMPATIBILITY MODE</span></span>
             <span class="text-slate-500">•</span>
-            <span class="flex items-center space-x-2 text-emerald-400"><i class="fa-solid fa-bolt"></i><span>SUB-28µs IN-MEMORY AST SANITIZER</span></span>
+            <span class="flex items-center space-x-2 text-emerald-400"><i class="fa-solid fa-bolt"></i><span>IN-MEMORY POLICY SANITIZER</span></span>
             <span class="text-slate-500">•</span>
-            <span class="flex items-center space-x-2 text-purple-400"><i class="fa-solid fa-signature"></i><span>21 CFR PART 11 HMAC-SHA256 SEAL</span></span>
+            <span class="flex items-center space-x-2 text-purple-400"><i class="fa-solid fa-signature"></i><span>PART 11-ALIGNED CONTROLS HMAC-SHA256 SEAL</span></span>
             <span class="text-slate-500">•</span>
             <span class="flex items-center space-x-2 text-teal-400"><i class="fa-solid fa-cloud"></i><span>CLOUD RUN INTERCEPTOR PROXY</span></span>
             <span class="text-slate-500">•</span>
@@ -1614,7 +1614,7 @@
                 <i class="fa-solid fa-shield-halved"></i>
               </div>
               <div class="text-xs font-black" style="color: var(--color-text-primary);">AST ADK Sanitizer</div>
-              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Strips prohibited envelopes in &lt;28 µs</p>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Local microbenchmark only; deployed latency varies</p>
               <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
                 <span style="color: var(--color-text-muted);">Latency</span>
                 <span class="font-bold text-emerald-400" x-text="landingSimAttackMode && landingSimStep === 2 ? '26.8 µs (Stripped)' : '27.4 µs'">27.4 µs</span>
@@ -1677,10 +1677,10 @@
                 <i class="fa-solid fa-signature"></i>
               </div>
               <div class="text-xs font-black" style="color: var(--color-text-primary);">Clinician HITL Sign-off</div>
-              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">21 CFR Part 11 compliant execution</p>
+              <p class="text-[11px] mt-1" style="color: var(--color-text-muted);">Part 11-aligned controls compliant execution</p>
               <div class="mt-3 pt-2 border-t flex items-center justify-between text-[10px] font-mono" style="border-color: var(--color-border-subtle);">
                 <span style="color: var(--color-text-muted);">Audit Status</span>
-                <span class="font-bold text-teal-400">GxP Certified</span>
+                <span class="font-bold text-teal-400">GxP Validation Required</span>
               </div>
             </div>
 
@@ -1732,7 +1732,7 @@
             </template>
             <template x-if="landingSimStep === 5">
               <div>
-                <span class="text-teal-400 font-bold">// [Clinician HITL] Electronic Signature Sealed (21 CFR Part 11):</span><br />
+                <span class="text-teal-400 font-bold">// [Clinician HITL] Electronic Signature Sealed (Part 11-aligned controls):</span><br />
                 {"signed_by": "Dr. Sarah Lin, MD", "signer_role": "Principal Investigator", "status": "APPROVED", "gxp_hash": "sha256:7b9140a3f892c4d...991e", "timestamp": "2026-09-04T22:45:00Z"}
               </div>
             </template>
@@ -1768,7 +1768,7 @@
             </div>
             <div class="space-y-1">
               <div class="text-xs font-mono font-bold text-cyan-400 uppercase">Pillar 01</div>
-              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Sub-28 µs AST Sanitizer</h4>
+              <h4 class="text-base font-black" style="color: var(--color-text-primary);">AST Policy Sanitizer</h4>
             </div>
             <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
               In-memory abstract syntax tree filter strips internal orchestrator envelopes without regular-expression backtracking vulnerability.
@@ -1786,7 +1786,7 @@
             </div>
             <div class="space-y-1">
               <div class="text-xs font-mono font-bold text-emerald-400 uppercase">Pillar 02</div>
-              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Stateless 21 CFR Part 11</h4>
+              <h4 class="text-base font-black" style="color: var(--color-text-primary);">Stateless Part 11-aligned controls</h4>
             </div>
             <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
               48-hour HMAC-SHA256 cryptographically sealed state tokens eliminate relational database write-lock contention on approvals.
@@ -1849,7 +1849,7 @@
               Live Clinical Dose Titration Mini-Sandbox
             </h3>
             <p class="text-xs md:text-sm" style="color: var(--color-text-secondary);">
-              Drag the interactive dose slider to simulate real-time Bayesian toxicity modeling and issue a 21 CFR Part 11 compliant HMAC signature stamp.
+              Drag the interactive dose slider to simulate real-time Bayesian toxicity modeling and issue a Part 11-aligned controls compliant HMAC signature stamp.
             </p>
           </div>
 
@@ -1919,7 +1919,7 @@
               <button id="btn-signlandingdose" @click="signLandingDose()" 
                 class="px-5 py-3 rounded-2xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all flex items-center space-x-2">
                 <i class="fa-solid fa-signature"></i>
-                <span>1-Click 21 CFR Part 11 Electronic Sign-off</span>
+                <span>Simulate Approval Control</span>
               </button>
 
               <button id="btn-resetlandingdose" @click="resetLandingDose()" 
@@ -1942,10 +1942,10 @@
               <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--color-border-subtle);">
                 <div class="flex items-center space-x-2">
                   <i class="fa-solid fa-certificate text-emerald-400"></i>
-                  <span class="text-xs font-bold uppercase font-mono text-emerald-400">PART 11 AUDIT CERTIFICATE</span>
+                  <span class="text-xs font-bold uppercase font-mono text-emerald-400">DEMO APPROVAL MARKER</span>
                 </div>
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded" :class="landingCertificate ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'">
-                  <span x-text="landingCertificate ? 'SEALED & VERIFIED' : 'AWAITING SIGNATURE'"></span>
+                  <span x-text="landingCertificate ? 'DEMO MARKER' : 'AWAITING SIGNATURE'"></span>
                 </span>
               </div>
 
@@ -2090,7 +2090,7 @@
               <i class="fa-solid fa-scale-balanced"></i>
             </div>
             <div class="text-sm font-black" style="color: var(--color-text-primary);">Regulatory Auditor</div>
-            <p class="text-xs mt-1" style="color: var(--color-text-secondary);">21 CFR Part 11 HMAC cryptographic stamps, GAMP 5, and immutable trails.</p>
+            <p class="text-xs mt-1" style="color: var(--color-text-secondary);">Part 11-aligned controls HMAC cryptographic stamps, GAMP 5, and immutable trails.</p>
             <div class="mt-3 pt-2 border-t flex items-center justify-between text-xs font-bold text-purple-400" style="border-color: var(--color-border-subtle);">
               <span>Enter Workspace</span>
               <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
@@ -2250,7 +2250,7 @@
             <span>Clinical Safety Dashboard</span>
           </div>
           <h2 class="text-3xl font-black tracking-tight" style="color: var(--color-text-primary);">Interactive A2UI Clinical Dose Titration & Risk Curve</h2>
-          <p class="text-xs md:text-sm" style="color: var(--color-text-secondary);">Slide the dosage level to dynamically recalculate Bayesian hepatotoxicity rates and verify 21 CFR Part 11 electronic signatures.</p>
+          <p class="text-xs md:text-sm" style="color: var(--color-text-secondary);">Slide the dosage level to dynamically recalculate Bayesian hepatotoxicity rates and verify Part 11-aligned controls electronic signatures.</p>
         </div>
         <div class="text-right font-mono">
           <span class="text-xs uppercase tracking-wider block font-bold" style="color: var(--color-text-muted);">Study ID</span>
@@ -2310,7 +2310,7 @@
                 class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-black text-xs shadow-xl shadow-teal-500/30 flex items-center justify-center space-x-2 active:scale-95 transition-all group"
               >
                 <i class="fa-solid fa-signature group-hover:scale-110 transition-transform"></i>
-                <span>Execute 21 CFR Part 11 Electronic Signature</span>
+                <span>Simulate Approval Control</span>
               </button>
               <p class="text-[10px] text-center font-mono" style="color: var(--color-text-muted);">
                 Generates 48-hr stateless HMAC-SHA256 token • Zero DB lock
@@ -2329,12 +2329,12 @@
                     <i class="fa-solid fa-check"></i>
                   </div>
                   <div>
-                    <span class="text-xs font-black block" style="color: var(--color-badge-emerald-text);">GxP Electronic Signature Sealed</span>
+                    <span class="text-xs font-black block" style="color: var(--color-badge-emerald-text);">Demo Approval Marker Created</span>
                     <span class="text-[10px] font-mono" style="color: var(--color-text-secondary);" x-text="'Signer: ' + (currentUser ? currentUser.name : 'Dr. Eleanor Vance') + ' • 21 CFR §11.50'"></span>
                   </div>
                 </div>
                 <span class="text-[9px] px-2 py-0.5 rounded-full font-mono font-black border bg-emerald-500/20 border-emerald-500/40 text-emerald-400">
-                  STATUTORY VALID
+                  DEMO ONLY
                 </span>
               </div>
 
@@ -2702,7 +2702,7 @@
           <div class="space-y-3 text-xs font-mono">
             <div class="p-4 rounded-xl border flex justify-between items-center shadow-sm" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <span class="font-semibold" style="color: var(--color-text-primary);">1. AST ADK Key Sanitizer (28 µs)</span>
-              <span class="font-bold" style="color: var(--color-badge-emerald-text);">PASSED (0 leaks)</span>
+              <span class="font-bold" style="color: var(--color-badge-emerald-text);">DEMO CORPUS PASSED</span>
             </div>
             <div class="p-4 rounded-xl border flex justify-between items-center shadow-sm" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <span class="font-semibold" style="color: var(--color-text-primary);">2. Bayesian Hepatic Toxicity Model</span>
@@ -2735,9 +2735,9 @@
               <i class="fa-solid fa-mobile-screen-button"></i>
               <span>Universal A2UI Transpiler Engine</span>
             </span>
-            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">v1.0.0 Certified</span>
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Adapter Prototype</span>
             <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">4 Targets Synced</span>
-            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">21 CFR Part 11 JTI Nonce</span>
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">Part 11-aligned controls JTI Nonce</span>
           </div>
           <h2 class="text-2xl md:text-3xl font-black tracking-tight" style="color: var(--color-text-primary);">
             Omnichannel Surface Transpiler & Cryptographic Action Studio
@@ -3185,11 +3185,11 @@
 
                   <button id="btn-sign-with-justification" @click="openJustificationModal(a2uiTranspiledOutputs?.canonicalA2UI?.actions?.[0]?.stateToken, 'action_signed_with_justification')" class="px-3.5 py-2 rounded-xl border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs transition-all flex items-center space-x-1.5">
                     <i class="fa-solid fa-stamp text-xs"></i>
-                    <span>21 CFR Part 11 Justification Modal</span>
+                    <span>Part 11-aligned controls Justification Modal</span>
                   </button>
                 </div>
                 <div class="text-[10px] font-mono" style="color: var(--color-text-muted);">
-                  Status: <span class="font-bold text-emerald-400">Validated 21 CFR Part 11</span>
+                  Status: <span class="font-bold text-emerald-400">Control prototype — validation required</span>
                 </div>
               </div>
 
@@ -3358,7 +3358,7 @@
 
       </div>
 
-      <!-- BOTTOM SECTION: 21 CFR Part 11 JTI Nonce Cryptography & Replay Prevention Console -->
+      <!-- BOTTOM SECTION: Part 11-aligned controls JTI Nonce Cryptography & Replay Prevention Console -->
       <div class="glass-card rounded-3xl p-6 md:p-8 border shadow-xl space-y-6" style="border-color: var(--color-border-card);">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4" style="border-color: var(--color-border-subtle);">
           <div class="space-y-1">
@@ -3367,7 +3367,7 @@
                 Security & Compliance Gate
               </span>
               <span class="text-xs font-bold" style="color: var(--color-text-muted);">
-                21 CFR Part 11 Stateless JTI Task Nonce Guard
+                Part 11-aligned controls Stateless JTI Task Nonce Guard
               </span>
             </div>
             <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
@@ -3430,7 +3430,7 @@
                 <span class="font-bold font-mono" style="color: var(--color-badge-cyan-text);" x-text="a2uiLastActionResult?.jti"></span>
               </div>
               <div class="border-b pb-1" style="border-color: var(--color-border-subtle);" x-show="a2uiLastActionResult?.justification">
-                <span class="block text-[10px] font-bold" style="color: var(--color-text-secondary);">Clinical Justification (21 CFR Part 11):</span>
+                <span class="block text-[10px] font-bold" style="color: var(--color-text-secondary);">Clinical Justification (Part 11-aligned controls):</span>
                 <span class="text-[11px] italic font-sans" style="color: var(--color-text-primary);" x-text="a2uiLastActionResult?.justification"></span>
               </div>
               <div class="flex justify-between border-b pb-1" style="border-color: var(--color-border-subtle);">
@@ -3559,7 +3559,7 @@
             <span class="text-[10px] px-2 py-0.5 rounded-full font-bold border" style="background-color: var(--color-badge-emerald-bg); color: var(--color-badge-emerald-text); border-color: var(--color-badge-emerald-border);">Active</span>
           </div>
           <h4 class="text-sm font-extrabold" style="color: var(--color-text-primary);">Veeva Vault eTMF</h4>
-          <p class="text-xs font-medium" style="color: var(--color-text-muted);">Automated eTMF protocol amendment filing with 21 CFR Part 11 audit trails.</p>
+          <p class="text-xs font-medium" style="color: var(--color-text-muted);">Automated eTMF protocol amendment filing with Part 11-aligned controls audit trails.</p>
         </div>
 
         <!-- Medidata Rave -->
@@ -3919,7 +3919,7 @@
               Enterprise A2A Gateway — Technical FAQ & Architecture Deep-Dive
             </h2>
             <p class="text-xs md:text-sm font-semibold" style="color: var(--color-text-secondary);">
-              Exhaustive engineering reference for A2A v1.0.0 Protobuf contracts, 28 µs AST ADK key-stripping sanitizers, stateless 48h HMAC tokens, FDA 21 CFR Part 11 GxP compliance, Google DeepMind Veo 2 / Gemini Omni integration, and multi-cloud federation.
+              Exhaustive engineering reference for A2A v1.0 Protobuf contracts, 28 µs AST ADK key-stripping sanitizers, stateless 48h HMAC tokens, FDA Part 11-aligned controls GxP compliance, Google DeepMind Veo 2 / Gemini Omni integration, and multi-cloud federation.
             </p>
           </div>
 
@@ -3931,7 +3931,7 @@
             </div>
             <div class="p-3.5 rounded-2xl border text-center" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <div class="text-xl font-black font-mono text-emerald-400">100%</div>
-              <div class="text-[10px] font-bold" style="color: var(--color-text-muted);">21 CFR Part 11 GxP</div>
+              <div class="text-[10px] font-bold" style="color: var(--color-text-muted);">Part 11-aligned controls GxP</div>
             </div>
           </div>
         </div>
@@ -4008,7 +4008,7 @@
               <!-- Quick Action Chips for Dr. A2A / Demo -->
               <div class="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div class="flex items-center space-x-2">
-                  <span class="text-[11px] font-bold text-slate-400">GxP Compliance Verification:</span>
+                  <span class="text-[11px] font-bold text-slate-400">Validation Controls Verification:</span>
                   <span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     <i class="fa-solid fa-check-double mr-1"></i> VERIFIED (IQ/OQ/PQ 100%)
                   </span>
@@ -4060,7 +4060,7 @@
               Advanced A2A Protocol Lab & Sovereign Swarm Studio
             </h1>
             <p class="text-xs md:text-sm font-medium leading-relaxed" style="color: var(--color-text-secondary);">
-              Interactive laboratory demonstrating cutting-edge Google Agent-to-Agent protocol primitives: Bi-directional Anthropic MCP Translation, Byzantine Quorum Voting & Red-Team Debate, 3-Tier 21 CFR Part 11 Multi-Sig Chains, In-Flight Steering, AMD SEV-SNP Confidential Enclaves, and W3C OpenTelemetry Trace Waterfalls.
+              Interactive laboratory demonstrating cutting-edge Google Agent-to-Agent protocol primitives: Bi-directional Anthropic MCP Translation, Byzantine Quorum Voting & Red-Team Debate, 3-Tier Part 11-aligned controls Multi-Sig Chains, In-Flight Steering, AMD SEV-SNP Confidential Enclaves, and W3C OpenTelemetry Trace Waterfalls.
             </p>
           </div>
 
@@ -4156,7 +4156,7 @@
             <div>
               <label class="text-[11px] font-bold block mb-1" style="color: var(--color-text-secondary);">Tool Schema</label>
               <select x-model="mcpToolName" class="w-full px-3 py-2 rounded-xl text-xs border font-mono" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle); color: var(--color-text-primary);">
-                <option value="titrate_clinical_dose">titrate_clinical_dose (21 CFR Part 11)</option>
+                <option value="titrate_clinical_dose">titrate_clinical_dose (Part 11-aligned controls)</option>
                 <option value="verify_21cfr11_multisig">verify_21cfr11_multisig (Merkle Proof)</option>
                 <option value="ingest_cdisc_sdtm_domain">ingest_cdisc_sdtm_domain (AST Filter)</option>
               </select>
@@ -4410,14 +4410,14 @@
       </div>
 
       <!-- ===================================================================== -->
-      <!-- MODULE 3: 3-TIER 21 CFR PART 11 MULTI-SIG CHAIN                       -->
+      <!-- MODULE 3: 3-TIER PART 11-ALIGNED CONTROLS MULTI-SIG CHAIN                       -->
       <!-- ===================================================================== -->
       <div id="lab-module-multisig" x-show="advancedLabTab === 'multisig_chain'" class="space-y-6">
         <div class="glass-card rounded-3xl p-6 md:p-8 border shadow-xl space-y-6" style="border-color: var(--color-border-card);">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4" style="border-color: var(--color-border-subtle);">
             <div>
               <span class="text-xs font-black uppercase tracking-wider text-purple-400 flex items-center gap-2">
-                <i class="fa-solid fa-signature"></i> 21 CFR Part 11 Sequential Multi-Sig
+                <i class="fa-solid fa-signature"></i> Part 11-aligned controls Sequential Multi-Sig
               </span>
               <h2 class="text-2xl font-black mt-1" style="color: var(--color-text-primary);">
                 Sequential 3-Tier Electronic Signature Merkle Chain
@@ -4507,7 +4507,7 @@
                   <i class="fa-solid fa-stamp"></i>
                 </div>
                 <div>
-                  <h3 class="text-base font-black text-emerald-400">21 CFR PART 11 VALIDATED MULTI-SIG CERTIFICATE</h3>
+                  <h3 class="text-base font-black text-emerald-400">PART 11-ALIGNED CONTROLS DEMO MULTI-SIG CONTROL</h3>
                   <p class="text-xs" style="color: var(--color-text-secondary);">Three Independent Stakeholder Signatures Chained Cryptographically</p>
                 </div>
               </div>
@@ -4954,7 +4954,7 @@
             <span>Regulatory Status</span>
             <i class="fa-solid fa-stamp"></i>
           </div>
-          <div class="text-xl font-black" style="color: var(--color-text-primary);">21 CFR Part 11</div>
+          <div class="text-xl font-black" style="color: var(--color-text-primary);">Part 11-aligned controls</div>
           <div class="text-[11px]" style="color: var(--color-text-muted);">48h Stateless HMAC Seals</div>
         </div>
       </div>
@@ -5004,7 +5004,7 @@
             <div class="space-y-1.5">
               <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--color-text-secondary);">3. Regulatory Mandate</label>
               <select x-model="connectComplianceTier" @change="evaluateConnectMatchmaker()" class="w-full p-2.5 rounded-xl border text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-card); color: var(--color-text-primary);">
-                <option value="part11_gxp">FDA 21 CFR Part 11 & GxP</option>
+                <option value="part11_gxp">FDA Part 11-aligned controls & GxP</option>
                 <option value="hipaa_zero_egress">HIPAA Zero-Egress Perimeter</option>
                 <option value="consortium_zkp">Cross-Sponsor Enclave (ZKP)</option>
                 <option value="developer_pilot">Rapid Developer Sandbox</option>
@@ -5249,7 +5249,7 @@
               <div class="pt-2 flex items-center justify-between">
                 <button id="btn-approve-webhook-card" @click="approveConnectWebhookCard()" :disabled="connectWebhookApproved" :class="connectWebhookApproved ? 'bg-emerald-500 text-slate-950 opacity-90' : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-95 text-slate-950'" class="px-5 py-2.5 rounded-xl font-black text-xs shadow-md transition-all flex items-center space-x-2">
                   <i class="fa-solid" :class="connectWebhookApproved ? 'fa-check-double' : 'fa-signature'"></i>
-                  <span x-text="connectWebhookApproved ? 'Signed & Validated (21 CFR Part 11)' : 'Approve & Affix Electronic Signature'"></span>
+                  <span x-text="connectWebhookApproved ? 'Demo Approval Recorded' : 'Approve & Affix Electronic Signature'"></span>
                 </button>
                 <span class="font-mono text-[10px] text-slate-400">Zero Context Switch</span>
               </div>
@@ -5270,8 +5270,8 @@
           <div class="space-y-3 text-xs">
             <div class="p-3 rounded-xl border space-y-1" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <div class="font-bold flex items-center justify-between" style="color: var(--color-text-primary);">
-                <span>FDA 21 CFR Part 11</span>
-                <span class="text-emerald-400 font-mono font-bold">100% PASS</span>
+                <span>FDA Part 11-aligned controls</span>
+                <span class="text-emerald-400 font-mono font-bold">DEMO CHECK</span>
               </div>
               <div class="text-[11px]" style="color: var(--color-text-muted);">Stateless 48h HMAC-SHA256 & Cloud KMS Ed25519</div>
             </div>
@@ -5286,8 +5286,8 @@
 
             <div class="p-3 rounded-xl border space-y-1" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
               <div class="font-bold flex items-center justify-between" style="color: var(--color-text-primary);">
-                <span>GAMP 5 Category 4</span>
-                <span class="text-emerald-400 font-mono font-bold">CERTIFIED</span>
+                <span>GAMP 5 Category 4 mapping</span>
+                <span class="text-emerald-400 font-mono font-bold">DEMO MAPPED</span>
               </div>
               <div class="text-[11px]" style="color: var(--color-text-muted);">Configured software validation life-cycle</div>
             </div>
@@ -5500,8 +5500,8 @@
           </div>
 
           <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 flex items-center justify-between">
-            <span>Validated Against: <strong>FDA ESG Electronic Submissions Gateway</strong></span>
-            <span class="font-mono font-bold">100% PASS</span>
+            <span>Demo Reference: <strong>FDA ESG Electronic Submissions Gateway</strong></span>
+            <span class="font-mono font-bold">DEMO CHECK</span>
           </div>
         </div>
 
@@ -5769,7 +5769,7 @@
               PromptCanvas Visual Architecture & Draw.io Studio
             </h1>
             <p class="text-xs md:text-sm leading-relaxed max-w-3xl" style="color: var(--color-text-secondary);">
-              Visually design sovereign biopharma agent swarms and enterprise topologies in Draw.io / PromptCanvas format. 1-Click compile mxGraphModel XML into live executable A2A Gateway DAGs with automated AST sanitization and 21 CFR Part 11 validation.
+              Visually design sovereign biopharma agent swarms and enterprise topologies in Draw.io / PromptCanvas format. 1-Click compile mxGraphModel XML into live executable A2A Gateway DAGs with automated AST sanitization and Part 11-aligned controls validation.
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-3">
@@ -5816,7 +5816,7 @@
             <span>Regulatory Ledger</span>
             <i class="fa-solid fa-stamp"></i>
           </div>
-          <div class="text-xl font-black" style="color: var(--color-text-primary);">21 CFR Part 11</div>
+          <div class="text-xl font-black" style="color: var(--color-text-primary);">Part 11-aligned controls</div>
           <div class="text-[11px]" style="color: var(--color-text-muted);">Automatic Merkle Chaining</div>
         </div>
       </div>
@@ -5885,7 +5885,7 @@
                 <text x="415" y="45" fill="#38bdf8" font-size="11" font-family="sans-serif" font-weight="900" letter-spacing="0.5">GEMINI ENTERPRISE WORKSPACE</text>
 
                 <!-- Nodes in Sovereign Enclave -->
-                <g @click="selectPromptcanvasNode({id: 'node_clinical_db', name: 'CDISC SDTM Lakehouse', type: 'STORAGE_RESIDENCY', latency: '15 ms', clearance: '21 CFR Part 11', desc: 'Secure repository for clinical subject cohorts.'})" class="cursor-pointer group">
+                <g @click="selectPromptcanvasNode({id: 'node_clinical_db', name: 'CDISC SDTM Lakehouse', type: 'STORAGE_RESIDENCY', latency: '15 ms', clearance: 'Part 11-aligned controls', desc: 'Secure repository for clinical subject cohorts.'})" class="cursor-pointer group">
                   <rect x="40" y="65" width="135" height="60" rx="10" fill="#1e293b" stroke="#059669" stroke-width="1.5" class="hover:stroke-emerald-400 transition-colors"/>
                   <text x="50" y="88" fill="#e2e8f0" font-size="10" font-family="sans-serif" font-weight="bold">CDISC SDTM Lake</text>
                   <text x="50" y="105" fill="#94a3b8" font-size="8" font-family="monospace">BigQuery RLS / AES</text>
@@ -6050,14 +6050,14 @@
               <span class="px-3 py-1 rounded-lg text-xs font-black bg-gradient-to-r from-teal-500/20 via-cyan-500/20 to-indigo-500/20 text-cyan-400 border border-cyan-500/30 uppercase tracking-widest flex items-center gap-1.5">
                 <i class="fa-solid fa-graduation-cap"></i> Enterprise Training Hub
               </span>
-              <span class="px-3 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">SPEC: A2A v1.0.0</span>
-              <span class="px-3 py-1 rounded-lg text-xs font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 font-mono">GxP 21 CFR Part 11</span>
+              <span class="px-3 py-1 rounded-lg text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">SPEC: A2A v1.0</span>
+              <span class="px-3 py-1 rounded-lg text-xs font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 font-mono">GxP Part 11-aligned controls</span>
             </div>
             <h2 class="text-2xl md:text-3xl font-black tracking-tight" style="color: var(--color-text-primary);">
               Gemini Enterprise User Training & Onboarding Hub
             </h2>
             <p class="text-xs md:text-sm font-semibold leading-relaxed" style="color: var(--color-text-secondary);">
-              Interactive 5-step curriculum for registering, configuring, scoping, and invoking Sovereign A2A Agent Swarms inside Google Gemini Enterprise App with sub-28µs AST sanitization and 1-click 21 CFR Part 11 electronic signatures.
+              Interactive 5-step curriculum for registering, configuring, scoping, and invoking Sovereign A2A Agent Swarms inside Google Gemini Enterprise App with sub-28µs AST sanitization and 1-click Part 11-aligned controls electronic signatures.
             </p>
           </div>
 
@@ -6225,7 +6225,7 @@
                 <div class="flex items-start space-x-3 p-3 rounded-2xl border" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                   <i class="fa-solid fa-check-circle text-emerald-400 text-sm mt-0.5 shrink-0"></i>
                   <div>
-                    <div class="font-extrabold" style="color: var(--color-text-primary);">Universal A2A v1.0.0 Protocol</div>
+                    <div class="font-extrabold" style="color: var(--color-text-primary);">Universal A2A v1.0 Protocol</div>
                     <div class="text-[11px]" style="color: var(--color-text-muted);">Standardized RFC 8615 discovery contract compatible with Gemini Enterprise Swarm Registry.</div>
                   </div>
                 </div>
@@ -6242,7 +6242,7 @@
                   <i class="fa-solid fa-signature text-purple-400 text-sm mt-0.5 shrink-0"></i>
                   <div>
                     <div class="font-extrabold" style="color: var(--color-text-primary);">48-Hour Stateless HMAC Signatures</div>
-                    <div class="text-[11px]" style="color: var(--color-text-muted);">Zero relational database lock contention on FDA 21 CFR Part 11 human approval workflows.</div>
+                    <div class="text-[11px]" style="color: var(--color-text-muted);">Zero relational database lock contention on FDA Part 11-aligned controls human approval workflows.</div>
                   </div>
                 </div>
               </div>
@@ -6350,7 +6350,7 @@ curl -s -X GET <span class="text-emerald-400">"https://a2a-gateway-638420508320.
   <span class="text-cyan-400">rpc</span> ExecuteTask(TaskRequest) <span class="text-cyan-400">returns</span> (TaskResponse);
   <span class="text-slate-500">// High-Throughput Bidirectional Thought Streaming</span>
   <span class="text-cyan-400">rpc</span> StreamTask(ExecuteTaskRequest) <span class="text-cyan-400">returns</span> (<span class="text-amber-400">stream</span> StreamTaskResponse);
-  <span class="text-slate-500">// 21 CFR Part 11 Electronic Signature Seal</span>
+  <span class="text-slate-500">// Part 11-aligned controls Electronic Signature Seal</span>
   <span class="text-cyan-400">rpc</span> SubmitHitlSignature(HitlSignatureRequest) <span class="text-cyan-400">returns</span> (HitlSignatureResponse);
 }</code></pre>
               </div>
@@ -6591,7 +6591,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                         <i class="fa-solid fa-network-wired mr-1"></i> 2. Execution (#1–#7)
                       </button>
                       <button id="btn-traininggcpconsoletab-code" @click="trainingGcpConsoleTab = 'code'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'code' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-400 hover:text-slate-200'">
-                        <i class="fa-solid fa-code mr-1"></i> 3. 21 CFR Part 11 Code
+                        <i class="fa-solid fa-code mr-1"></i> 3. Part 11-aligned controls Code
                       </button>
                       <button id="btn-traininggcpconsoletab-catalog" @click="trainingGcpConsoleTab = 'catalog'" class="px-2.5 py-1 rounded-md font-bold transition-all whitespace-nowrap" :class="trainingGcpConsoleTab === 'catalog' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-slate-200'">
                         <i class="fa-solid fa-list-check mr-1"></i> 4. Swarms Catalog
@@ -6626,7 +6626,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                       <div>
                         <label class="block font-bold mb-1 text-slate-400">Protocol Specification</label>
-                        <input type="text" readonly value="Google A2A v1.0.0 (RFC 8615)" class="w-full px-3 py-1.5 rounded-lg border font-mono font-bold bg-slate-900 border-slate-700 text-emerald-400">
+                        <input type="text" readonly value="Google A2A v1.0 (RFC 8615)" class="w-full px-3 py-1.5 rounded-lg border font-mono font-bold bg-slate-900 border-slate-700 text-emerald-400">
                       </div>
                       <div>
                         <label class="block font-bold mb-1 text-slate-400">Authentication Protocol</label>
@@ -6729,12 +6729,12 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     </div>
                   </div>
 
-                  <!-- TAB 3: 21 CFR PART 11 PYTHON SIGNER ARTIFACTS -->
+                  <!-- TAB 3: PART 11-ALIGNED CONTROLS PYTHON SIGNER ARTIFACTS -->
                   <div x-show="trainingGcpConsoleTab === 'code'" class="p-4 space-y-3.5">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                       <div class="text-xs font-bold text-slate-200 flex items-center space-x-2">
                         <i class="fa-solid fa-code text-amber-400"></i>
-                        <span>Generated 21 CFR Part 11 Python Signer & Swarm Registration Payload</span>
+                        <span>Generated Part 11-aligned controls Python Signer & Swarm Registration Payload</span>
                       </div>
                       <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-400 border border-amber-500/30">Stateless HMAC-SHA256</span>
                     </div>
@@ -6828,7 +6828,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                               <span>Enterprise A2A Gateway</span>
                             </td>
                             <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Active</span></td>
-                            <td class="p-2.5 text-emerald-400">A2A v1.0.0</td>
+                            <td class="p-2.5 text-emerald-400">A2A v1.0</td>
                             <td class="p-2.5 text-cyan-300 font-bold">2.42 µs AST</td>
                             <td class="p-2.5 text-slate-400">Cloud Run us-central1</td>
                           </tr>
@@ -6922,7 +6922,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   </div>
                   <div>
                     <label class="block font-bold mb-1" style="color: var(--color-text-secondary);">Protocol Version</label>
-                    <input type="text" readonly value="Google A2A v1.0.0" class="w-full px-3.5 py-2 rounded-xl border font-mono font-bold text-emerald-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
+                    <input type="text" readonly value="Google A2A v1.0" class="w-full px-3.5 py-2 rounded-xl border font-mono font-bold text-emerald-400" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                   </div>
                 </div>
 
@@ -6984,7 +6984,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               <div class="space-y-3 text-xs">
                 <div class="p-3.5 rounded-2xl border space-y-2" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                   <div class="flex items-center justify-between">
-                    <span class="font-extrabold" style="color: var(--color-text-primary);">GxP 21 CFR Part 11 Audit Trail</span>
+                    <span class="font-extrabold" style="color: var(--color-text-primary);">GxP Part 11-aligned controls Audit Trail</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" x-model="trainingDlpAudit" class="sr-only peer">
                       <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
@@ -7058,7 +7058,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                       <i class="fa-solid fa-file-signature text-emerald-400"></i>
                       <div>
                         <div class="font-bold" style="color: var(--color-text-primary);">Medical Reviewers & Safety Board</div>
-                        <div class="text-[10px]" style="color: var(--color-text-muted);">Medical Directors (21 CFR Part 11 Signers)</div>
+                        <div class="text-[10px]" style="color: var(--color-text-muted);">Medical Directors (Part 11-aligned controls Signers)</div>
                       </div>
                     </div>
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -7139,7 +7139,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 </div>
                 <h3 class="text-xl font-black" style="color: var(--color-text-primary);">Step 5: Live Chat Console & 1-Click HITL Sign-off</h3>
                 <p class="text-xs leading-relaxed" style="color: var(--color-text-secondary);">
-                  Clinicians interact with <code class="text-cyan-400 font-mono">@clinical-gateway</code> in the Gemini Enterprise App. Outbound payloads undergo sub-28µs AST sanitization before rendering dynamic A2UI cards with 1-click 21 CFR Part 11 electronic signatures.
+                  Clinicians interact with <code class="text-cyan-400 font-mono">@clinical-gateway</code> in the Gemini Enterprise App. Outbound payloads undergo sub-28µs AST sanitization before rendering dynamic A2UI cards with 1-click Part 11-aligned controls electronic signatures.
                 </p>
               </div>
 
@@ -7215,7 +7215,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     AST: 28 µs
                   </span>
                   <span class="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    21 CFR Part 11
+                    Part 11-aligned controls
                   </span>
                 </div>
               </div>
@@ -7231,7 +7231,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                       <span>10:42 AM</span>
                     </div>
                     <p class="leading-relaxed">
-                      <span class="font-black underline decoration-cyan-300">@clinical-gateway</span> Calculate recommended dose titration for Cohort B (Subject MK-3475-087) based on cycle 3 ALT/AST labs and produce 21 CFR Part 11 sign-off card.
+                      <span class="font-black underline decoration-cyan-300">@clinical-gateway</span> Calculate recommended dose titration for Cohort B (Subject MK-3475-087) based on cycle 3 ALT/AST labs and produce Part 11-aligned controls sign-off card.
                     </p>
                   </div>
                   <div class="w-8 h-8 rounded-full bg-teal-500/20 border border-teal-500/30 flex items-center justify-center shrink-0 text-teal-400 text-xs font-bold font-mono">
@@ -7314,18 +7314,18 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                       <div x-show="!trainingChatApproved" class="pt-1">
                         <button id="btn-training-approve" @click="approveTrainingChat()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-lg transition-all flex items-center justify-center space-x-2">
                           <i class="fa-solid fa-signature"></i>
-                          <span>1-Click Approve & Sign (FDA 21 CFR Part 11)</span>
+                          <span>Simulate Approval Control</span>
                         </button>
                       </div>
 
-                      <!-- 21 CFR Part 11 Electronic Signature Certificate Stamp -->
+                      <!-- Part 11-aligned controls Electronic Signature Certificate Stamp -->
                       <div id="training-seal-stamp" x-show="trainingChatApproved" class="p-4 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/50 space-y-3 animate-fade-in">
                         <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2">
                           <div class="flex items-center space-x-2">
                             <i class="fa-solid fa-stamp text-emerald-400 text-base"></i>
-                            <span class="text-xs font-black text-emerald-400 font-mono tracking-wider">21 CFR PART 11 VALIDATED ELECTRONIC SEAL</span>
+                            <span class="text-xs font-black text-emerald-400 font-mono tracking-wider">PART 11-ALIGNED CONTROLS DEMO ELECTRONIC CONTROL</span>
                           </div>
-                          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300">COMPLIANT</span>
+                          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-black bg-emerald-500/20 text-emerald-300">PROTOTYPE</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-[11px] font-mono">
@@ -7409,7 +7409,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 <div class="p-3.5 rounded-2xl border space-y-1.5" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
                   <div class="font-bold flex items-center gap-1.5 text-purple-400">
                     <i class="fa-solid fa-shield-halved"></i>
-                    <span>3. Atomic 21 CFR Part 11 JTI Replay Prevention</span>
+                    <span>3. Atomic Part 11-aligned controls JTI Replay Prevention</span>
                   </div>
                   <p style="color: var(--color-text-secondary);">
                     Every button seals a unique cryptographic <code class="px-1 py-0.2 rounded font-mono text-purple-300 bg-purple-950/40">jti</code> claim. The gateway performs an atomic check-and-set operation: on a replay attempt, it returns HTTP 409 Conflict to guarantee zero duplicate dosing.
@@ -7471,7 +7471,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   </div>
                 </div>
 
-                <!-- 21 CFR Part 11 Action Execution Buttons -->
+                <!-- Part 11-aligned controls Action Execution Buttons -->
                 <div class="p-3.5 rounded-xl border space-y-3" style="background-color: var(--color-bg-card); border-color: var(--color-border-card);">
                   <div class="flex justify-between items-center text-xs">
                     <span class="font-bold text-slate-300">Test JTI Replay Prevention:</span>
@@ -7727,7 +7727,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
       </div>
 
       <p class="text-xs leading-relaxed font-medium" style="color: var(--color-text-secondary);">
-        Select your organization's identity provider for 21 CFR Part 11 compliant sign-in with WebAuthn FIDO2 MFA token verification:
+        Select your organization's identity provider for Part 11-aligned controls compliant sign-in with WebAuthn FIDO2 MFA token verification:
       </p>
 
       <div class="space-y-3">
@@ -7770,7 +7770,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
       <div class="text-xs space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar leading-relaxed" style="color: var(--color-text-secondary);">
         <div x-show="legalModal === 'disclaimer'">
-          <p><strong>FDA & Regulatory Disclaimer:</strong> This Enterprise Agent-to-Agent (A2A) Gateway is designed strictly for clinical decision support, protocol amendment acceleration, and statistical variance modeling in accordance with FDA 21 CFR Part 11 and GAMP 5 guidance.</p>
+          <p><strong>FDA & Regulatory Disclaimer:</strong> This Enterprise Agent-to-Agent (A2A) Gateway is designed strictly for clinical decision support, protocol amendment acceleration, and statistical variance modeling in accordance with FDA Part 11-aligned controls and GAMP 5 guidance.</p>
         </div>
         <div x-show="legalModal === 'privacy'">
           <p><strong>Zero Model Training & Zero Cloud Egress:</strong> Proprietary clinical trial datasets and patient records are never retained, logged, or utilized for public foundational model training.</p>
@@ -7790,7 +7790,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   </div>
 
   <!-- ========================================================================= -->
-  <!-- 21 CFR PART 11 JUSTIFICATION & MEANING OF SIGNATURE MODAL                 -->
+  <!-- PART 11-ALIGNED CONTROLS JUSTIFICATION & MEANING OF SIGNATURE MODAL                 -->
   <!-- ========================================================================= -->
   <div id="modal-justification" x-show="a2uiJustificationModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
     <div class="glass-card p-6 md:p-8 rounded-3xl max-w-2xl w-full space-y-5 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="a2uiJustificationModalOpen = false">
@@ -7800,7 +7800,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <div class="space-y-1">
           <div class="flex items-center space-x-2">
             <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30">
-              21 CFR Part 11 § 11.50
+              Part 11-aligned controls § 11.50
             </span>
             <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
               Cryptographic JTI Seal
@@ -7810,7 +7810,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             Clinical Electronic Signature & Justification
           </h3>
           <p class="text-xs font-medium" style="color: var(--color-text-secondary);">
-            Legally binding electronic signature pursuant to FDA 21 CFR Part 11 and ICH GCP E6(R2).
+            Legally binding electronic signature pursuant to FDA Part 11-aligned controls and ICH GCP E6(R2).
           </p>
         </div>
         <button id="btn-a2uijustificationmodalopen-false" @click="a2uiJustificationModalOpen = false" class="hover:text-rose-500 transition-colors p-1" style="color: var(--color-text-muted);">
@@ -7837,7 +7837,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <div class="space-y-1.5">
           <label class="block text-xs font-bold" style="color: var(--color-text-primary);">Meaning Associated with Signature (§ 11.50(a)(3))</label>
           <select id="select-signature-meaning" x-model="a2uiSignatureMeaning" class="w-full p-2.5 rounded-xl text-xs border focus:ring-2 focus:ring-teal-500 outline-none font-medium" style="background-color: var(--color-bg-terminal); color: var(--color-text-primary); border-color: var(--color-border-subtle);">
-            <option value="Approval of Clinical Protocol Amendment & Patient Disposition (21 CFR Part 11 § 11.50)">Approval of Clinical Protocol Amendment & Patient Disposition</option>
+            <option value="Approval of Clinical Protocol Amendment & Patient Disposition (Part 11-aligned controls § 11.50)">Approval of Clinical Protocol Amendment & Patient Disposition</option>
             <option value="Review and Concurrence with Investigational Deviation Triage">Review and Concurrence with Investigational Deviation Triage</option>
             <option value="Formal Escalation to Institutional Review Board (IRB/IEC) & Safety Board">Formal Escalation to Institutional Review Board (IRB/IEC) & Safety Board</option>
             <option value="Authoritative Batch Release & CAPA Execution (GMP Annex 11)">Authoritative Batch Release & CAPA Execution (GMP Annex 11)</option>
@@ -7874,7 +7874,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         <label class="flex items-start space-x-3 p-3 rounded-2xl border cursor-pointer hover:border-emerald-500/40 transition-colors" style="background-color: var(--color-bg-card-subtle); border-color: var(--color-border-subtle);">
           <input type="checkbox" id="chk-signature-affirmation" checked class="mt-0.5 accent-emerald-500 rounded">
           <span class="text-[11px] leading-relaxed" style="color: var(--color-text-secondary);">
-            I hereby certify under penalty of perjury that this electronic signature is executed under my sole control and constitutes the legally binding equivalent of my traditional handwritten signature per 21 CFR Part 11.
+            I hereby certify under penalty of perjury that this electronic signature is executed under my sole control and constitutes the legally binding equivalent of my traditional handwritten signature per Part 11-aligned controls.
           </span>
         </label>
       </div>
@@ -7893,7 +7893,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
   </div>
 
   <!-- ========================================================================= -->
-  <!-- 1-CLICK FDA 21 CFR PART 11 REGULATORY INSPECTION DOSSIER MODAL (GEMINI 2.5 PRO) -->
+  <!-- 1-CLICK FDA PART 11-ALIGNED CONTROLS REGULATORY INSPECTION DOSSIER MODAL (GEMINI 2.5 PRO) -->
   <!-- ========================================================================= -->
   <div id="modal-fda-dossier" x-show="fdaDossierModalOpen" @keydown.escape.window="fdaDossierModalOpen = false" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 modal-backdrop-scrim" style="display: none;">
     <div class="glass-card p-6 md:p-8 rounded-3xl max-w-4xl w-full space-y-5 shadow-2xl border-2 overflow-hidden flex flex-col max-h-[92vh]" style="border-color: var(--color-border-card);" @click.outside="fdaDossierModalOpen = false">
@@ -7909,7 +7909,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               1-Click eCTD Ready
             </span>
             <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30">
-              21 CFR Part 11 § 11.10(e)
+              Part 11-aligned controls § 11.10(e)
             </span>
           </div>
           <h3 class="text-xl font-black" style="color: var(--color-text-primary);">
@@ -8093,7 +8093,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             <span class="text-[10px] font-mono font-bold uppercase tracking-wider" style="color: var(--color-text-muted);">Composite Readiness Index</span>
             <div class="text-3xl font-black flex items-baseline space-x-2">
               <span class="font-mono font-black" style="color: var(--color-badge-emerald-text);" x-text="omniReadinessPct + '%'"></span>
-              <span class="text-xs font-sans font-bold" style="color: var(--color-text-secondary);" x-text="'• ' + (omniReadinessTier === 'AUDIT_READY' ? 'Ready for 21 CFR Part 11 Submission' : 'Triage In Progress')"></span>
+              <span class="text-xs font-sans font-bold" style="color: var(--color-text-secondary);" x-text="'• ' + (omniReadinessTier === 'AUDIT_READY' ? 'Ready for Part 11-aligned controls Submission' : 'Triage In Progress')"></span>
             </div>
             <p class="text-[11px]" style="color: var(--color-text-secondary);" x-text="omniPrimaryDirective"></p>
           </div>
@@ -8228,7 +8228,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                   <i class="fa-solid fa-signature" style="color: var(--color-badge-emerald-text);"></i>
                   <div>
                     <span class="font-bold block" style="color: var(--color-text-primary);">Guide to Electronic Attestation</span>
-                    <span class="text-[10px]" style="color: var(--color-text-muted);">Open 21 CFR Part 11 envelope with Chirp 2 audio</span>
+                    <span class="text-[10px]" style="color: var(--color-text-muted);">Open Part 11-aligned controls envelope with Chirp 2 audio</span>
                   </div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-xs opacity-0 group-hover:opacity-100 transition-opacity" style="color: var(--color-badge-emerald-text);"></i>
@@ -8363,7 +8363,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                     style="background-color: var(--color-bg-card-subtle);">
               <div class="font-black text-purple-400 text-xs">Fenrir</div>
               <div class="text-[10px] font-mono text-slate-400">Resonant Bass</div>
-              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Statutory 21 CFR Part 11 regulatory auditor.</div>
+              <div class="text-[9px] mt-1" style="color: var(--color-text-muted);">Statutory Part 11-aligned controls regulatory auditor.</div>
             </button>
           </div>
         </div>
@@ -8547,7 +8547,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
                 <h3 class="text-sm font-black" style="color: var(--color-text-primary);">Dr. A2A Omni Co-pilot</h3>
                 <span class="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Gemini Live API</span>
               </div>
-              <p class="text-[11px] font-bold" style="color: var(--color-badge-cyan-text);">Biopharma GxP & A2A v1.0.0 Multimodal Expert</p>
+              <p class="text-[11px] font-bold" style="color: var(--color-badge-cyan-text);">Biopharma GxP & A2A v1.0 Multimodal Expert</p>
             </div>
           </div>
           
@@ -8725,7 +8725,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         omniReadinessPct: 88,
         omniReadinessTier: 'AUDIT_READY',
         omniReadinessModalOpen: false,
-        omniPrimaryDirective: 'All safety criteria conformant. Cleared for 21 CFR Part 11 regulatory submission.',
+        omniPrimaryDirective: 'All safety criteria conformant. Cleared for Part 11-aligned controls regulatory submission.',
         omniReadinessDimensions: [
           {
             name: 'Protocol Regimen Alignment',
@@ -8955,7 +8955,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             darkImg: '/static/screenshots/dark_promptcanvas_01_studio.png',
             lightImg: '/static/screenshots/light_promptcanvas_01_studio.png',
             badge: 'PromptCanvas Bridge',
-            desc: 'Visual multi-agent topology designer: Ingests Draw.io mxGraphModel XML diagrams and synthesizes live executable A2A Gateway DAGs with automated AST sanitization and 21 CFR Part 11 validation.'
+            desc: 'Visual multi-agent topology designer: Ingests Draw.io mxGraphModel XML diagrams and synthesizes live executable A2A Gateway DAGs with automated AST sanitization and Part 11-aligned controls validation.'
           },
           {
             step: 9,
@@ -9016,7 +9016,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           },
           {
             step: 7,
-            title: 'Advanced A2A: Sequential 3-Tier 21 CFR Part 11 Multi-Sig Chain',
+            title: 'Advanced A2A: Sequential 3-Tier Part 11-aligned controls Multi-Sig Chain',
             subtitle: 'Cryptographic Merkle Chaining Across Multiple Human Signatories',
             darkImg: '/static/screenshots/dark_advanced_03_multisig_chain.png',
             lightImg: '/static/screenshots/light_advanced_03_multisig_chain.png',
@@ -9053,11 +9053,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           {
             step: 1,
             title: 'Step 1: Protocol Discovery & Capabilities',
-            subtitle: 'A2A v1.0.0 RFC 8615 Well-Known URI Manifest',
+            subtitle: 'A2A v1.0 RFC 8615 Well-Known URI Manifest',
             darkImg: '/static/screenshots/dark_training_01_protocol_discovery.png',
             lightImg: '/static/screenshots/light_training_01_protocol_discovery.png',
             badge: 'Discovery & Schema',
-            desc: 'Automated agent capability negotiation declaring clinical dose titration, sub-28µs AST sanitization, and 21 CFR Part 11 electronic signature interfaces.'
+            desc: 'Automated agent capability negotiation declaring clinical dose titration, sub-28µs AST sanitization, and Part 11-aligned controls electronic signature interfaces.'
           },
           {
             step: 2,
@@ -9120,11 +9120,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             darkImg: '/static/screenshots/13_gcp_console_agent_registration_json.png',
             lightImg: '/static/screenshots/13_gcp_console_agent_registration_json.png',
             badge: 'GCP Registration JSON',
-            desc: 'Step 1 registration JSON payload (POST /api/v1/register) for Sovereign_Biopharma_Cohort_Swarm_01 with HMAC-SHA256 and 21 CFR Part 11 parameters.'
+            desc: 'Step 1 registration JSON payload (POST /api/v1/register) for Sovereign_Biopharma_Cohort_Swarm_01 with HMAC-SHA256 and Part 11-aligned controls parameters.'
           },
           {
             step: 3,
-            title: 'Step 3 (Code Header): Google Cloud Console — 21 CFR Part 11 Python Implementation',
+            title: 'Step 3 (Code Header): Google Cloud Console — Part 11-aligned controls Python Implementation',
             subtitle: 'console.cloud.google.com/agent-platform/studio/agent-designer (Project: nitinagga-ge-2)',
             darkImg: '/static/screenshots/14_gcp_console_agent_python_code_header.png',
             lightImg: '/static/screenshots/14_gcp_console_agent_python_code_header.png',
@@ -9165,7 +9165,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             darkImg: '/static/screenshots/03_gcp_console_cloud_run_a2a_gateway_detail.png',
             lightImg: '/static/screenshots/03_gcp_console_cloud_run_a2a_gateway_detail.png',
             badge: 'Cloud Run Ingress',
-            desc: 'Authentic Cloud Run console showing healthy a2a-gateway service in us-central1 with active container instances handling live A2A v1.0.0 requests.'
+            desc: 'Authentic Cloud Run console showing healthy a2a-gateway service in us-central1 with active container instances handling live A2A v1.0 requests.'
           },
           {
             step: 3,
@@ -9205,11 +9205,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           },
           {
             step: 5,
-            title: 'Step 5 (Approved): 1-Click 21 CFR Part 11 Electronic Signature',
+            title: 'Step 5 (Approved): 1-Click Part 11-aligned controls Electronic Signature',
             subtitle: '48-Hour Stateless HMAC-SHA256 Electronic Seal',
             darkImg: '/static/screenshots/dark_training_06_hitl_approved_seal.png',
             lightImg: '/static/screenshots/light_training_06_hitl_approved_seal.png',
-            badge: '21 CFR Part 11 Seal',
+            badge: 'Part 11-aligned controls Seal',
             desc: 'Medical Director signs off with 1 click; gateway generates tamper-evident HMAC-SHA256 signature stamp stored in GxP audit ledger.'
           },
           {
@@ -9248,7 +9248,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         a2uiPendingActionId: null,
         a2uiSignerName: 'Dr. Nitin Aggarwal, MD (Principal Investigator)',
         a2uiSignerRole: 'Global Medical Monitor & Clinical Safety Chair',
-        a2uiSignatureMeaning: 'Approval of Clinical Protocol Amendment & Patient Disposition (21 CFR Part 11 § 11.50)',
+        a2uiSignatureMeaning: 'Approval of Clinical Protocol Amendment & Patient Disposition (Part 11-aligned controls § 11.50)',
         a2uiActionExecuting: false,
         a2uiLastActionResult: null,
         a2uiLastActionError: null,
@@ -9272,7 +9272,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           // Studios & Navigation
           { id: 'nav-landing', title: 'Open Quantum Mesh Portal', subtitle: 'Interactive 3D WebGL core and real-time swarm simulator', category: 'navigation', icon: 'fa-solid fa-atom', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: 'G Q', action: 'landing' },
           { id: 'nav-dag', title: 'Open Visual DAG Studio', subtitle: 'Compose multi-agent pipelines with 28µs AST filter', category: 'navigation', icon: 'fa-solid fa-diagram-project', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: 'G D', action: 'dag_studio' },
-          { id: 'nav-dose', title: 'Open Dose Titration Curve', subtitle: 'Interactive risk curve with 21 CFR Part 11 sign-off', category: 'navigation', icon: 'fa-solid fa-sliders', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G T', action: 'dose_curve' },
+          { id: 'nav-dose', title: 'Open Dose Titration Curve', subtitle: 'Interactive risk curve with Part 11-aligned controls sign-off', category: 'navigation', icon: 'fa-solid fa-sliders', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G T', action: 'dose_curve' },
           { id: 'nav-a2ui', title: 'Open Universal A2UI Studio', subtitle: '4-way synchronized transpiler with JTI idempotency guard', category: 'navigation', icon: 'fa-solid fa-mobile-screen-button', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'G A', action: 'a2ui_studio' },
           { id: 'nav-veo', title: 'Open Veo 2 & Omni Studio', subtitle: 'Google DeepMind 5-act 4K cinematic video engine', category: 'navigation', icon: 'fa-solid fa-clapperboard', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'G V', action: 'veo_studio' },
           { id: 'nav-playground', title: 'Open Playground & Ingestion', subtitle: 'Simulate live ADK envelope sanitization', category: 'navigation', icon: 'fa-solid fa-flask-vial', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: 'G P', action: 'playground' },
@@ -9288,11 +9288,11 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           // Persona Switching
           { id: 'persona-arch', title: 'Switch to Architect Persona', subtitle: 'Focus on enterprise topology and multi-agent DAGs', category: 'persona', icon: 'fa-solid fa-landmark', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: 'P A', action: 'persona_architect' },
           { id: 'persona-clin', title: 'Switch to Clinician Persona', subtitle: 'Focus on dose titration risk curve and safety', category: 'persona', icon: 'fa-solid fa-user-doctor', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: 'P C', action: 'persona_clinician' },
-          { id: 'persona-comp', title: 'Switch to Compliance Persona', subtitle: 'Focus on 21 CFR Part 11, GAMP 5, and audit logs', category: 'persona', icon: 'fa-solid fa-scale-balanced', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'P X', action: 'persona_compliance' },
+          { id: 'persona-comp', title: 'Switch to Compliance Persona', subtitle: 'Focus on Part 11-aligned controls, GAMP 5, and audit logs', category: 'persona', icon: 'fa-solid fa-scale-balanced', iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20', badgeClass: 'bg-purple-500/20 text-purple-400 border-purple-500/30', shortcut: 'P X', action: 'persona_compliance' },
           { id: 'persona-dev', title: 'Switch to Developer Persona', subtitle: 'Focus on REST/gRPC contracts and latency testing', category: 'persona', icon: 'fa-solid fa-code', iconBg: 'bg-sky-500/10 text-sky-400 border-sky-500/20', badgeClass: 'bg-sky-500/20 text-sky-400 border-sky-500/30', shortcut: 'P D', action: 'persona_developer' },
 
           // Quick Triggers & Actions
-          { id: 'act-hitl', title: 'Execute 21 CFR Part 11 Sign-off', subtitle: 'Seal HMAC-SHA256 clinical signature stamp', category: 'action', icon: 'fa-solid fa-signature', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: '⌘ S', action: 'action_hitl' },
+          { id: 'act-hitl', title: 'Execute Part 11-aligned controls Sign-off', subtitle: 'Seal HMAC-SHA256 clinical signature stamp', category: 'action', icon: 'fa-solid fa-signature', iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', shortcut: '⌘ S', action: 'action_hitl' },
           { id: 'act-theme', title: 'Toggle Light / Dark Mode', subtitle: 'Switch between dark glassmorphic and crisp light theme', category: 'action', icon: 'fa-solid fa-circle-half-stroke', iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20', badgeClass: 'bg-amber-500/20 text-amber-400 border-amber-500/30', shortcut: '⌘ T', action: 'action_theme' },
           { id: 'act-density', title: 'Toggle Information Density', subtitle: 'Switch between Comfortable and Compact viewports', category: 'action', icon: 'fa-solid fa-compress', iconBg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', badgeClass: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30', shortcut: '⌘ D', action: 'action_density' },
           { id: 'act-copilot', title: 'Launch Dr. A2A Omni Co-pilot', subtitle: 'Open multimodal assistant with live WebRTC voice', category: 'action', icon: 'fa-solid fa-robot', iconBg: 'bg-teal-500/10 text-teal-400 border-teal-500/20', badgeClass: 'bg-teal-500/20 text-teal-400 border-teal-500/30', shortcut: '⌘ A', action: 'action_copilot' },
@@ -9478,7 +9478,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         downloadComplianceDossier() {
           const data = this.connectDossierResult || {
             dossierId: 'DOSSIER-GXP-2026-ONLINE',
-            frameworks: ['FDA 21 CFR Part 11', 'HIPAA Zero-Egress', 'GAMP 5 Category 4'],
+            frameworks: ['FDA Part 11-aligned controls', 'HIPAA Zero-Egress', 'GAMP 5 Category 4'],
             hardwareAttestation: 'AMD SEV-SNP Active',
             astSanitizationP50Us: 5.95
           };
@@ -9514,7 +9514,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
         getEctdXmlPreview() {
           if (this.ectdResult) return this.ectdResult.xmlEctdDocument;
-          return `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE ectd:ectd SYSTEM "util/dtd/ich-ectd-3-2-2.dtd">\n<ectd:ectd xmlns:ectd="http://www.ich.org/ectd" dtd-version="3.2.2">\n  <m1-administrative-information>\n    <leaf ID="leaf-1571"><title>FDA Form 1571 - Amendment ${this.ectdAmendmentId}</title></leaf>\n    <leaf ID="leaf-cfr11"><title>21 CFR Part 11 Electronic Signature Merkle Root</title></leaf>\n  </m1-administrative-information>\n  <m2-common-technical-document-summaries>\n    <m2-5-clinical-overview><title>Bayesian Dose Titration Overview (${this.ectdTargetDose}mg)</title></m2-5-clinical-overview>\n  </m2-common-technical-document-summaries>\n</ectd:ectd>`;
+          return `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE ectd:ectd SYSTEM "util/dtd/ich-ectd-3-2-2.dtd">\n<ectd:ectd xmlns:ectd="http://www.ich.org/ectd" dtd-version="3.2.2">\n  <m1-administrative-information>\n    <leaf ID="leaf-1571"><title>FDA Form 1571 - Amendment ${this.ectdAmendmentId}</title></leaf>\n    <leaf ID="leaf-cfr11"><title>Part 11-aligned controls Electronic Signature Merkle Root</title></leaf>\n  </m1-administrative-information>\n  <m2-common-technical-document-summaries>\n    <m2-5-clinical-overview><title>Bayesian Dose Titration Overview (${this.ectdTargetDose}mg)</title></m2-5-clinical-overview>\n  </m2-common-technical-document-summaries>\n</ectd:ectd>`;
         },
 
         copyEctdXml() {
@@ -9696,7 +9696,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           { id: 1, title: 'The Executive Hook', timeRange: '0:00 - 0:20', visualKeyframe: '3D metallic sovereign shield emblem, live latency counters (28 µs), and projected 3-Yr ROI ($2.3M-$4.2M).' },
           { id: 2, title: 'The Diagnostic Reality', timeRange: '0:20 - 0:50', visualKeyframe: 'Case 74980079 AST sanitizer stripping prohibited keys in 28 µs with zero model training egress.' },
           { id: 3, title: 'Target State Architecture', timeRange: '0:50 - 1:30', visualKeyframe: '3D isometric data particle stream flowing into Vertex AI Sovereign Agent Mesh and BigLake Iceberg.' },
-          { id: 4, title: 'Transformation Horizon', timeRange: '1:30 - 2:00', visualKeyframe: 'Interactive Bayesian dose titration risk curve scaling from 100mg to 300mg with 21 CFR Part 11 sign-off.' },
+          { id: 4, title: 'Transformation Horizon', timeRange: '1:30 - 2:00', visualKeyframe: 'Interactive Bayesian dose titration risk curve scaling from 100mg to 300mg with Part 11-aligned controls sign-off.' },
           { id: 5, title: 'Board Sign-Off & Governance', timeRange: '2:00 - 2:30', visualKeyframe: 'Stateless 48h HMAC token validation and Medical Director GxP compliance seal.' }
         ],
 
@@ -9712,7 +9712,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           { id: 'all', name: 'All Questions', icon: 'fa-solid fa-list-check' },
           { id: 'arch', name: 'Architecture & Protocols', icon: 'fa-solid fa-network-wired' },
           { id: 'security', name: 'Security & AST Sanitizer', icon: 'fa-solid fa-shield-halved' },
-          { id: 'gxp', name: 'GxP & 21 CFR Part 11', icon: 'fa-solid fa-signature' },
+          { id: 'gxp', name: 'GxP & Part 11-aligned controls', icon: 'fa-solid fa-signature' },
           { id: 'genai', name: 'Veo 2 & Gemini Omni', icon: 'fa-solid fa-wand-magic-sparkles' },
           { id: 'cdisc', name: 'CDISC & Bayesian Math', icon: 'fa-solid fa-chart-line' },
           { id: 'perf', name: 'Performance & Benchmarks', icon: 'fa-solid fa-gauge-high' }
@@ -9743,13 +9743,13 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           {
             id: 3,
             category: 'gxp',
-            categoryName: 'GxP Compliance',
+            categoryName: 'Validation Controls',
             badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-            spec: 'FDA 21 CFR PART 11',
-            question: 'How do stateless HMAC-SHA256 signed state tokens satisfy FDA 21 CFR Part 11 electronic signature mandates without database locks?',
-            answerHtml: '<p>Under <strong>FDA 21 CFR Part 11</strong> and <strong>GAMP 5</strong>, computer systems managing clinical trial decisions must maintain tamper-evident audit trails. The Gateway solves this without heavy distributed database state locking using <strong>HMAC-SHA256 Signed State Tokens</strong>:</p><ul class="list-disc pl-5 space-y-1 mt-2"><li><strong>Stateless 48h Cryptographic Sealing:</strong> The workflow state, clinical parameters (e.g. dose 300mg, delta +2.14%), user ID, and timestamp are serialized and signed with a server secret.</li><li><strong>Zero Database Contention:</strong> Approvers can review cards asynchronously in Google Workspace / Gemini Enterprise; when submitted, the gateway verifies <code>hmac.compare_digest(computed_sig, token_sig)</code>.</li><li><strong>Tamper Proof:</strong> Any byte modification in transit instantly raises an HTTP 401 Unauthorized security alert.</li></ul>',
+            spec: 'FDA PART 11-ALIGNED CONTROLS',
+            question: 'How do stateless HMAC-SHA256 signed state tokens satisfy FDA Part 11-aligned controls electronic signature mandates without database locks?',
+            answerHtml: '<p>Under <strong>FDA Part 11-aligned controls</strong> and <strong>GAMP 5</strong>, computer systems managing clinical trial decisions must maintain tamper-evident audit trails. The Gateway solves this without heavy distributed database state locking using <strong>HMAC-SHA256 Signed State Tokens</strong>:</p><ul class="list-disc pl-5 space-y-1 mt-2"><li><strong>Stateless 48h Cryptographic Sealing:</strong> The workflow state, clinical parameters (e.g. dose 300mg, delta +2.14%), user ID, and timestamp are serialized and signed with a server secret.</li><li><strong>Zero Database Contention:</strong> Approvers can review cards asynchronously in Google Workspace / Gemini Enterprise; when submitted, the gateway verifies <code>hmac.compare_digest(computed_sig, token_sig)</code>.</li><li><strong>Tamper Proof:</strong> Any byte modification in transit instantly raises an HTTP 401 Unauthorized security alert.</li></ul>',
             codeLanguage: 'python',
-            codeSnippet: 'import hmac, hashlib, json, time\n\ndef create_signed_state_token(payload: dict, secret_key: bytes) -> str:\n    payload_with_meta = {**payload, "exp": int(time.time()) + 172800} # 48h TTL\n    serialized = json.dumps(payload_with_meta, sort_keys=True).encode("utf-8")\n    signature = hmac.new(secret_key, serialized, hashlib.sha256).hexdigest()\n    return f"{serialized.hex()}.{signature}"\n\ndef verify_signed_state_token(token: str, secret_key: bytes) -> dict:\n    data_hex, sig = token.split(".")\n    serialized = bytes.fromhex(data_hex)\n    expected_sig = hmac.new(secret_key, serialized, hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(sig, expected_sig):\n        raise PermissionError("TAMPER GUARD ALERT: Signature mismatch (21 CFR Part 11 Violation)")\n    return json.loads(serialized.decode("utf-8"))'
+            codeSnippet: 'import hmac, hashlib, json, time\n\ndef create_signed_state_token(payload: dict, secret_key: bytes) -> str:\n    payload_with_meta = {**payload, "exp": int(time.time()) + 172800} # 48h TTL\n    serialized = json.dumps(payload_with_meta, sort_keys=True).encode("utf-8")\n    signature = hmac.new(secret_key, serialized, hashlib.sha256).hexdigest()\n    return f"{serialized.hex()}.{signature}"\n\ndef verify_signed_state_token(token: str, secret_key: bytes) -> dict:\n    data_hex, sig = token.split(".")\n    serialized = bytes.fromhex(data_hex)\n    expected_sig = hmac.new(secret_key, serialized, hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(sig, expected_sig):\n        raise PermissionError("TAMPER GUARD ALERT: Signature mismatch (Part 11-aligned controls Violation)")\n    return json.loads(serialized.decode("utf-8"))'
           },
           {
             id: 4,
@@ -9968,7 +9968,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           setTimeout(() => {
             this.chatMessages.push({
               sender: 'assistant',
-              text: '🔍 Multimodal Vision Scan Complete: Extracted 240 subjects in Cohort-B. Verified AST sanitizer pipeline is 100% 21 CFR Part 11 and CDISC SDTM v3.3 compliant.'
+              text: '🔍 Multimodal Vision Scan Complete: Extracted 240 subjects in Cohort-B. AST sanitizer passed the local demo corpus; regulated validation remains customer-specific.'
             });
             this.triggerSparkleCelebration();
           }, 800);
@@ -10196,7 +10196,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
         downloadFdaDossier() {
           const content = JSON.stringify({
-            dossierType: "FDA 21 CFR Part 11 & GAMP 5 Regulatory Verification Package",
+            dossierType: "FDA Part 11-aligned controls & GAMP 5 Regulatory Verification Package",
             inspectionId: "FDA-AUDIT-2026-A2A-09881",
             merkleRootSha256: this.fdaDossierMerkleRoot,
             generatedAt: new Date().toISOString(),
@@ -10242,7 +10242,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               }
             }
           } catch (e) {
-            this.a2uiFormInputs.justificationRationale = 'I, Dr. Eleanor Vance, Principal Investigator for study MK-3475-087 Cohort-B, hereby confirm and execute this protocol titration to 250 milligrams per 21 CFR Part 11.';
+            this.a2uiFormInputs.justificationRationale = 'I, Dr. Eleanor Vance, Principal Investigator for study MK-3475-087 Cohort-B, hereby confirm and execute this protocol titration to 250 milligrams per Part 11-aligned controls.';
           } finally {
             this.chirpDictating = false;
           }
@@ -10270,7 +10270,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         async autoRemediateReadiness() {
           this.omniReadinessPct = 100;
           this.omniReadinessTier = 'AUDIT_READY';
-          this.omniPrimaryDirective = 'All safety criteria conformant. Cleared for 21 CFR Part 11 regulatory submission.';
+          this.omniPrimaryDirective = 'All safety criteria conformant. Cleared for Part 11-aligned controls regulatory submission.';
           this.omniReadinessDimensions.forEach(d => {
             d.score = 100;
             d.status = 'OPTIMAL';
@@ -10437,9 +10437,12 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         signHitlRecord() {
           this.hitlSigned = true;
           this.hitlTimestamp = new Date().toISOString();
-          const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-          this.hitlSigHash = `sha256:${randomHex}`;
-          this.triggerSparkleCelebration();
+          this.hitlSigHash = 'DEMO-NOT-CRYPTOGRAPHIC';
+          this.addLandingTerminalLog(
+            'HITL_DEMO',
+            'Approval control simulated locally. No legal or cryptographic signature was created.',
+            'warning'
+          );
         },
 
         revokeHitlSignature() {
@@ -10456,9 +10459,18 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         },
 
         async loginWithSso(provider) {
-          this.currentUser = { name: "Dr. Eleanor Vance", email: "e.vance@biopharma.org" };
+          this.currentUser = {
+            name: "Demo Reviewer",
+            email: "demo-reviewer@example.invalid",
+            authMode: "SIMULATED_NOT_AUTHENTICATED",
+            provider: provider
+          };
           this.ssoModalOpen = false;
-          this.triggerSparkleCelebration();
+          this.addLandingTerminalLog(
+            'IDENTITY',
+            'Demo identity selected. No SSO/OIDC authentication occurred in the public sandbox.',
+            'warning'
+          );
         },
 
         sendAssistantMessage() {
@@ -10469,7 +10481,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           setTimeout(() => {
             this.chatMessages.push({ 
               sender: 'assistant', 
-              text: "Dr. A2A Omni Analysis: The Enterprise A2A Gateway ensures strict GxP validation by executing AST key sanitization on all outbound payloads in 28 microseconds, sealing 48-hour HMAC tokens before delivering A2UI cards to Gemini Enterprise." 
+              text: "Dr. A2A Omni Analysis: The demo gateway illustrates policy sanitization and signed HITL state tokens. Latency and regulated validation depend on the deployed environment and must be independently verified." 
             });
           }, 600);
         },
@@ -10528,9 +10540,12 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         approveTrainingChat() {
           this.trainingChatApproved = true;
           this.trainingApprovalTimestamp = new Date().toISOString();
-          const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-          this.trainingApprovalHash = 'hmac_sha256_' + randomHex;
-          this.triggerSparkleCelebration();
+          this.trainingApprovalHash = 'DEMO-NOT-CRYPTOGRAPHIC';
+          this.addLandingTerminalLog(
+            'TRAINING_DEMO',
+            'Training approval simulated. No HMAC, electronic signature, or regulatory evidence was generated.',
+            'warning'
+          );
         },
         resetTrainingChat() {
           this.trainingChatApproved = false;
@@ -10799,7 +10814,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
           const signers = {
             1: { name: 'Dr. Marcus Vance, MD', role: 'Principal Investigator (Site 104)', meaning: 'Trial Site Investigation and Patient Baseline Safety Review' },
             2: { name: 'Dr. Sarah Chen, PhD', role: 'Lead Clinical Biostatistician', meaning: 'Bayesian Hazard Ratio and Statistical Efficacy Verification' },
-            3: { name: 'Dr. Evelyn Reed, MD', role: 'Global Medical Review Director', meaning: 'Global Medical Approval & 21 CFR Part 11 Electronic Seal Execution' }
+            3: { name: 'Dr. Evelyn Reed, MD', role: 'Global Medical Review Director', meaning: 'Global Medical Approval & Part 11-aligned controls Electronic Seal Execution' }
           };
           const info = signers[tier];
           const prevHash = (tier === 1) ? 'GENESIS_0000000000000000000000000000000000000000' : (this.multisigSignatures[tier - 1]?.currentHash || 'HASH_TIER_PREV');
@@ -11614,7 +11629,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
           setTimeout(() => {
             this.landingSimStep = 5;
-            this.landingSimStatus = 'Node 5: 21 CFR Part 11 Electronic Signature Verified!';
+            this.landingSimStatus = 'Node 5: Part 11-aligned controls Electronic Signature Verified!';
             this.addLandingTerminalLog('CLINICIAN', 'Dr. Sarah Lin confirmed dose titration. GxP immutable ledger updated.', 'success');
             this.triggerSparkleCelebration();
           }, 3200);
@@ -11628,14 +11643,17 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
         signLandingDose() {
           const now = new Date();
           const timestamp = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-          const randomHex = Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
           this.landingCertificate = {
             dose: this.landingMiniDose,
             timestamp: timestamp,
-            hash: 'sha256:' + randomHex
+            hash: 'DEMO-NOT-CRYPTOGRAPHIC',
+            status: 'SIMULATION_ONLY'
           };
-          this.addLandingTerminalLog('SIGN_OFF', '1-Click 21 CFR Part 11 signature sealed: ' + this.landingMiniDose + ' mg (Hash: ' + this.landingCertificate.hash.substring(0, 18) + '...)', 'success');
-          this.triggerSparkleCelebration();
+          this.addLandingTerminalLog(
+            'APPROVAL_DEMO',
+            'Approval marker simulated for ' + this.landingMiniDose + ' mg. No cryptographic or regulatory signature was created.',
+            'warning'
+          );
         },
 
         resetLandingDose() {
@@ -11694,21 +11712,21 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
               1: "Step 1: Clinical AI Proposes Escalation. The research agent initiates an A2A task dispatch across the network perimeter. Notice how the unvetted JSON envelope contains private memory traces and an unauthorized system override targeting the Sovereign Enclave.",
               2: "Step 2: Sub-28 Microsecond AST Sanitization. The gateway executes our zero-regex AST dictionary compiler. In under four microseconds, the memory payload is purged of untrusted keys before entering the isolated VPC boundary.",
               3: "Step 3: Universal A2UI Multi-Channel Surface. The gateway maps the validated payload into a declarative A2UI JSON schema, instantly rendering an interactive clinical review surface for Doctor Sarah Chen on web, mobile, and Slack.",
-              4: "Step 4: Stateless 21 CFR Part 11 Electronic Signature. Doctor Chen executes the human-in-the-loop review. The gateway generates an HMAC-SHA256 state token with a 48-hour TTL, completely eliminating database write-lock contention across distributed clusters.",
+              4: "Step 4: Stateless Part 11-aligned controls Electronic Signature. Doctor Chen executes the human-in-the-loop review. The gateway generates an HMAC-SHA256 state token with a 48-hour TTL, completely eliminating database write-lock contention across distributed clusters.",
               5: "Step 5: Hospital Dispenser Execution and Immutable Ledger. With the cryptographic signature verified and the JTI anti-replay nonce consumed, the hospital dispenser dispenses 350 milligrams. An immutable GAMP 5 audit receipt is sealed."
             },
             clinician: {
               1: "Step 1: Clinical AI Proposes Dose Escalation. The oncology AI analyzes Subject 9042's lab results and recommends increasing Paclitaxel from 300 to 350 milligrams. However, the raw agent message contains unvalidated overrides that must never reach patient infusion pumps.",
               2: "Step 2: In-Memory AST Safety Sanitization. In under four microseconds, the gateway strips unauthorized parameters, protecting our sovereign clinical enclave from prompt injection attacks.",
               3: "Step 3: Universal A2UI Doctor Review Card. Under FDA safety regulations, AI agents cannot alter therapy alone. The gateway compiles an interactive clinical review card for Doctor Sarah Chen with real-time toxicity modeling and an adjustable dose slider.",
-              4: "Step 4: Stateless 21 CFR Part 11 Electronic Signature. Doctor Chen confirms patient vitals and signs the titration order. The gateway seals the decision with an HMAC-SHA256 signature, ensuring tamper-evident accountability.",
+              4: "Step 4: Stateless Part 11-aligned controls Electronic Signature. Doctor Chen confirms patient vitals and signs the titration order. The gateway seals the decision with an HMAC-SHA256 signature, ensuring tamper-evident accountability.",
               5: "Step 5: Pharmacy Dispenser Releases Therapy. With the clinician's signature verified and the anti-replay token consumed, the hospital pharmacy dispenser releases 350 milligrams. Patient safety is preserved."
             },
             compliance: {
               1: "Step 1: Agent Task Dispatch and Threat Interception. An oncology research agent proposes escalating Paclitaxel to 350 milligrams. The inbound message contains prohibited data leaks that violate regulatory compliance.",
               2: "Step 2: Sub-28 Microsecond AST Sanitization. The gateway's in-memory AST filter strips prohibited memory envelopes with zero regular-expression backtracking, achieving statutory data integrity compliance.",
-              3: "Step 3: Mandated Human-in-the-Loop Review Surface. In strict adherence to FDA 21 CFR Part 11, therapy changes require licensed medical practitioner oversight. The gateway renders an A2UI review card for Doctor Sarah Chen.",
-              4: "Step 4: Statutory 21 CFR Part 11 Electronic Signature. Doctor Chen signs the electronic record. The gateway generates an HMAC-SHA256 signed state token with 48-hour validity and a unique JTI nonce, satisfying FDA section 11.50.",
+              3: "Step 3: Mandated Human-in-the-Loop Review Surface. In strict adherence to FDA Part 11-aligned controls, therapy changes require licensed medical practitioner oversight. The gateway renders an A2UI review card for Doctor Sarah Chen.",
+              4: "Step 4: Statutory Part 11-aligned controls Electronic Signature. Doctor Chen signs the electronic record. The gateway generates an HMAC-SHA256 signed state token with 48-hour validity and a unique JTI nonce, satisfying FDA section 11.50.",
               5: "Step 5: Dispense Verification and Immutable Audit Trail. The pharmacy dispenser verifies the signature, consumes the nonce to prevent replay attacks, and commits an immutable GAMP 5 audit record to the regulatory archive."
             },
             developer: {
@@ -11848,7 +11866,7 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
             case 1: return 'Step 1: Agent Protocol & Inbound Threat Interceptor';
             case 2: return 'Step 2: Sub-28µs In-Memory AST Sanitization Engine';
             case 3: return 'Step 3: Universal Doctor Review Card (A2UI Multi-Channel)';
-            case 4: return 'Step 4: Stateless 21 CFR Part 11 HMAC-SHA256 Seal';
+            case 4: return 'Step 4: Stateless Part 11-aligned controls HMAC-SHA256 Seal';
             case 5: return 'Step 5: Hospital Pharmacy Dispense & GAMP 5 Ledger';
             default: return 'Clinical Architecture Blueprint';
           }
@@ -12037,69 +12055,82 @@ gcloud run services add-iam-policy-binding <span class="text-cyan-400">a2a-gatew
 
         async signHeroWorkflowDose(autoAdvance = true) {
           this.heroSigLoading = true;
+          const documentData = {
+            dose_mg: this.heroPatientDose,
+            subject_id: 'SUBJ-9042',
+            workflow: 'clinical-dose-review-demo'
+          };
           try {
-            try {
-              // 1. Generate real CFR Part 11 compliant signature envelope via backend
-              const createRes = await fetch('/api/v1/create-signature', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  agent_id: 'agent_clinical_oncology_01',
-                  agent_name: 'Dr. Sarah Chen, MD',
-                  meaning: 'ProtocolApproval',
-                  document_id: 'doc-clinical-dose-9042',
-                  dose_mg: this.heroPatientDose
-                })
-              });
-              const envelope = await createRes.json();
-
-              // 2. Statelessly verify the signature via the CFR Part 11 verifier
-              const verifyRes = await fetch('/api/v1/verify-signature', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(envelope)
-              });
-
-              if (verifyRes.ok) {
-                const data = await verifyRes.json();
-                this.heroSigReceipt = {
-                  receiptId: data.receipt_id,
-                  uri: data.uri,
-                  signer: data.signer_name || 'Dr. Sarah Chen, MD',
-                  role: 'Principal Investigator',
-                  meaning: data.meaning || 'ProtocolApproval',
-                  status: 'VERIFIED_TAMPER_PROOF',
-                  timestamp: envelope.payload.timestamp,
-                  hash: 'sha256:' + envelope.signature
-                };
-              } else {
-                throw new Error('Verification failed');
-              }
-            } catch (err) {
-              const now = new Date();
-              const timestamp = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-              const randomHex = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
-              this.heroSigReceipt = {
-                receiptId: 'sig-rec-' + randomHex.substring(0, 16),
-                uri: `/api/v1/signatures/sig-rec-${randomHex.substring(0, 16)}`,
-                signer: 'Dr. Sarah Chen, MD',
-                role: 'Principal Investigator',
+            const createRes = await fetch('/api/v1/create-signature', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
                 meaning: 'ProtocolApproval',
-                status: 'VERIFIED_TAMPER_PROOF',
-                timestamp: timestamp,
-                hash: 'sha256:' + randomHex
-              };
+                document_id: 'doc-clinical-dose-9042',
+                document_data: documentData
+              })
+            });
+
+            if (!createRes.ok) {
+              throw new Error('Protected signing lab unavailable');
             }
-            
-            this.addLandingTerminalLog('SIGN_OFF', `21 CFR Part 11 signature confirmed for ${this.heroPatientDose}mg by Dr. Sarah Chen.`, 'success');
-            if (autoAdvance) {
-              setTimeout(() => {
-                this.heroWorkflowStep = 5;
-                this.triggerSparkleCelebration();
-              }, 400);
+            const envelope = await createRes.json();
+
+            const verifyRes = await fetch('/api/v1/verify-signature', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...envelope,
+                document_data: documentData,
+                max_age_hours: 72
+              })
+            });
+            if (!verifyRes.ok) {
+              throw new Error('Signature verification failed');
             }
+
+            const data = await verifyRes.json();
+            this.heroSigReceipt = {
+              receiptId: data.receipt_id,
+              uri: data.uri || null,
+              signer: data.signer_name || 'Authenticated reviewer',
+              role: 'Authenticated Reviewer',
+              meaning: data.meaning || 'ProtocolApproval',
+              status: 'CRYPTOGRAPHIC_LINK_VERIFIED',
+              validationStatus: data.validation_status || 'PROTOTYPE_NOT_VALIDATED',
+              timestamp: envelope.payload.timestamp,
+              hash: 'sha256:' + envelope.signature
+            };
+            this.addLandingTerminalLog(
+              'CONTROL_EVIDENCE',
+              'Cryptographic record-link evidence verified. Regulatory validation is not asserted.',
+              'success'
+            );
+          } catch (err) {
+            this.heroSigReceipt = {
+              receiptId: null,
+              uri: null,
+              signer: 'Demo persona (not authenticated)',
+              role: 'Simulation',
+              meaning: 'ProtocolApproval',
+              status: 'DEMO_SIMULATION_NOT_SIGNED',
+              validationStatus: 'NOT_VALIDATED',
+              timestamp: new Date().toISOString(),
+              hash: null
+            };
+            this.addLandingTerminalLog(
+              'CONTROL_DEMO',
+              'Protected signing API is unavailable in the public sandbox; showing a non-cryptographic simulation.',
+              'warning'
+            );
           } finally {
             this.heroSigLoading = false;
+          }
+
+          if (autoAdvance) {
+            setTimeout(() => {
+              this.heroWorkflowStep = 5;
+            }, 400);
           }
         },
 
