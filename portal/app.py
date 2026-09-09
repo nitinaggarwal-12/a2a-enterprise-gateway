@@ -63,20 +63,26 @@ app = FastAPI(title="Enterprise A2A Enterprise Gateway Test Console")
 
 app.add_middleware(RateLimiterMiddleware, default_limit=600, window_seconds=60)
 
+_configured_cors_origins = [
+    origin.strip()
+    for origin in settings.CORS_ALLOWED_ORIGINS.split(",")
+    if origin.strip()
+]
+_local_cors_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:8090",
+    "http://127.0.0.1:8090",
+] if settings.APP_ENV.lower() in {"demo", "development"} else []
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:8090",
-        "http://127.0.0.1:8090",
-    ],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://.*\.run\.app",
+    allow_origins=_local_cors_origins + _configured_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "A2A-Version", "A2A-Extensions"],
 )
 
 # Mount Advanced A2A Protocol Lab Router
@@ -134,6 +140,18 @@ async def _probe_http_service(name: str, env_var: str) -> Dict[str, Any]:
         }
     except Exception as exc:
         return {"status": "offline", "urlConfigured": True, "error": type(exc).__name__}
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if settings.APP_ENV.lower() in {"staging", "production"}:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 
 @app.get("/api/health/all")
