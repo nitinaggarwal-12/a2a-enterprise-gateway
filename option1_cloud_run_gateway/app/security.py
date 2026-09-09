@@ -18,6 +18,18 @@ from jose import JWTError, jwt
 from .config import settings
 
 
+def mint_downstream_id_token(audience: str) -> str:
+    """Mint a Google-signed ID token using Application Default Credentials.
+
+    This token is scoped to the downstream service audience and is never derived
+    from or copied from the caller's bearer token.
+    """
+    if not audience or not isinstance(audience, str):
+        raise ValueError("Downstream ID-token audience is required")
+    req = google_requests.Request()
+    return id_token.fetch_id_token(req, audience)
+
+
 def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
     """Verify Google OIDC ID token from Authorization Bearer header.
 
