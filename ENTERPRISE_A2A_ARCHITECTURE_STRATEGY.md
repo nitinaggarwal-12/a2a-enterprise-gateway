@@ -1,4 +1,8 @@
 # Enterprise Integration Strategy: Gemini Enterprise to Enterprise Agent Platform
+
+> [!CAUTION]
+> **Historical design artifact — not current implementation evidence.** This document contains earlier targets, examples, proposed controls, performance assumptions, and/or regulatory language. Do not use it to claim current A2A conformance, production readiness, performance, zero leakage, or regulatory compliance. Current source of truth: `README.md`, `SECURITY.md`, `ARCHITECTURE.md`, `RUNBOOK.md`, executable code, and CI evidence.
+
 ## Technical Architecture, Risk Mitigation & Strategic Partnership Plan
 
 **Document Version**: 3.1 (Complete Executive Edition)  
