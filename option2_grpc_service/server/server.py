@@ -1,7 +1,7 @@
-"""Async gRPC Server for Canonical a2a.v1 Service.
+"""Experimental gRPC transport service.
 
-Hosts the AIP-127 compliant A2AService over HTTP/2 with native Protobuf framing,
-supporting mutual TLS (mTLS) and Bearer token authentication.
+This is a repository-specific Protobuf/gRPC architecture experiment. It is not
+the standards-facing A2A v1 interface; see option1_cloud_run_gateway/app/a2a_v1.py.
 """
 
 import asyncio
@@ -28,8 +28,19 @@ class AuthInterceptor(grpc.aio.ServerInterceptor):
     """Server interceptor validating Bearer token / OIDC credentials."""
 
     def __init__(self, expected_secret: Optional[str] = None):
-        self.expected_secret = expected_secret or os.getenv("A2A_GRPC_AUTH_TOKEN", "mock-dev-token")
-        self.require_auth = os.getenv("A2A_GRPC_REQUIRE_AUTH", "false").lower() in ("true", "1", "yes")
+        app_env = os.getenv("APP_ENV", "demo").lower()
+        explicit = os.getenv("A2A_GRPC_REQUIRE_AUTH")
+        self.require_auth = (
+            explicit.lower() in ("true", "1", "yes")
+            if explicit is not None
+            else app_env != "development"
+        )
+        self.expected_secret = expected_secret or os.getenv("A2A_GRPC_AUTH_TOKEN")
+        if self.require_auth and not self.expected_secret:
+            raise RuntimeError(
+                "A2A_GRPC_AUTH_TOKEN is required unless APP_ENV=development "
+                "and A2A_GRPC_REQUIRE_AUTH=false"
+            )
 
     async def intercept_service(self, continuation, handler_call_details):
         if not self.require_auth:
@@ -108,13 +119,13 @@ async def serve(host: str = "0.0.0.0", port: int = 50051):
     ssl_creds, is_mtls = load_ssl_credentials()
     if ssl_creds:
         server.add_secure_port(listen_addr, ssl_creds)
-        logger.info(f"Starting secure a2a.v1 gRPC Server ({'mTLS' if is_mtls else 'TLS'}) listening on {listen_addr}...")
+        logger.info(f"Starting secure experimental gRPC service ({'mTLS' if is_mtls else 'TLS'}) listening on {listen_addr}...")
     else:
         server.add_insecure_port(listen_addr)
-        logger.info(f"Starting a2a.v1 gRPC Server (insecure development) listening on {listen_addr}...")
+        logger.info(f"Starting experimental gRPC service (insecure development) listening on {listen_addr}...")
 
     await server.start()
-    logger.info(f" a2a.v1 gRPC Server successfully started on {listen_addr}")
+    logger.info(f" Experimental gRPC service started on {listen_addr}")
 
     try:
         await server.wait_for_termination()
