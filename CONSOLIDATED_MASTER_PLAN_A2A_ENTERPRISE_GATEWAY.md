@@ -1,4 +1,8 @@
 # 🏛️ Enterprise A2A Gateway Runtime (v1.0.0)
+
+> [!CAUTION]
+> **Historical design artifact — not current implementation evidence.** This document contains earlier targets, examples, proposed controls, performance assumptions, and/or regulatory language. Do not use it to claim current A2A conformance, production readiness, performance, zero leakage, or regulatory compliance. Current source of truth: `README.md`, `SECURITY.md`, `ARCHITECTURE.md`, `RUNBOOK.md`, executable code, and CI evidence.
+
 ## Consolidated Strategic Roadmap, Architecture & Implementation Master Plan
 
 ---
