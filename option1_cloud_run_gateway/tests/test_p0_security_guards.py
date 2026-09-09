@@ -175,3 +175,15 @@ def test_option3_rejects_non_demo_deployment():
 
     with pytest.raises(ValidationError):
         PlaneConfig(APP_ENV="staging")
+
+
+
+def test_production_requires_distributed_replay_store(monkeypatch):
+    from fastapi import HTTPException
+
+    monkeypatch.setattr(settings, "APP_ENV", "production")
+    monkeypatch.delenv("REDIS_URL", raising=False)
+    monkeypatch.delenv("MEMORYSTORE_URL", raising=False)
+    with pytest.raises(HTTPException) as exc_info:
+        get_jti_store()
+    assert exc_info.value.status_code == 503
