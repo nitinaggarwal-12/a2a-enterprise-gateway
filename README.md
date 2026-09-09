@@ -1,181 +1,200 @@
-# Enterprise Integration Strategy: Gemini Enterprise to Enterprise Agent Platform
-## Technical Architecture, Risk Mitigation & Strategic Partnership Plan
+# A2A Enterprise Gateway
 
-**Document Version**: 3.1 (Complete Executive Edition)  
-**Prepared For**: Enterprise Engineering Lead, Enterprise Technical Architect — Enterprise Healthcare Organization  
-**Prepared By**: Google Cloud Enterprise Engineering & Architecture Team  
-**Date**: September 3, 2026  
-**Confidentiality**: Enterprise / Google Internal Technical Exchange  
+An enterprise policy gateway and interoperability lab for Agent-to-Agent (A2A) integrations.
 
----
+> **Validation status:** this repository is a reference implementation and demo environment. It is **not** a regulatory certification, a production SLA, a claim of zero data leakage, or evidence that a deployment complies with FDA 21 CFR Part 11, GxP, HIPAA, GAMP 5, or another regulated framework. Those outcomes require deployment-specific controls, validation, operating procedures, evidence, and accountable owners.
 
-## 1. Executive Summary
+## What is implemented
 
-This document presents the joint technical architecture and operating model to connect **Gemini Enterprise (GE)** with the **Enterprise Agent Platform (TealSDK / Internal Agents)** via the **Agent-to-Agent (A2A)** and **A2UI** protocols.
+### Standards-facing A2A v1.0 interface
 
-Based on recent engineering discussions and ticket analysis (including Case 74980079), the integration requires resolving four foundational technical requirements:
-1. **Full Protocol Normalization**: Eliminating Google ADK metadata dependencies to ensure clean, interoperable JSON-RPC communication with Enterprise's internal GxP systems.
-2. **Contract Stability & Resilience**: Insulating Enterprise's translation layer (TealSDK) from unexpected platform formatting changes.
-3. **Stateless Human-in-the-Loop (HITL) Workflows**: Supporting 24–72 hour clinical review cycles on serverless infrastructure without memory state loss.
-4. **Long-Running Task Support**: Providing clear architectural standards for workloads running longer than 5 minutes using Pub/Sub and asynchronous webhooks.
+The gateway exposes:
 
-To solve these requirements immediately while ensuring long-term roadmap alignment, Google proposes deploying a **Cloud Run Interceptor Gateway** alongside a **Structured 3-Pillar Joint Operating Model**.
+- `GET /.well-known/agent-card.json`
+- `POST /a2a/v1`
+- `A2A-Version: 1.0` negotiation
+- JSON-RPC methods `SendMessage`, `GetTask`, `ListTasks`, and `CancelTask`
+- explicit unsupported-operation errors for capabilities the Agent Card does not advertise
+- authenticated routing through Google OIDC
 
----
+The legacy clinical-demo endpoints remain separate from the standards-facing interface.
 
-## 2. End-to-End System Architecture
+### Policy boundary
 
-### 2.1 System Topology & Demarcation
+The Option 1 gateway applies a defensive normalization layer before forwarding data:
 
-The recommended architecture introduces a lightweight, stateless gateway hosted on Google Cloud Run that acts as an isolation and security layer between Gemini Enterprise and Enterprise’s internal VPC:
+- removes known ADK/vendor orchestration metadata
+- removes obvious credential-bearing fields
+- strips caller `Authorization`, cookies, API keys, forwarding headers, and hop-by-hop headers
+- restricts the top-level JSON-RPC envelope
+- sanitizes JSON Server-Sent Events instead of forwarding raw stream chunks
+- rejects opaque non-JSON downstream responses on the policy gateway
+- supports exact production webhook host allowlists
+- blocks private/link-local/cloud-metadata webhook targets
+- can mint a destination-specific downstream Google ID token using Application Default Credentials
 
-![Enterprise Integration Architecture Diagram](docs/images/01_system_topology_architecture.jpg)
+This is a defense-in-depth filter, not a universal DLP guarantee. Production deployments should add tenant-specific schema validation, Cloud DLP/content classification where required, and explicit data-egress policy.
 
----
+### HITL state controls
 
-### 2.2 End-to-End Workflow & 48-Hour HITL Lifecycle
+The gateway implements self-contained HMAC-signed state tokens with:
 
-The diagram below details the chronological sequence across the 6 stages of task execution, scale-to-zero dormancy, and stateless approval verification:
+- issuer, issued-at, expiry, and JTI claims
+- optional previous-key verification during rotation
+- subject binding for generated approval tokens
+- replay protection
+- Redis/Memorystore-backed atomic JTI consumption for staging/production
 
-![HITL Timeline and Scale-to-Zero Sequence Diagram](docs/images/02_hitl_timeline_sequence.jpg)
+In staging/production the replay store fails closed. An in-memory replay store is only allowed for demo/development.
 
-#### Chronological Workflow Steps:
-1. **User Prompt**: End-user in Gemini Enterprise requests a clinical study evaluation (e.g., *Study MK-3475 Cohort-B*).
-2. **Task Ingestion & Token Sealing**: Gateway intercepts request in **28 µs**, queries internal clinical agents, and generates an A2UI card with an **HMAC-SHA256 sealed state token**.
-3. **A2UI Card Delivery**: Interactive review card appears in the Gemini Enterprise workspace with status `INPUT_REQUIRED`.
-4. **Scale-to-Zero Dormancy**: Cloud Run scales down to **0 active instances**. In-memory state is intentionally destroyed with **zero ongoing compute cost**.
-5. **Human Sign-Off (48 Hours Later)**: Medical Director reviews clinical safety findings and clicks **Approve** in the UI.
-6. **Stateless Verification & Audit**: Cloud Run cold-starts, verifies the cryptographic HMAC signature in **0.084 ms**, records a **21 CFR Part 11 electronic audit log**, and completes the workflow.
+### Regulated-workflow prototype
 
----
+The repository contains demonstrations of controls often relevant to regulated workflows, including record hashing, signature meaning, timestamping, authentication, replay protection, and audit metadata.
 
-## 3. Technical Specifications & Requirement Validation
+These are labeled **Part 11-aligned technical control prototypes**. The lab signing APIs are disabled by default and, when enabled, derive signer identity from verified OIDC claims rather than caller-provided names.
 
-### 3.1 Data Normalization Pipeline & Breaking Change Protection (Case 74980079)
+They do **not** by themselves establish Part 11 compliance. A real validated system also requires, among other things, controlled access, authority checks, attributable identities, durable audit records, retention, procedures, training, validation evidence, change control, and operational governance.
 
-The diagram below illustrates how the Gateway's three-stage processing engine normalizes incoming contaminated requests before forwarding them to TealSDK:
+### A2UI adapter
 
-![Payload Normalization and Protection Pipeline](docs/images/03_payload_normalization_pipeline.jpg)
+`a2ui_builder.py` is an internal omnichannel adapter that can generate Google Card v2, Slack Block Kit, Teams Adaptive Card, and web descriptors.
 
-* **AST Key Pruner**: Recursively strips `adk_metadata`, `_adk*`, and `X-Google-ADK-*` headers in **28 µs**.
-* **Text Block Unwrapper**: Automatically detects and parses escaped JSON string blocks (neutralizing Case 74980079).
-* **HMAC State Sealer**: Decouples approval state from fragile tool call IDs, binding parameters directly to cryptographic button tokens.
+It is **not advertised as A2UI v1 production compliance**. As of this repository update, A2UI v0.9.1 is the current production release and v1.0 is a candidate. Treat the adapter schema (`adapter-1.0`) as project-specific.
 
----
+## Repository layout
 
-### 3.2 Asynchronous Pub/Sub Architecture for Long-Running Tasks (>5 min)
+```text
+option1_cloud_run_gateway/   HTTP/JSON policy gateway and A2A v1 interface
+option2_grpc_service/        Local gRPC architecture experiment
+option3_dual_plane/          Dual-plane architecture experiment / mocks
+a2a_sdk/                     Project client/CLI helpers
+portal/                      Interactive verification/demo portal
+benchmarks/                  Local benchmark scripts and evidence artifacts
+docs/                        Architecture/reference material
+```
 
-For deep research and multi-cohort data processing that exceed standard 300-second HTTP gateway timeouts, the architecture implements the **AIP-127 Asynchronous Push Pattern**:
+## Security defaults
 
-![Asynchronous Pub/Sub Processing Flow](docs/images/04_pubsub_async_architecture.jpg)
+The application intentionally fails closed.
 
-#### Execution Flow:
-1. **Initial Task Dispatch**: Gemini Enterprise dispatches a long-running research task to the Cloud Run Gateway.
-2. **Immediate Acknowledgment**: Gateway immediately responds with `HTTP 202 Accepted` (`state: WORKING`), preventing HTTP client connection timeouts.
-3. **Queue Publishing**: Gateway publishes the job definition to a private **Google Cloud Pub/Sub Topic**.
-4. **Background Execution**: Internal Enterprise Clinical Workers subscribe to the topic and execute heavy multi-table SQL queries and Bayesian statistical calculations.
-5. **Out-of-band Webhook Push**: Once processing completes, the Gateway delivers an asynchronous HTTPS Webhook push notification back to Gemini Enterprise's registered callback URL.
+- `APP_ENV` defaults to `demo`, not `development`.
+- Mock authentication requires both `APP_ENV=development` and `ALLOW_DEV_AUTH=true`.
+- Lab mutation/signing APIs require `ENABLE_LAB_ENDPOINTS=true` plus authentication.
+- Staging/production require an injected strong `JWT_SECRET`.
+- The historical signing secret once committed to this repository is permanently rejected.
+- Staging/production approval consumption requires Redis/Memorystore.
+- Cross-origin browser access is deny-by-default except exact configured origins.
+- Production webhook callbacks are deny-by-default except exact configured hosts.
+- Interactive API documentation is disabled in staging/production.
 
----
+## Required production configuration
 
-### 3.3 Customer Validation Matrix
+At minimum, review and explicitly set:
 
-| Requirement Raised by Enterprise | Technical Challenge | Proposed Solution | Business & Operational Impact |
-| :--- | :--- | :--- | :--- |
-| **1. ADK Metadata Suppression** *(Lead Architect)* | Google ADK automatically attaches runtime metadata (`adk_metadata`, `_adk*`) that fails strict GxP schema validation. | The Gateway’s in-process AST pruner filters all prohibited fields in **0.028 ms**. | **100% GxP compliance** with zero modifications required on Enterprise’s downstream parsers. |
-| **2. Breaking Change Protection** *(Engineering Lead - Case 74980079)* | Unannounced wrapping of JSON into text blocks and omitting tool call IDs broke TealSDK approval mapping. | The Gateway un-wraps text blocks and binds state directly to cryptographic button tokens rather than server-side tool IDs. | **Zero outage risk** from future UI or LLM serialization adjustments. |
-| **3. Multi-Day HITL Workflow Continuity** *(Lead Architect)* | Medical Director sign-offs take 24–72 hours; Cloud Run scale-to-zero destroys in-memory task state. | State is sealed into an HMAC-SHA256 signed token inside the A2UI button. The server verifies it upon click. | **True scale-to-zero serverless efficiency** with zero session affinity overhead or Redis costs. |
-| **4. Long-Running Workloads (>5 min)** *(Engineering Lead & Lead Architect)* | Deep research and multi-cohort analyses exceed standard 300s HTTP timeouts; webhook specs lacked clarity. | Gateway responds immediately with `HTTP 202 Accepted` and delegates processing to Cloud Pub/Sub, pushing an out-of-band webhook on completion. | **Standardized asynchronous pattern** aligned with Google Cloud Pub/Sub architecture. |
-
----
-
-## 4. Empirical Performance & SLA Benchmark Results
-
-Micro-benchmarks were executed over live TCP sockets against standard container configurations:
-
-| Metric | Target SLA | Measured Result | Evaluation |
-| :--- | :--- | :--- | :--- |
-| **Sanitization Latency (p50)** | < 5.0 ms | **0.028 ms (28 µs)** | **Exceeded SLA (178x faster)** |
-| **Sanitization Latency (p99)** | < 15.0 ms | **0.082 ms (82 µs)** | **Exceeded SLA** |
-| **HMAC Token Seal & Verification** | < 2.0 ms | **0.084 ms (84 µs)** | **Exceeded SLA** |
-| **Peak Gateway Throughput** | > 5,000 req/s | **35,355 req/s** | **High Capacity Buffer** |
-| **Container Memory Footprint** | Minimal | **0 MB Persistent State** | **100% Stateless** |
-| **Downstream Code Changes Needed** | Minimal | **0 Lines of Code** | **Zero Refactoring Required** |
-| **GxP / 21 CFR Part 11 Compliance** | 100% | **100% (8/8 Test Cases)** | **Fully Validated** |
-
----
-
-## 5. Phased Technology Evolution Roadmap
-
-The diagram below outlines the 12-month technology roadmap transitioning from the immediate Cloud Run Gateway pilot to high-throughput gRPC streaming and sovereign in-VPC dual-plane reasoning:
-
-![Enterprise Technology Roadmap Timeline](docs/images/05_phased_evolution_roadmap.jpg)
-
-### Phased Roadmap Milestones:
-* **Phase 1: Option 1 Cloud Run Gateway (Months 1–3)**:
-  * Fast-track pilot deployment into Enterprise's GCP project.
-  * Immediate protection against Case 74980079 breaking changes with 0 lines of downstream code modifications.
-* **Phase 2: Option 2 Canonical a2a.v1 gRPC (Months 4–6)**:
-  * Migrate high-volume agent-to-agent interconnects to binary Protobuf schemas over HTTP/2.
-  * Enable sub-millisecond server-streaming thought traces and real-time variance broadcasting.
-* **Phase 3: Option 3 Outside-In Dual-Plane Demarcation (Months 7–12)**:
-  * Deploy direct Vertex AI SDK execution inside Enterprise's private VPC for sensitive clinical trial datasets and genomics models.
-  * Decouple public Gemini Enterprise interfaces into pure presentation surfaces.
-
----
-
-## 6. Strategic Partnership & Governance Operating Model
-
-To provide the predictability, roadmap visibility, and API contract stability Enterprise Engineering Lead requested, Google proposes replacing standard support ticketing with the **Structured 3-Pillar Joint Operating Model**:
-
-![Elevated Google-Enterprise Strategic Operating Model Infographic](docs/images/06_strategic_operating_model.jpg)
-
-### 3-Pillar Operating Breakdown:
-
-* **Pillar 1: Immediate Production Stability (Weeks 1–2)**:
-  * Deploy Option 1 Cloud Run Gateway into Enterprise's GCP project.
-  * Instantly insulate TealSDK from GE wire variations and eliminate schema validation errors.
-  * Maintain 100% GxP validation compliance with 8/8 MECE automated test coverage.
-* **Pillar 2: Direct Product Engineering Sync & 30-Day Contract Freeze SLA**:
-  * Bi-weekly architecture sync between Enterprise engineering leadership and Google Gemini Enterprise / ADK Core Product Teams.
-  * Formal **30-Day Change Freeze SLA**: Advance deprecation notices, schema change RFCs, and pre-release staging verification before any production Gemini Enterprise wire protocol modifications.
-* **Pillar 3: Canonical Enterprise Protocol Co-Design (Quarters 1–2)**:
-  * Jointly define the enterprise `a2a.v1` gRPC / AIP-127 and Pub/Sub asynchronous push standards.
-  * Establish Enterprise as Google's **Tier-1 Design Partner for Life Sciences Agent Architecture**.
-
----
-
-## 7. Implementation & Quick Start Guide
-
-### Running the Verification Portal Locally:
 ```bash
-# 1. Install dependencies
+APP_ENV=production
+JWT_SECRET=<managed high-entropy secret>
+EXPECTED_AUDIENCE=<OIDC audience for this gateway>
+REDIS_URL=<TLS-protected Redis/Memorystore endpoint>
+
+# Optional, when proxying to an authenticated Google-hosted downstream agent
+DOWNSTREAM_AGENT_URL=https://...
+DOWNSTREAM_ID_TOKEN_AUDIENCE=https://...
+
+# Exact comma-separated values; empty means no external callbacks/CORS.
+WEBHOOK_ALLOWED_HOSTS=example.internal
+CORS_ALLOWED_ORIGINS=https://admin.example.com
+
+# Leave false unless this is an authenticated non-production lab.
+ENABLE_LAB_ENDPOINTS=false
+ALLOW_DEV_AUTH=false
+TRUST_PROXY_HEADERS=false
+```
+
+Use a managed secret store and workload identity in the deployment platform. Do not commit secrets or long-lived downstream bearer tokens.
+
+## Local development
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Run master test suite across all 3 options
-./test_all_options.sh
+export APP_ENV=development
+export ALLOW_DEV_AUTH=true
+export ENABLE_LAB_ENDPOINTS=true
+export JWT_SECRET='local-development-secret-with-at-least-32-characters'
 
-# 3. Launch the visual verification portal
-python -m uvicorn portal.app:app --host 0.0.0.0 --port 8090
+python -m uvicorn portal.app:app --host 127.0.0.1 --port 8090
 ```
-Open **`http://localhost:8090`** in your browser to inspect the live test harness and visual verification gallery.
 
----
+The public portal is a **demo/verification console**, not the production gateway control plane.
 
-## 8. Agentic Engineering & Context Framework
+## Testing
 
-This repository serves as the reference implementation for autonomous agent pair programming, multi-agent swarms, and AI coding assistants:
+```bash
+pytest -q
+python -m compileall option1_cloud_run_gateway option2_grpc_service option3_dual_plane portal a2a_sdk
+```
 
-* **[Universal Agentic Coding Framework](docs/UNIVERSAL_AGENTIC_FRAMEWORK.md)**: A portable, 4-layer cognition and context management architecture (Rules, Documentation, Executable Skills, and AST Knowledge Graphs) adaptable to any codebase.
-* **[Project Context & Architecture Guide](docs/CONTEXT_AND_ARCHITECTURE_GUIDE.md)**: Full evolutionary journal detailing why each context layer, verification skill, and Graft evaluation was performed.
-* **[System Rules (`GEMINI.md`)](GEMINI.md)**: Canonical turn-0 directives, latency budgets, and compliance constraints for Google Gemini and Antigravity.
-* **[Multi-Agent Coordination (`AGENTS.md`)](AGENTS.md)**: Universal protocol specification for autonomous agent swarms.
-* **[Architecture Specification (`ARCHITECTURE.md`)](ARCHITECTURE.md)**: Three production deployment archetypes and in-memory AST dictionary stripping algorithm.
-* **[Regulatory & Security Matrix (`SECURITY.md`)](SECURITY.md)**: FDA 21 CFR Part 11 electronic signatures and Zero Clinical Cloud Egress guardrails.
-* **[Operations Runbook (`RUNBOOK.md`)](RUNBOOK.md)**: Port allocation, test harnesses, socket benchmarks, and troubleshooting.
+CI runs syntax checks, unit/integration tests, dependency auditing, and lightweight repository policy checks.
 
----
+## Benchmarks
 
-*Submitted by the Google Cloud Enterprise Architecture Team.*
+Two benchmark classes are intentionally separated:
+
+```bash
+# In-process primitive timing only
+python benchmarks/run_kpi_benchmarks.py
+
+# Local loopback process/socket integration test
+python benchmarks/live_real_load_test.py
+```
+
+Every generated benchmark artifact declares its environment and whether it is a production measurement.
+
+Local timing is **not** a Cloud Run, Railway, network, concurrency, cold-scale, or production SLA measurement. Historical result files that mixed measurements and assumptions have been retired.
+
+## Demo versus production
+
+| Capability | Public/demo portal | Production expectation |
+|---|---|---|
+| Identity | clearly labeled simulated UI identity unless protected lab auth is used | verified enterprise IdP/OIDC |
+| Task state | ephemeral demo registry | durable downstream A2A service |
+| Replay ledger | in-memory allowed | Redis/Memorystore or equivalent atomic store |
+| Signature UI | simulation unless authenticated lab API is enabled | validated attributable signing process |
+| Audit evidence | demo metadata/in-memory examples | durable append-only/retained audit system |
+| Benchmarks | local/stored evidence | environment-specific load tests |
+| Compliance | mapping/prototype only | customer validation and governance |
+| Cross-origin access | local development origins | exact allowlist only |
+
+## Current limitations
+
+The repository still contains architecture experiments and UI demonstrations that are intentionally not production services. In particular:
+
+- the portal is a large monolithic demo frontend
+- Option 2 and Option 3 include local simulation/mock components
+- the public demo portal and a hardened production admin/control plane should be deployed as separate services
+- durable regulatory evidence storage is not implemented in this repository's lab APIs
+- no software repository can make a blanket compliance claim independent of deployment and operating controls
+
+See `SECURITY.md`, `ARCHITECTURE.md`, and `RUNBOOK.md` for the current implementation contract.
+
+## Historical design documents
+
+Several longer strategy/presentation documents in this repository capture earlier design exploration. They are useful as proposals but may contain historical targets, examples, or assumptions. They are **not source-of-truth evidence** for current implementation, protocol compliance, security posture, performance, or regulatory validation.
+
+The current source of truth is:
+
+1. executable code
+2. automated tests/CI
+3. this README
+4. `SECURITY.md`
+5. `ARCHITECTURE.md`
+6. `RUNBOOK.md`
+
+## Responsible use
+
+Do not place real patient data, credentials, regulated records, or production signing keys into the public demo portal.
+
+For production use, perform threat modeling, privacy/security review, protocol conformance testing, load testing, disaster-recovery testing, validation planning, and independent approval by the relevant enterprise control owners.
