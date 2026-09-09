@@ -29,12 +29,14 @@ logger = logging.getLogger("ui_bridge")
 app = FastAPI(
     title="Enterprise Plane 2 UI Bridge Service",
     version="1.0.0",
-    description="Bridge service pushing sovereign A2UI review cards to Gemini Enterprise workspace.",
+    description="Demo bridge for a project-specific A2UI adapter workflow. Not a production control plane.",
 )
 
-# In-memory audit log for GxP compliance verification (bounded)
+# In-memory demo event log. This is not durable regulatory evidence.
 AUDIT_TRAIL: List[Dict[str, Any]] = []
 MAX_AUDIT_TRAIL = 1000
+CONSUMED_JTIS: Dict[str, float] = {}
+MAX_CONSUMED_JTIS = 5000
 
 
 class DispatchApprovalRequest(BaseModel):
@@ -49,7 +51,7 @@ class DispatchApprovalRequest(BaseModel):
 class ActionCallbackRequest(BaseModel):
     stateToken: str
     actionId: Optional[str] = None
-    reviewerEmail: str = Field(default="medical_director@enterprise.internal")
+    reviewerEmail: Optional[str] = Field(default=None, description="Demo display hint only; not trusted identity")
 
 
 @app.get("/healthz")
@@ -97,7 +99,7 @@ async def dispatch_approval(req: DispatchApprovalRequest):
         delivery_status = "SAVED_LOCAL"
 
     return {
-        "status": "APPROVAL_CARD_DISPATCHED",
+        "status": "APPROVAL_CARD_PREPARED",
         "cardId": card_data["cardId"],
         "deliveryStatus": delivery_status,
         "a2ui": card_data["a2ui"],
@@ -107,48 +109,63 @@ async def dispatch_approval(req: DispatchApprovalRequest):
 
 @app.post("/api/v1/bridge/action-callback")
 async def action_callback(req: ActionCallbackRequest):
-    """Handle interactive sign-off button click from user in Gemini Enterprise."""
-    logger.info("[Bridge] Received interactive action callback from user")
+    """Consume a demo action token.
 
-    # 1. Verify HMAC state token signature statelessly
+    No authenticated reviewer identity or legal electronic signature is asserted.
+    """
     try:
         claims = jwt.decode(
             req.stateToken,
             config.HMAC_SECRET,
             algorithms=["HS256"],
+            issuer="option3-plane2-demo-bridge",
+            options={"require_exp": True, "require_iat": True, "require_iss": True},
         )
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid or tampered state token: {str(exc)}",
-        )
+            detail="Invalid or expired demo state token",
+        ) from exc
+
+    jti = str(claims.get("jti") or "")
+    if not jti:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing replay-protection JTI")
+    now_ts = datetime.now(timezone.utc).timestamp()
+    expired = [key for key, exp in CONSUMED_JTIS.items() if exp < now_ts]
+    for key in expired:
+        CONSUMED_JTIS.pop(key, None)
+    if jti in CONSUMED_JTIS:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Demo action token already consumed")
+    while len(CONSUMED_JTIS) >= MAX_CONSUMED_JTIS:
+        CONSUMED_JTIS.pop(next(iter(CONSUMED_JTIS)), None)
+    CONSUMED_JTIS[jti] = float(claims["exp"])
 
     study_id = claims.get("studyId")
     cohort = claims.get("cohort")
     decision = claims.get("decision")
     amendment = claims.get("amendment")
-
-    # 2. Record 21 CFR Part 11 Electronic Signature Audit Event
     now_utc = datetime.now(timezone.utc).isoformat()
+
     audit_entry = {
-        "auditId": f"audit-{len(AUDIT_TRAIL) + 1:04d}",
+        "auditId": f"demo-audit-{len(AUDIT_TRAIL) + 1:04d}",
         "studyId": study_id,
         "cohort": cohort,
         "decision": decision,
         "amendment": amendment,
-        "signedBy": req.reviewerEmail,
-        "signatureType": "21 CFR Part 11 Validated Digital Signature",
+        "actor": "Demo reviewer (not authenticated)",
+        "reviewerHint": req.reviewerEmail,
+        "evidenceType": "JTI replay-protected demo action",
         "timestamp": now_utc,
-        "gxpVerified": True,
+        "regulatoryValidation": False,
+        "persistence": "in-memory-demo",
+        "jti": jti,
     }
     if len(AUDIT_TRAIL) >= MAX_AUDIT_TRAIL:
         AUDIT_TRAIL.pop(0)
     AUDIT_TRAIL.append(audit_entry)
 
-    logger.info(f" Audit record logged: Study {study_id} ({cohort}) -> {decision} by {req.reviewerEmail}")
-
     return {
-        "status": "DECISION_RECORDED",
+        "status": "DEMO_DECISION_RECORDED",
         "decision": decision,
         "studyId": study_id,
         "cohort": cohort,
@@ -158,4 +175,9 @@ async def action_callback(req: ActionCallbackRequest):
 
 @app.get("/api/v1/bridge/audit-log")
 async def get_audit_log():
-    return {"count": len(AUDIT_TRAIL), "auditTrail": AUDIT_TRAIL}
+    return {
+        "count": len(AUDIT_TRAIL),
+        "auditTrail": AUDIT_TRAIL,
+        "persistence": "in-memory-demo",
+        "regulatoryValidation": False,
+    }
