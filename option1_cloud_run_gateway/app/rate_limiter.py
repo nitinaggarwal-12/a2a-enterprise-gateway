@@ -31,10 +31,22 @@ class SlidingWindowRateLimiter:
         self._last_cleanup = time.time()
 
     def _get_client_ip(self, request: Request) -> str:
-        """Extract client IP from Forwarded / X-Forwarded-For or client host."""
+        """Extract client IP safely without trusting client-spoofed leftmost X-Forwarded-For headers.
+
+        Prioritizes verified upstream X-Real-IP if present. Under reverse proxies (Cloud Run,
+        Railway, GCP Cloud Armor), the proxy appends the verified connecting client IP to the
+        right of the X-Forwarded-For chain. Blindly taking index [0] allows clients to rotate
+        fake IPs arbitrarily and bypass rate limiting.
+        """
+        real_ip = request.headers.get("x-real-ip")
+        if real_ip and real_ip.strip():
+            return real_ip.strip()
+
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
-            return forwarded.split(",")[0].strip()
+            hops = [ip.strip() for ip in forwarded.split(",") if ip.strip()]
+            if hops:
+                return hops[-1]
         if request.client and request.client.host:
             return request.client.host
         return "127.0.0.1"

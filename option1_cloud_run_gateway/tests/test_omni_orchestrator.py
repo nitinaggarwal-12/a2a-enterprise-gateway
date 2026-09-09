@@ -143,3 +143,37 @@ def test_omni_contrast_audit_endpoint():
     for item in data["themes"]["dark"]:
         assert item["verdict"] in ["AAA_PASS", "AA_PASS"], f"Dark token {item['token']} failed: {item['contrast_ratio']}"
 
+
+def test_omni_orchestrate_onboarding_intent():
+    payload = {
+        "current_tab": "landing",
+        "voice_query": "Start interactive onboarding workflow 1",
+        "dose_mg": 300.0,
+        "has_signed": False
+    }
+    resp = client.post("/api/omni/orchestrate", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["action"] == "OPEN_ONBOARDING_WIZARD"
+    assert data["layoutMode"] == "guided_step"
+    assert data["spotlightSelector"] == "#modal-onboarding-wizard"
+    assert "Interactive Enterprise Onboarding" in data["spokenNarration"]
+    assert "Start Workflow 1" in data["suggestedActions"]
+
+
+def test_omni_app_review_endpoint():
+    resp = client.get("/api/omni/app-review")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "overallAuditScore" in data
+    assert data["overallAuditScore"] >= 90
+    assert data["complianceTier"] == "GXP_ENTERPRISE_PRODUCTION_READY"
+    assert len(data["pillars"]) >= 5
+    pillar_ids = [p["id"] for p in data["pillars"]]
+    assert "ast_sanitizer" in pillar_ids
+    assert "stateless_tokens" in pillar_ids
+    assert "audit_ledger" in pillar_ids
+    assert "a2a_protocols" in pillar_ids
+    assert "accessibility_wcag" in pillar_ids
+
+

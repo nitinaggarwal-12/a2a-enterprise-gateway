@@ -1134,3 +1134,111 @@ def build_clinical_review_surface(
         },
     }
 
+
+def pydantic_model_to_a2ui(
+    model_cls: Any,
+    title: str = "Clinical Action Required",
+    task_id: Optional[str] = None,
+    protocol_id: str = "MK-3475-087",
+) -> Dict[str, Any]:
+    """Dynamically converts any Python Pydantic model into an A2UI card definition with input fields.
+    
+    Eliminates the A2UI development bottleneck by auto-scaffolding interactive cards directly
+    from agent tool signatures and data models without hand-crafting JSON.
+    """
+    task_id = task_id or f"task-auto-{uuid.uuid4().hex[:8]}"
+    fields = []
+
+    model_fields = getattr(model_cls, "model_fields", None) or getattr(model_cls, "__fields__", {})
+    for name, field_info in model_fields.items():
+        annotation = getattr(field_info, "annotation", None) or getattr(field_info, "type_", str)
+        description = getattr(field_info, "description", "") or name.replace("_", " ").title()
+
+        field_type = "TEXT"
+        if annotation in (int, float):
+            field_type = "NUMBER"
+        elif annotation is bool:
+            field_type = "BOOLEAN"
+
+        fields.append({
+            "id": name,
+            "label": name.replace("_", " ").title(),
+            "type": field_type,
+            "description": description,
+            "required": True,
+        })
+
+    state_token = create_state_token({
+        "taskId": task_id,
+        "protocolId": protocol_id,
+        "modelName": getattr(model_cls, "__name__", "DynamicAction"),
+        "action": "SUBMIT_FORM",
+    })
+
+    return {
+        "version": "1.0.0",
+        "cardId": f"card-{task_id}",
+        "taskId": task_id,
+        "title": title,
+        "subtitle": f"Auto-scaffolded from {getattr(model_cls, '__name__', 'Model')} | Protocol: {protocol_id}",
+        "fields": fields,
+        "actions": [
+            {
+                "id": "btn_submit",
+                "label": "Sign & Submit (21 CFR Part 11)",
+                "style": "PRIMARY",
+                "actionType": "SUBMIT_STATE",
+                "targetUrl": "/a2a/ui/action",
+                "stateToken": state_token,
+            }
+        ],
+    }
+
+
+class A2UIStreamingLifecycle:
+    """Manages the pause/resume lifecycle of A2UI cards within streaming agent interactions.
+    
+    Solves Merck's A2UI stalling issue by decoupling live LLM thought streams from discrete
+    clinician interactive approval checkpoints.
+    """
+
+    @staticmethod
+    def create_pause_signal(
+        task_id: str,
+        reason: str,
+        a2ui_card: Dict[str, Any],
+        caller_identity: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Generate an A2A v1.0 INPUT_REQUIRED state event halting the stream until user signs."""
+        return {
+            "type": "A2A_STREAM_EVENT",
+            "state": "INPUT_REQUIRED",
+            "taskId": task_id,
+            "reason": reason,
+            "a2uiCard": a2ui_card,
+            "assignedIdentity": caller_identity or {
+                "provider": "Microsoft Entra ID",
+                "roles": ["ClinicalTrialLead", "DoseApprover"],
+                "preferred_username": "david.daniel@merck.com",
+            },
+            "resumeEndpoint": "/a2a/v1/tasks/resume",
+            "statelessHmacToken": a2ui_card.get("actions", [{}])[0].get("stateToken", ""),
+        }
+
+    @staticmethod
+    def resume_streaming_task(
+        task_id: str,
+        action_payload: Dict[str, Any],
+        verified_identity: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Resume agent execution after receiving verified clinician signature and input."""
+        return {
+            "type": "A2A_STREAM_EVENT",
+            "state": "RESUMED",
+            "taskId": task_id,
+            "signer": verified_identity.get("preferred_username", "clinician@merck.com"),
+            "submittedData": action_payload,
+            "continuationTrace": f"Clinician approval verified via {verified_identity.get('auth_provider', 'microsoft_entra_id')}. Resuming agent execution chain.",
+        }
+
+

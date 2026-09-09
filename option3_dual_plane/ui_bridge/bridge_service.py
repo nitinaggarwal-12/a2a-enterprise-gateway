@@ -89,7 +89,7 @@ async def dispatch_approval(req: DispatchApprovalRequest):
 
     delivery_status = "DELIVERED"
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             resp = await client.post(target_ge_url, json=card_data)
             logger.info(f"[Bridge] Pushed card to GE. Receiver status: {resp.status_code}")
     except Exception as exc:

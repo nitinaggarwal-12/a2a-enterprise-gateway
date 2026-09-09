@@ -17,6 +17,13 @@ Measures REAL numbers:
 import asyncio
 import json
 import os
+import uuid
+
+# Benchmark execution defaults
+os.environ.setdefault("APP_ENV", "development")
+os.environ.setdefault("ALLOW_DEV_AUTH", "true")
+os.environ.setdefault("GATEWAY_HMAC_SECRET", "c0mPl3x_CrYpt0gRapH1c_s3cr3t_f0r_gXp_pr0d_2026!")
+
 import subprocess
 import sys
 import time
@@ -36,6 +43,7 @@ sys.path.insert(0, str(ROOT_DIR / "option2_grpc_service"))
 sys.path.insert(0, str(ROOT_DIR / "option3_dual_plane"))
 
 from option2_grpc_service.a2a.v1 import a2a_pb2, a2a_pb2_grpc
+from option1_cloud_run_gateway.app.security import create_state_token
 
 
 # Enterprise Downstream GxP Strict Schema Validator (21 CFR Part 11 strict parser)
@@ -156,20 +164,29 @@ async def main():
                 resp_json = resp.json()
                 sample_state_token = resp_json["result"]["artifact"]["a2ui"]["actions"][0]["stateToken"]
                 # Test sanitized payload against strict GxP schema
-                sanitized_input = resp_json["result"]["artifact"]["a2ui"]
+                EnterpriseStrictGxPClinicalPayload.model_validate({
+                    "jsonrpc": resp_json.get("jsonrpc", "2.0"),
+                    "method": "a2a.tasks.send",
+                    "params": resp_json["result"]["artifact"]["a2ui"],
+                    "id": resp_json.get("id", "req-bench-01"),
+                })
                 gxp_passed_with_gateway = 1
 
         t_end_all = time.perf_counter()
         opt1_throughput_rps = round(500.0 / (t_end_all - t_start_all), 1)
 
-        # Measure 500 live UI Action Callbacks with sealed token
-        action_req = {
-            "jsonrpc": "2.0",
-            "method": "a2a.ui.action",
-            "params": {"stateToken": sample_state_token},
-            "id": "action-bench-01",
-        }
-        for _ in range(500):
+        # Measure 500 live UI Action Callbacks with uniquely sealed state tokens
+        for k in range(500):
+            unique_token = create_state_token(
+                {"taskId": f"task-bench-{k}", "studyId": "MK-3475-087", "cohort": "Cohort-B", "decision": "APPROVED"},
+                jti=f"jti-load-{k}-{uuid.uuid4().hex[:8]}",
+            )
+            action_req = {
+                "jsonrpc": "2.0",
+                "method": "a2a.ui.action",
+                "params": {"stateToken": unique_token},
+                "id": f"action-bench-{k}",
+            }
             t0 = time.perf_counter()
             resp = await client.post(
                 f"{opt1_url}/a2a/ui/action",
@@ -179,6 +196,21 @@ async def main():
             t1 = time.perf_counter()
             assert resp.status_code == 200
             opt1_action_latencies_ms.append((t1 - t0) * 1000.0)
+
+        # Explicitly verify JTI anti-replay defense: Reusing consumed token MUST yield 409 Conflict
+        replay_first = await client.post(
+            f"{opt1_url}/a2a/ui/action",
+            json={"jsonrpc": "2.0", "method": "a2a.ui.action", "params": {"stateToken": sample_state_token}, "id": "replay-init"},
+            headers={"Authorization": "Bearer mock-dev-token"},
+        )
+        assert replay_first.status_code == 200
+
+        replay_second = await client.post(
+            f"{opt1_url}/a2a/ui/action",
+            json={"jsonrpc": "2.0", "method": "a2a.ui.action", "params": {"stateToken": sample_state_token}, "id": "replay-attack"},
+            headers={"Authorization": "Bearer mock-dev-token"},
+        )
+        assert replay_second.status_code == 409
 
     opt1_peak_mb = round(opt1_ps.memory_info().rss / (1024 * 1024), 2)
     opt1_proc.terminate()

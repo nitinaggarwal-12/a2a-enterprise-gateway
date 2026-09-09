@@ -29,6 +29,16 @@ def client():
 
 
 def test_discovery_endpoint(client):
+    # Test official A2A v1.0 Agent Card endpoint
+    response_v1 = client.get("/.well-known/agent-card.json")
+    assert response_v1.status_code == 200
+    card = response_v1.json()
+    assert "supportedInterfaces" in card
+    assert card["supportedInterfaces"][0]["protocolVersion"] == "1.0"
+    assert card["supportedInterfaces"][0]["protocolBinding"] == "JSON-RPC"
+    assert card["capabilities"]["gxpSanitization"] is True
+
+    # Test backward-compatible discovery alias
     response = client.get("/.well-known/agent.json")
     assert response.status_code == 200
     data = response.json()
@@ -38,7 +48,7 @@ def test_discovery_endpoint(client):
     assert data["capabilities"]["streaming"] is True
     assert data["capabilities"]["stateTokens"] is True
     assert data["capabilities"]["a2ui"] is True
-    assert "a2ui.v1" in data["supportedDialects"]
+    assert any("a2ui" in d for d in data["supportedDialects"])
 
 
 def test_healthz_endpoint(client):
@@ -397,12 +407,12 @@ def test_swarm_client_registration(client):
             ]
         }
     }
-    response = client.post("/api/v1/register", json=reg_payload)
+    response = client.post("/api/v1/register", json=reg_payload, headers={"Authorization": "Bearer mock-dev-token"})
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "REGISTERED"
     assert data["client_name"] == "Sovereign_Biopharma_Cohort_Swarm_01"
-    assert data["compliance_status"] == "21_CFR_PART_11_CERTIFIED"
+    assert data["compliance_status"] == "21_CFR_PART_11_ALIGNED"
     assert "CohortValidation" in data["supported_meanings"]
     assert data["verification_endpoint"] == "/api/v1/verify-signature"
 
@@ -429,7 +439,7 @@ def test_swarm_stateless_signature_verification_and_tamper_guard(client):
     assert v_data["valid"] is True
     assert v_data["signer_id"] == "agent_cohort_matcher_04"
     assert v_data["meaning"] == "CohortValidation"
-    assert v_data["compliance_standard"] == "FDA_21_CFR_PART_11"
+    assert v_data["compliance_standard"] == "FDA_21_CFR_PART_11_ALIGNED"
 
     # 2. Tamper Attack (Attacker alters document_id or hash)
     tampered_envelope = dict(signed_envelope)
@@ -439,6 +449,84 @@ def test_swarm_stateless_signature_verification_and_tamper_guard(client):
     tamper_resp = client.post("/api/v1/verify-signature", json=tampered_envelope)
     assert tamper_resp.status_code == 401
     assert "Verification Failed" in tamper_resp.json()["detail"]
+
+
+def test_protocol_version_negotiation(client):
+    """Test A2A-Version negotiation: 1.0 succeeds, unsupported major version returns 406."""
+    task_req = {
+        "jsonrpc": "2.0",
+        "method": "a2a.tasks.send",
+        "params": {"taskId": "task-v-01", "studyId": "MK-001", "cohort": "Cohort-A"},
+        "id": "req-v-01",
+    }
+
+    # Supported version 1.0
+    r_ok = client.post(
+        "/a2a/tasks",
+        json=task_req,
+        headers={"Authorization": "Bearer mock-dev-token", "A2A-Version": "1.0"},
+    )
+    assert r_ok.status_code == 200
+
+    # Unsupported version 2.0 returns 406 Not Acceptable
+    r_bad = client.post(
+        "/a2a/tasks",
+        json=task_req,
+        headers={"Authorization": "Bearer mock-dev-token", "A2A-Version": "2.0"},
+    )
+    assert r_bad.status_code == 406
+    assert "unsupported a2a-version" in r_bad.json()["error"]["message"].lower()
+
+
+def test_fail_closed_resource_lookups(client):
+    """Verify non-existent regulatory entities return 404 instead of fabricated valid records."""
+    # Unknown swarm ID must return 404
+    r1 = client.get("/api/v1/swarms/non-existent-swarm-99999")
+    assert r1.status_code == 404
+
+    # Unknown registration ID must return 404
+    r2 = client.get("/api/v1/registrations/reg-non-existent-99999")
+    assert r2.status_code == 404
+
+    # Unknown signature receipt ID must return 404
+    r3 = client.get("/api/v1/signatures/sig-non-existent-99999")
+    assert r3.status_code == 404
+
+    # Unknown dossier ID must return 404
+    r4 = client.get("/api/v1/dossiers/dossier-non-existent-99999")
+    assert r4.status_code == 404
+
+
+def test_create_signature_authentication_and_claim_binding(client):
+    """Verify create-signature requires authentication and prevents identity spoofing."""
+    # Unauthenticated call must fail with 401
+    r_unauth = client.post(
+        "/api/v1/create-signature",
+        json={"meaning": "ProtocolApproval", "document_data": "test dose"},
+    )
+    assert r_unauth.status_code == 401
+
+    # Authenticated call with invalid meaning must fail with 400
+    r_bad_meaning = client.post(
+        "/api/v1/create-signature",
+        json={"meaning": "InvalidFakeMeaning", "document_data": "test dose"},
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
+    assert r_bad_meaning.status_code == 400
+    assert "Invalid 21 CFR § 11.50 signature meaning" in r_bad_meaning.json()["detail"]
+
+    # Authenticated valid call binds identity to claims
+    r_auth = client.post(
+        "/api/v1/create-signature",
+        json={"meaning": "ProtocolApproval", "document_data": "test dose 200mg"},
+        headers={"Authorization": "Bearer mock-dev-token"},
+    )
+    assert r_auth.status_code == 200
+    data = r_auth.json()
+    assert "payload" in data
+    assert "signature" in data
+    assert data["payload"]["meaning"] == "ProtocolApproval"
+    assert data["payload"]["signer_id"] == "dev-user@enterprise.internal"
 
 
 

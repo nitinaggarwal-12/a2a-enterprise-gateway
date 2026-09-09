@@ -50,6 +50,14 @@ def main():
     p_diag = subparsers.add_parser("diagnose", help="Run mTLS & AST network probe")
     p_diag.add_argument("--endpoint", default="psc://10.128.0.50:50051", help="Target endpoint")
 
+    # AgentGPTeal GCP Deploy command (Merck Cross-Runtime Adapter)
+    p_teal = subparsers.add_parser("teal-deploy", help="Deploy Merck AgentGPTeal agent to GCP Cloud Run / Agent Runtime")
+    p_teal.add_argument("--agent", required=True, help="Path to AgentGPTeal agent file (decorated with @entraId)")
+    p_teal.add_argument("--project", default="merck-clinical-mesh-prod", help="GCP Project ID")
+    p_teal.add_argument("--region", default="us-central1", help="Target GCP Region")
+    p_teal.add_argument("--service", help="Cloud Run service name override")
+    p_teal.add_argument("--out-dir", default="./dist-agent-gcp", help="Output directory for generated Dockerfile and manifests")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -132,6 +140,32 @@ def main():
         print(f"✓ Cipher Suite:       {res.get('cipher_suite')}")
         print(f"✓ AST Latency:        {res.get('ast_filter_latency_us')} µs (Sub-28µs target)")
         print(f"✓ Verdict:            {res.get('verdict')}")
+
+    elif args.command == "teal-deploy":
+        print_banner()
+        print(f"📦 Packaging Merck AgentGPTeal Agent for GCP Cloud Run: {args.agent}...")
+        from a2a_sdk.agent_teal_adapter import AgentTealGcpDeployer
+        deployer = AgentTealGcpDeployer(
+            agent_file=args.agent,
+            project_id=args.project,
+            region=args.region,
+            service_name=args.service,
+        )
+        analysis = deployer.analyze_agent()
+        print(f"✓ Detected Service:   {analysis.get('serviceName')}")
+        print(f"✓ @entraId Security:  {'YES (Detected & Bound)' if analysis.get('hasEntraIdDecorator') else 'NOT DETECTED'}")
+        print(f"✓ Identity Federated: {analysis.get('identityFederation')}")
+        print(f"✓ Runtime Target:     {analysis.get('runtimeTarget')}")
+        
+        manifests = deployer.scaffold(output_dir=args.out_dir)
+        print(f"✓ Dockerfile:         {manifests.get('dockerfile')}")
+        print(f"✓ Cloud Build YAML:   {manifests.get('cloudbuild')}")
+        print(f"✓ Knative Service:    {manifests.get('serviceYaml')}")
+        print(f"✓ A2A Agent Card:     {manifests.get('agentCard')}")
+        print("✓ Zero-AWS-Impact:    No modification to AWS Agent Core required")
+        print("=" * 70)
+        print(f"🚀 Deploy One-Liner:   {manifests.get('deployCommand')}")
+        print("=" * 70)
 
 if __name__ == "__main__":
     main()

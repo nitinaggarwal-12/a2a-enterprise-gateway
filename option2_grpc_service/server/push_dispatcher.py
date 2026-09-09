@@ -58,7 +58,7 @@ async def deliver_task_push_notification(
         headers["Authorization"] = f"Bearer {token}"
 
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             resp = await client.post(url, content=payload_bytes, headers=headers)
             logger.info(
                 f"[PushDispatcher] Dispatched notification for {task_id} to {url}. Status: {resp.status_code}"

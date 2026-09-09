@@ -5,6 +5,7 @@ Gemini Enterprise chat wrappers or ADK runtime containers.
 Implements tool calling against Enterprise internal EDC clinical database.
 """
 
+import hashlib
 import json
 import logging
 from typing import Any, Dict, Optional
@@ -73,6 +74,10 @@ class VertexAIClinicalEngine:
 
         amendment = "Protocol Amendment v4.2 -> v4.3: Implement mandatory weekly liver function test monitoring."
 
+        calc_digest = hashlib.sha256(
+            f"{study_id}:{cohort}:{variance_pct}:{base_rate}:{test_rate}".encode("utf-8")
+        ).hexdigest()
+
         result = ClinicalAnalysisResult(
             study_id=study_id,
             baseline_cohort="Cohort-A",
@@ -80,7 +85,7 @@ class VertexAIClinicalEngine:
             variance_pct=variance_pct,
             clinical_findings=narrative,
             recommended_protocol_amendment=amendment,
-            gxp_validation_hash="sha256-e9f8231a4c89b7d60012f8e7b3",
+            gxp_validation_hash=f"sha256-{calc_digest[:24]}",
         )
 
         logger.info(

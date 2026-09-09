@@ -116,7 +116,7 @@ async def compile_fda_ectd_dossier(payload: EctdCompileRequest):
         "merkleAuditTrail": merkle_tree,
         "xmlEctdDocument": xml_ectd_snippet,
         "verificationChecksums": {
-            "md5": hashlib.md5(xml_ectd_snippet.encode()).hexdigest(),
+            "md5": hashlib.md5(xml_ectd_snippet.encode(), usedforsecurity=False).hexdigest(),
             "sha256": hashlib.sha256(xml_ectd_snippet.encode()).hexdigest()
         },
         "regulatoryStandardsChecked": [

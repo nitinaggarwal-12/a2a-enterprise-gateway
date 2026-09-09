@@ -13,7 +13,10 @@ scratch/*.html
 scratch/*.png
 .DS_Store
 *.log
+node_modules
 node_modules/
 /graft/
 
 scratch/
+data/*.db
+data/*.db-*
