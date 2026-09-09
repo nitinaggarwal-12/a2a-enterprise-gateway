@@ -201,7 +201,7 @@ def _validate_message(message: Any) -> Optional[str]:
     return None
 
 
-def _demo_send_message(params: Dict[str, Any]) -> Dict[str, Any]:
+def _demo_send_message(params: Dict[str, Any], approver_subject: Optional[str]) -> Dict[str, Any]:
     message = sanitize_payload(params["message"])
     existing_task_id = message.get("taskId")
     if existing_task_id:
@@ -230,6 +230,7 @@ def _demo_send_message(params: Dict[str, Any]) -> Dict[str, Any]:
         cohort=cohort,
         push_url=None,
         variance_pct=0.0,
+        approver_subject=approver_subject,
     )
 
     status_message = {
@@ -282,7 +283,6 @@ async def a2a_jsonrpc_v1(
     a2a_extensions: Optional[str] = Header(None, alias="A2A-Extensions"),
     auth_claims: Dict[str, Any] = Depends(verify_google_oidc),
 ):
-    del auth_claims
     try:
         body = await request.json()
     except Exception:
@@ -319,7 +319,7 @@ async def a2a_jsonrpc_v1(
         if validation_error:
             return _jsonrpc_error(request_id, -32602, validation_error)
         try:
-            task = _demo_send_message(params)
+            task = _demo_send_message(params, auth_claims.get("sub"))
         except KeyError:
             return _jsonrpc_error(request_id, ERROR_TASK_NOT_FOUND, "Referenced task was not found", 404)
         except ValueError as exc:
