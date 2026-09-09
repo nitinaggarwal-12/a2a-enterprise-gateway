@@ -251,9 +251,9 @@ async def main():
     }
 
     # =========================================================================
-    # 2. OPTION 2 BENCHMARKS (a2a.v1 gRPC HTTP/2 Server)
+    # 2. OPTION 2 BENCHMARKS (repository-specific gRPC experiment)
     # =========================================================================
-    print("\n[2/3] Benchmarking Option 2: a2a.v1 gRPC Service...")
+    print("\n[2/3] Benchmarking Option 2: repository-specific gRPC experiment...")
     opt2_port = 50058
     opt2_target = f"127.0.0.1:{opt2_port}"
 
@@ -270,6 +270,8 @@ async def main():
     opt2_env = os.environ.copy()
     opt2_env["GRPC_PORT"] = str(opt2_port)
     opt2_env["GRPC_HOST"] = "127.0.0.1"
+    opt2_env["APP_ENV"] = "development"
+    opt2_env["A2A_GRPC_REQUIRE_AUTH"] = "false"
 
     opt2_cmd = [sys.executable, "-m", "option2_grpc_service.server.server"]
 
