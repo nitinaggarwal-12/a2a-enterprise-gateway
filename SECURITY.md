@@ -1,47 +1,142 @@
-# Security Policy & Regulatory Compliance: Enterprise A2A Gateway
+# Security Model
 
-## 1. Zero Clinical Cloud Egress Policy
+## Status
 
-The **Enterprise A2A Gateway** enforces strict data sovereignty for regulated biopharma enterprises. Under no circumstances may proprietary patient records, CDISC SDTM domains (Adverse Events `AE`, Laboratory Tests `LB`, Demographics `DM`), or raw clinical trial protocols be transmitted across unencrypted boundaries or utilized for public foundational model training.
+This project implements security controls for an A2A gateway and a separate demo portal. It is a reference implementation, not a certification or compliance attestation.
 
-### Core Safeguards:
-1. **Zero Foundation Model Training**: All inference endpoints utilize zero-data-retention agreements on Google Cloud Vertex AI Sovereign Enclaves.
-2. **Outside-In VPC Demarcation**: The internal clinical database is physically segregated from public networks using Google Cloud Private Service Connect (PSC) and VPC Service Controls.
-3. **AST ADK Sanitization**: Prohibited internal orchestration keys (`__internal_trace__`, `adk_internal_context`) are stripped in memory in **under 28 µs** prior to payload egress.
+The production security posture depends on deployment configuration, identity infrastructure, network controls, data classification, key management, monitoring, operational procedures, and validation evidence.
 
----
+## Trust boundaries
 
-## 2. FDA 21 CFR Part 11 Regulatory Compliance
+The intended production flow is:
 
-The gateway provides native compliance mechanisms for electronic records and electronic signatures in accordance with FDA 21 CFR Part 11 and GAMP 5 guidance:
+```text
+Caller
+  -> verified gateway OIDC audience
+  -> protocol/schema/policy sanitization
+  -> destination-specific downstream identity
+  -> downstream A2A agent
+```
 
-| Regulation Section | Requirement | Gateway Technical Implementation |
-| :--- | :--- | :--- |
-| **21 CFR §11.10(a)** | System Validation & Reliability | Deterministic unit and E2E test suites running on Google signed Chrome with full audit logging. |
-| **21 CFR §11.10(e)** | Computer-Generated Audit Trails | Immutable Cloud Logging events recording signer identity, timestamp, and signature digests. |
-| **21 CFR §11.50** | Signature Manifestation | Sealed state cards explicitly display Signer Full Name, Professional Role, Date/Time, and Meaning. |
-| **21 CFR §11.70** | Signature Linking | Cryptographic HMAC-SHA256 signature binds the exact dosing payload parameters directly to the signature hash. |
+The caller's bearer token is never forwarded to the downstream service.
 
----
+If `DOWNSTREAM_ID_TOKEN_AUDIENCE` is configured, the gateway mints a new Google ID token from Application Default Credentials for that exact destination audience.
 
-## 3. Cryptographic Token Tamper Guard
+## Authentication
 
-### Stateless 48-Hour TTL State Tokens
-All Human-in-the-Loop (HITL) approval actions are protected by cryptographic HMAC-SHA256 tokens:
-- **Algorithm**: `HMAC-SHA256` using constant-time string comparison (`hmac.compare_digest`).
-- **TTL**: Hard expiration enforced after 48 hours ($172,800$ seconds).
-- **Tamper Rejection**: Any alteration of clinical parameters (e.g. mutating dosage from `300mg` to `400mg` in transit) invalidates the signature and raises an **HTTP 401 Unauthorized** security alert.
+Mock auth is disabled by default.
 
-### Key Rotation Procedure:
-1. Secret keys are injected exclusively via environment variables (`GATEWAY_HMAC_SECRET`) or Google Cloud Secret Manager.
-2. The verification engine supports dual-key rotation windows to validate in-flight tokens during key rollover.
+It can only be enabled when:
 
----
+```text
+APP_ENV=development
+ALLOW_DEV_AUTH=true
+```
 
-## 4. Reporting Security Vulnerabilities
+Demo, staging, and production otherwise require a Google OIDC bearer token validated against `EXPECTED_AUDIENCE`.
 
-We take the security of clinical systems seriously. If you discover a security vulnerability or potential data leakage vector within the Enterprise A2A Gateway, please report it immediately:
+The lab registration/signing APIs also require `ENABLE_LAB_ENDPOINTS=true`. Enabling lab mode does not bypass authentication.
 
-- **Security Team Contact**: `security@biopharma-a2a-gateway.internal`
-- **Response Window**: Initial acknowledgment within 24 hours; remediation assessment within 72 hours.
-- **Coordinated Disclosure**: Please refrain from publicly disclosing the issue until a patch has been validated and released.
+## Signing keys and HITL state
+
+`JWT_SECRET` signs HITL state tokens.
+
+Requirements:
+
+- staging/production must inject a strong secret
+- the repository's historical published default is explicitly rejected
+- `JWT_PREVIOUS_SECRET` may be configured temporarily for verification during key rotation
+- new tokens are signed only with the current key
+- tokens require `iss`, `iat`, `exp`, and `jti`
+- generated approval tokens can be bound to the authenticated subject
+
+For higher-assurance deployments, move signing operations to Cloud KMS/HSM or another approved key-management boundary rather than relying on an application-held symmetric secret.
+
+## Replay protection
+
+Approval execution uses atomic JTI consumption.
+
+- demo/development may use the in-memory store
+- staging/production require `REDIS_URL` or `MEMORYSTORE_URL`
+- Redis failures fail closed in staging/production
+- no silent local-memory downgrade is permitted in staging/production
+
+This means approval tokens are self-contained for context but the system is not literally stateless: replay safety depends on a durable nonce ledger.
+
+## Webhook and SSRF controls
+
+Outbound callback URLs are validated for:
+
+- HTTP/HTTPS scheme
+- HTTPS in staging/production
+- cloud metadata destinations
+- link-local, loopback, private, multicast, reserved, and unspecified addresses
+- exact production hostname allowlisting through `WEBHOOK_ALLOWED_HOSTS`
+
+An empty production webhook allowlist denies external callbacks.
+
+DNS validation reduces SSRF risk but does not replace a network-level egress policy. Production deployments should also constrain egress using platform/network controls.
+
+## Payload and header policy
+
+The sanitizer removes known internal orchestration keys and obvious credential-bearing fields. The policy gateway also:
+
+- allowlists top-level A2A/JSON-RPC envelope fields
+- removes caller authorization/cookie/API-key headers
+- removes proxy/hop-by-hop headers
+- sanitizes JSON SSE data frames
+- rejects opaque non-JSON SSE data
+- rejects non-JSON downstream responses on the sanitizing proxy path
+
+This is a finite defense-in-depth policy and must not be described as a universal "zero leak" guarantee.
+
+For sensitive deployments add explicit schemas, data classification/DLP, tenant policy, tool authorization, and output policy.
+
+## CORS and browser surface
+
+Cross-origin access is deny-by-default outside local development.
+
+Use `CORS_ALLOWED_ORIGINS` for exact trusted origins. The gateway does not use a wildcard `*.run.app` credentialed CORS rule.
+
+Baseline response headers include content-type sniffing protection, referrer policy, frame restrictions, and permissions policy. HSTS is added in staging/production.
+
+## Part 11 / regulated workflows
+
+The repository demonstrates technical controls that may contribute to a validated regulated system, including:
+
+- verified user identity
+- signature meaning
+- record hash linking
+- timestamps
+- replay prevention
+- audit metadata
+
+These controls are intentionally labeled **Part 11-aligned technical control prototypes**.
+
+The repository does not claim that an application deployment is FDA 21 CFR Part 11 compliant. Compliance/validation also requires controls outside these helper functions, including access authorization, durable audit trails, retention, procedures, training, validation, change control, record availability, and organizational governance.
+
+The public portal's ordinary A2UI action endpoint creates a **demo approval marker**, not an attributable electronic signature. Protected lab signing derives signer identity from OIDC and is disabled by default.
+
+## Persistence
+
+The lab's swarm/signature registries are in-memory demonstrations and therefore are not suitable as regulated system-of-record storage.
+
+Do not enable those APIs as a production record system. A production design needs durable, retained, tamper-evident/append-only evidence storage with backup, recovery, and inspection procedures.
+
+## Secrets
+
+Never commit:
+
+- `JWT_SECRET`
+- `JWT_PREVIOUS_SECRET`
+- Redis credentials
+- service-account keys
+- API keys
+- production bearer tokens
+- signing private keys
+
+Use the deployment platform's managed secret mechanism and workload identity.
+
+## Reporting vulnerabilities
+
+For a public repository, use GitHub's private vulnerability reporting/security advisory mechanism when available. Do not publish secrets, patient information, or exploit details in a public issue.
