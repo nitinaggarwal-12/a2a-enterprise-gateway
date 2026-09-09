@@ -21,12 +21,21 @@ from .config import settings
 def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
     """Verify Google OIDC ID token from Authorization Bearer header.
 
-    In APP_ENV=development, allows mock/dev authorization tokens to pass.
-    In production, verifies token against Google's public certs and EXPECTED_AUDIENCE.
+    Mock authentication is available only when BOTH APP_ENV=development and
+    ALLOW_DEV_AUTH=true. Demo, staging, and production always fail closed.
     """
+    dev_auth_enabled = (
+        settings.APP_ENV.lower() == "development" and settings.ALLOW_DEV_AUTH
+    )
+
     if not authorization:
-        if settings.APP_ENV.lower() == "development":
-            return {"sub": "dev-user@enterprise.internal", "email": "dev-user@enterprise.internal", "aud": "dev-audience"}
+        if dev_auth_enabled:
+            return {
+                "sub": "dev-user@enterprise.internal",
+                "email": "dev-user@enterprise.internal",
+                "aud": settings.EXPECTED_AUDIENCE,
+                "auth_mode": "explicit-dev-bypass",
+            }
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing Authorization header",
@@ -42,11 +51,16 @@ def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str,
         )
 
     token = parts[1]
-
-    # Development bypass mode
-    if settings.APP_ENV.lower() == "development":
-        if token.startswith("mock-dev-token") or token == "dev-secret-token" or token == "test-token":
-            return {"sub": "dev-user@enterprise.internal", "email": "dev-user@enterprise.internal", "aud": settings.EXPECTED_AUDIENCE}
+    if dev_auth_enabled and (
+        token.startswith("mock-dev-token")
+        or token in {"dev-secret-token", "test-token", "dev"}
+    ):
+        return {
+            "sub": "dev-user@enterprise.internal",
+            "email": "dev-user@enterprise.internal",
+            "aud": settings.EXPECTED_AUDIENCE,
+            "auth_mode": "explicit-dev-bypass",
+        }
 
     try:
         req = google_requests.Request()
@@ -55,22 +69,24 @@ def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str,
             req,
             audience=settings.EXPECTED_AUDIENCE,
         )
+        if not id_info.get("sub"):
+            raise ValueError("OIDC token is missing subject")
         return id_info
     except Exception as exc:
-        if settings.APP_ENV.lower() == "development":
-            # In dev, allow parsing unverified claims if valid JWT format
+        if dev_auth_enabled:
             try:
                 unverified = jwt.get_unverified_claims(token)
-                return unverified
+                if unverified.get("sub"):
+                    return unverified
             except Exception:
-                return {"sub": "dev-fallback@enterprise.internal", "email": "dev-fallback@enterprise.internal"}
+                pass
 
+        # Do not echo token/certificate validation internals to untrusted callers.
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Google OIDC token validation failed: {str(exc)}",
+            detail="Google OIDC token validation failed",
             headers={"WWW-Authenticate": "Bearer"},
-        )
-
+        ) from exc
 
 import ipaddress
 import socket
@@ -154,7 +170,12 @@ class RedisJTIStore(BaseJTIStore):
             if not was_set:
                 return True
             return False
-        except Exception:
+        except Exception as exc:
+            if settings.APP_ENV.lower() in {"staging", "production"}:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Distributed replay-protection store unavailable",
+                ) from exc
             return self.fallback.is_consumed_and_record(jti, exp_ts, now_ts)
 
     def clear(self):
@@ -179,6 +200,12 @@ def get_jti_store() -> BaseJTIStore:
         if _GLOBAL_DISTRIBUTED_STORE is None or getattr(_GLOBAL_DISTRIBUTED_STORE, "redis_url", None) != redis_url:
             _GLOBAL_DISTRIBUTED_STORE = RedisJTIStore(redis_url, _GLOBAL_IN_MEMORY_STORE)
         return _GLOBAL_DISTRIBUTED_STORE
+
+    if settings.APP_ENV.lower() in {"staging", "production"}:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Distributed replay-protection store is required for regulated actions",
+        )
     return _GLOBAL_IN_MEMORY_STORE
 
 
@@ -213,6 +240,17 @@ def is_safe_webhook_url(url: str, allow_localhost: Optional[bool] = None) -> Tup
     hostname = parsed.hostname
     if not hostname:
         return False, "URL contains no valid hostname"
+
+    if settings.APP_ENV.lower() in {"staging", "production"}:
+        allowed_hosts = {
+            host.strip().lower()
+            for host in settings.WEBHOOK_ALLOWED_HOSTS.split(",")
+            if host.strip()
+        }
+        if not allowed_hosts:
+            return False, "No production webhook destinations are allowlisted"
+        if hostname.lower() not in allowed_hosts:
+            return False, f"Webhook hostname '{hostname}' is not in the production allowlist"
 
     # Block cloud metadata addresses immediately by hostname
     blocked_hostnames = {
@@ -290,10 +328,10 @@ def create_state_token(payload: Dict[str, Any], ttl_hours: Optional[int] = None,
 
 
 def verify_state_token(token: str, enforce_idempotency: bool = False) -> Dict[str, Any]:
-    """Verify the integrity, signature, and expiration of a stateless state token.
+    """Verify signature, expiration, issuer and optional replay protection.
 
-    Raises HTTP 400 Bad Request on tampering, invalid signature, or expiration.
-    If enforce_idempotency=True, checks if the jti was already consumed and marks it.
+    The current key is tried first and JWT_PREVIOUS_SECRET is accepted only for
+    verification during an explicit rotation window.
     """
     if not token or not isinstance(token, str):
         raise HTTPException(
@@ -301,39 +339,54 @@ def verify_state_token(token: str, enforce_idempotency: bool = False) -> Dict[st
             detail="State token is required and must be a string",
         )
 
-    try:
-        claims = jwt.decode(
-            token,
-            settings.JWT_SECRET,
-            algorithms=[settings.JWT_ALGORITHM],
-        )
+    candidate_secrets = [settings.JWT_SECRET]
+    if settings.JWT_PREVIOUS_SECRET:
+        candidate_secrets.append(settings.JWT_PREVIOUS_SECRET)
 
-        if enforce_idempotency:
-            jti = claims.get("jti")
-            if jti:
-                now_ts = datetime.now(timezone.utc).timestamp()
-                exp_ts = float(claims.get("exp", now_ts + settings.STATE_TOKEN_TTL_HOURS * 3600))
-                store = get_jti_store()
-                if store.is_consumed_and_record(jti, exp_ts, now_ts):
-                    raise HTTPException(
-                        status_code=status.HTTP_409_CONFLICT,
-                        detail=f"Action Already Executed: State Token JTI '{jti}' has already been consumed. (Idempotency Guard Active)",
-                    )
+    claims: Optional[Dict[str, Any]] = None
+    last_error: Optional[Exception] = None
+    for secret in candidate_secrets:
+        try:
+            decoded = jwt.decode(
+                token,
+                secret,
+                algorithms=[settings.JWT_ALGORITHM],
+                issuer=settings.SERVICE_NAME,
+                options={"require_exp": True, "require_iat": True, "require_iss": True},
+            )
+            claims = decoded
+            break
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="State token has expired. HITL approval window exceeded.",
+            )
+        except JWTError as exc:
+            last_error = exc
 
-        return claims
-    except jwt.ExpiredSignatureError:
+    if claims is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="State token has expired. HITL approval window exceeded.",
-        )
-    except HTTPException:
-        raise
-    except JWTError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Tampered or invalid state token signature: {str(exc)}",
-        )
+            detail="Tampered or invalid state token signature",
+        ) from last_error
 
+    if enforce_idempotency:
+        jti = claims.get("jti")
+        if not jti:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="State token is missing required jti replay-protection claim",
+            )
+        now_ts = datetime.now(timezone.utc).timestamp()
+        exp_ts = float(claims["exp"])
+        store = get_jti_store()
+        if store.is_consumed_and_record(jti, exp_ts, now_ts):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Action Already Executed: State Token JTI '{jti}' has already been consumed.",
+            )
+
+    return claims
 
 def consume_state_token(token: str) -> Dict[str, Any]:
     """Atomically verify and consume a state token for execution.
@@ -384,6 +437,15 @@ class CFRPart11Signer:
         elif not isinstance(document_data, bytes):
             document_data = json.dumps(document_data, sort_keys=True).encode("utf-8")
 
+        meaning = str(meaning).strip()
+        agent_id = str(agent_id).strip()
+        agent_name = str(agent_name).strip()
+        document_id = str(document_id).strip()
+        if meaning not in self.SUPPORTED_MEANINGS:
+            raise ValueError(f"Unsupported electronic-signature meaning: {meaning}")
+        if not agent_id or not agent_name or not document_id:
+            raise ValueError("Signer identity and document_id are required")
+
         document_hash = hashlib.sha256(document_data).hexdigest()
 
         payload = {
@@ -427,6 +489,8 @@ class CFRPart11Signer:
         meaning = str(payload.get("meaning", "")).strip()
         if not meaning:
             return False, "Non-compliant envelope: § 11.50 signature meaning cannot be empty"
+        if meaning not in self.SUPPORTED_MEANINGS:
+            return False, f"Non-compliant envelope: unsupported signature meaning '{meaning}'"
 
         # § 11.70 Optional Document-to-Signature Linking Verification
         if document_data is not None:
@@ -455,12 +519,20 @@ class CFRPart11Signer:
                 return False, f"Invalid ISO-8601 timestamp in envelope: '{ts_str}'"
 
         serialized_payload = json.dumps(payload, sort_keys=True).encode("utf-8")
-        expected_signature = hmac.new(self.secret_key, serialized_payload, hashlib.sha256).hexdigest()
+        candidate_keys = [self.secret_key]
+        if settings.JWT_PREVIOUS_SECRET:
+            candidate_keys.append(settings.JWT_PREVIOUS_SECRET.encode("utf-8"))
 
-        is_valid = hmac.compare_digest(expected_signature, provided_signature)
+        is_valid = any(
+            hmac.compare_digest(
+                hmac.new(key, serialized_payload, hashlib.sha256).hexdigest(),
+                provided_signature,
+            )
+            for key in candidate_keys
+        )
         if not is_valid:
             return False, "Cryptographic signature mismatch: record altered in transit"
 
-        return True, "21 CFR Part 11 Signature verified statelessly"
+        return True, "Electronic-signature integrity and record-link verification succeeded"
 
 
