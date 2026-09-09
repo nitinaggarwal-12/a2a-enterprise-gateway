@@ -12,7 +12,8 @@ import hashlib
 from datetime import datetime, timezone
 import httpx
 from pathlib import Path
-from fastapi import FastAPI, Request, HTTPException
+from typing import Any, Dict, Optional
+from fastapi import FastAPI, Request, HTTPException, Header, status
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +25,7 @@ sys.path.insert(0, str(ROOT_DIR / "option1_cloud_run_gateway"))
 sys.path.insert(0, str(ROOT_DIR / "option2_grpc_service"))
 sys.path.insert(0, str(ROOT_DIR / "option3_dual_plane"))
 
+from option1_cloud_run_gateway.app.config import settings
 from option1_cloud_run_gateway.app.sanitizer import sanitize_payload, sanitize_headers
 from option1_cloud_run_gateway.app.security import (
     create_state_token,
@@ -31,6 +33,7 @@ from option1_cloud_run_gateway.app.security import (
     consume_state_token,
     reset_jti_registry,
     CFRPart11Signer,
+    verify_google_oidc,
 )
 from option1_cloud_run_gateway.app.a2ui_builder import (
     build_clinical_review_surface,
@@ -106,15 +109,50 @@ static_dir = Path(__file__).resolve().parent / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 
+def require_lab_access(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
+    """Hide mutation/cryptographic lab APIs unless explicitly enabled.
+
+    When enabled, caller identity is still verified; ENABLE_LAB_ENDPOINTS is
+    never an authentication bypass.
+    """
+    if not settings.ENABLE_LAB_ENDPOINTS:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
+    return verify_google_oidc(authorization)
+
+
+async def _probe_http_service(name: str, env_var: str) -> Dict[str, Any]:
+    url = os.getenv(env_var)
+    if not url:
+        return {"status": "unknown", "reason": f"{env_var} not configured"}
+    try:
+        async with httpx.AsyncClient(timeout=2.0, follow_redirects=False) as client:
+            response = await client.get(url)
+        return {
+            "status": "online" if response.is_success else "degraded",
+            "httpStatus": response.status_code,
+            "urlConfigured": True,
+        }
+    except Exception as exc:
+        return {"status": "offline", "urlConfigured": True, "error": type(exc).__name__}
+
+
 @app.get("/api/health/all")
 async def check_all_health():
-    """Check health status across Option 1, Option 2, and Option 3 services."""
-    results = {
-        "option1": {"status": "online", "port": 8080, "type": "FastAPI HTTP/SSE"},
-        "option2": {"status": "online", "port": 50051, "type": "gRPC HTTP/2"},
-        "option3": {"status": "online", "port": 8092, "type": "Dual-Plane Direct Vertex AI"},
+    """Probe configured service health endpoints; never manufacture green status."""
+    option1, option3 = await asyncio.gather(
+        _probe_http_service("option1", "OPTION1_HEALTH_URL"),
+        _probe_http_service("option3", "OPTION3_HEALTH_URL"),
+    )
+    return {
+        "portal": {"status": "online", "type": "FastAPI verification console"},
+        "option1": option1,
+        "option2": {
+            "status": "unknown",
+            "reason": "gRPC health must be probed by the dedicated gRPC monitor",
+        },
+        "option3": option3,
+        "checkedAt": datetime.now(timezone.utc).isoformat(),
     }
-    return results
 
 
 @app.get("/api/kpi-benchmarks")
@@ -122,23 +160,49 @@ async def get_kpi_benchmarks():
     """Return empirical benchmark data from benchmarks/live_empirical_results.json."""
     bench_file = ROOT_DIR / "benchmarks" / "live_empirical_results.json"
     if bench_file.exists():
-        return JSONResponse(content=json.loads(bench_file.read_text(encoding="utf-8")))
+        data = json.loads(bench_file.read_text(encoding="utf-8"))
+        data["_evidence"] = {
+            "status": "stored-artifact-not-live",
+            "source": "benchmarks/live_empirical_results.json",
+            "servedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        return JSONResponse(content=data)
     
     # Fallback to general benchmark results
     fallback = ROOT_DIR / "benchmarks" / "benchmark_results.json"
     if fallback.exists():
-        return JSONResponse(content=json.loads(fallback.read_text(encoding="utf-8")))
+        data = json.loads(fallback.read_text(encoding="utf-8"))
+        data["_evidence"] = {
+            "status": "stored-artifact-not-live",
+            "source": "benchmarks/benchmark_results.json",
+            "servedAt": datetime.now(timezone.utc).isoformat(),
+        }
+        return JSONResponse(content=data)
     return JSONResponse(content={"error": "Benchmark data not yet generated"})
 
 
 @app.post("/api/kpi-benchmarks/run")
-async def trigger_live_benchmark_run():
-    """Trigger on-demand live socket benchmark execution."""
-    bench_file = ROOT_DIR / "benchmarks" / "live_empirical_results.json"
-    if bench_file.exists():
-        data = json.loads(bench_file.read_text(encoding="utf-8"))
-        return {"status": "SUCCESS", "data": data, "timestamp": datetime.now(timezone.utc).isoformat()}
-    return {"status": "ERROR", "message": "Benchmark results unavailable"}
+async def trigger_live_benchmark_run(authorization: Optional[str] = Header(None)):
+    """On-demand benchmarks must run in an isolated worker, never in the web process."""
+    require_lab_access(authorization)
+    worker_url = os.getenv("BENCHMARK_WORKER_URL")
+    if not worker_url:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={
+                "status": "NOT_RUN",
+                "message": "BENCHMARK_WORKER_URL is not configured; no benchmark was executed.",
+            },
+        )
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        response = await client.post(worker_url, json={"requestedAt": datetime.now(timezone.utc).isoformat()})
+    return JSONResponse(
+        status_code=response.status_code,
+        content={
+            "status": "DISPATCHED" if response.is_success else "FAILED",
+            "workerStatus": response.status_code,
+        },
+    )
 
 
 # ============================================================================
@@ -149,8 +213,10 @@ SIGNATURE_RECEIPTS_REGISTRY: dict = {}
 
 
 @app.post("/api/v1/register")
-async def register_swarm_client(request: Request):
-    """Register sovereign biopharma agent swarm for stateless 21 CFR Part 11 communication."""
+async def register_swarm_client(request: Request, authorization: Optional[str] = Header(None)):
+    """Register a demo swarm for a Part 11-aligned controls prototype."""
+    auth_claims = require_lab_access(authorization)
+    del auth_claims
     payload = await request.json()
     client_name = payload.get("client_name", "Sovereign_Swarm_Client")
     organization = payload.get("organization", "Sovereign Therapeutics Corp")
@@ -177,7 +243,7 @@ async def register_swarm_client(request: Request):
         "registered_at": now_iso,
         "gateway_target": payload.get("gateway_target") or "https://a2a-gateway-638420508320.us-central1.run.app",
         "security_scheme": payload.get("security_scheme", "HMAC-SHA256"),
-        "compliance_status": "21_CFR_PART_11_CERTIFIED",
+        "compliance_status": "CONTROL_PROTOTYPE_NOT_VALIDATED",
         "supported_meanings": supported_meanings,
         "verification_endpoint": "/api/v1/verify-signature",
         "uri": f"/api/v1/swarms/{client_id}",
@@ -186,7 +252,7 @@ async def register_swarm_client(request: Request):
             "registration": {"href": f"/api/v1/registrations/{reg_id}"},
             "verify": {"href": "/api/v1/verify-signature"},
         },
-        "message": "Sovereign Swarm registered statelessly with 21 CFR Part 11 electronic signature compliance."
+        "message": "Swarm registered for a technical control prototype; customer validation is required."
     }
     SWARM_CLIENTS_REGISTRY[client_id] = record
     SWARM_CLIENTS_REGISTRY[reg_id] = record
@@ -194,67 +260,72 @@ async def register_swarm_client(request: Request):
 
 
 @app.get("/api/v1/swarms/{client_id}")
-async def get_swarm_client(client_id: str):
-    """Retrieve unique sovereign biopharma agent swarm by client_id."""
-    if client_id in SWARM_CLIENTS_REGISTRY:
-        return SWARM_CLIENTS_REGISTRY[client_id]
-    return {
-        "client_id": client_id,
-        "status": "ACTIVE_REGISTERED",
-        "organization": "Sovereign Therapeutics Corp",
-        "security_scheme": "HMAC-SHA256",
-        "compliance_status": "21_CFR_PART_11_CERTIFIED",
-        "uri": f"/api/v1/swarms/{client_id}",
-        "_links": {
-            "self": {"href": f"/api/v1/swarms/{client_id}"},
-            "verify": {"href": "/api/v1/verify-signature"},
-        }
-    }
+async def get_swarm_client(client_id: str, authorization: Optional[str] = Header(None)):
+    require_lab_access(authorization)
+    if client_id not in SWARM_CLIENTS_REGISTRY:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Swarm client not found")
+    return SWARM_CLIENTS_REGISTRY[client_id]
 
 
 @app.get("/api/v1/registrations/{registration_id}")
-async def get_swarm_registration(registration_id: str):
-    """Retrieve registration details by registration_id."""
-    if registration_id in SWARM_CLIENTS_REGISTRY:
-        return SWARM_CLIENTS_REGISTRY[registration_id]
-    return {
-        "registration_id": registration_id,
-        "status": "VALID",
-        "uri": f"/api/v1/registrations/{registration_id}",
-        "_links": {"self": {"href": f"/api/v1/registrations/{registration_id}"}}
-    }
+async def get_swarm_registration(registration_id: str, authorization: Optional[str] = Header(None)):
+    require_lab_access(authorization)
+    if registration_id not in SWARM_CLIENTS_REGISTRY:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found")
+    return SWARM_CLIENTS_REGISTRY[registration_id]
 
 
 @app.post("/api/v1/create-signature")
-async def create_swarm_signature(request: Request):
-    """Generate a valid 21 CFR Part 11 compliant signature envelope."""
+async def create_swarm_signature(request: Request, authorization: Optional[str] = Header(None)):
+    """Create identity-bound cryptographic evidence in explicit lab mode."""
+    auth_claims = require_lab_access(authorization)
     data = await request.json()
+    document_id = str(data.get("document_id") or "").strip()
+    if "document_data" not in data or not document_id:
+        raise HTTPException(status_code=422, detail="document_id and document_data are required")
+    if auth_claims.get("email_verified") is False:
+        raise HTTPException(status_code=403, detail="Verified signer identity is required")
+
+    signer_id = str(auth_claims.get("sub") or "").strip()
+    signer_name = str(auth_claims.get("name") or auth_claims.get("email") or signer_id).strip()
+    if not signer_id:
+        raise HTTPException(status_code=403, detail="OIDC subject is required")
+
     signer = CFRPart11Signer()
-    envelope = signer.create_signature_payload(
-        agent_id=data.get("agent_id", "agent_clinical_oncology_01"),
-        agent_name=data.get("agent_name", "Dr. Sarah Chen, MD"),
-        meaning=data.get("meaning", "ProtocolApproval"),
-        document_id=data.get("document_id", "doc-clinical-dose-9042"),
-        document_data=data.get("document_data", f"Dose escalation to {data.get('dose_mg', 350)}mg for SUBJ-9042"),
-    )
-    return envelope
+    try:
+        return signer.create_signature_payload(
+            agent_id=signer_id,
+            agent_name=signer_name,
+            meaning=data.get("meaning", "ProtocolApproval"),
+            document_id=document_id,
+            document_data=data["document_data"],
+            extra_metadata={
+                "identity_source": "google_oidc",
+                "validation_status": "prototype-not-validated",
+            },
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.post("/api/v1/verify-signature")
-async def verify_swarm_signature(request: Request):
-    """Statelessly verify a 21 CFR Part 11 compliant HMAC-SHA256 signature envelope."""
+async def verify_swarm_signature(request: Request, authorization: Optional[str] = Header(None)):
+    """Verify integrity and canonical record linking in explicit lab mode."""
+    require_lab_access(authorization)
     envelope = await request.json()
     payload = envelope.get("payload", {})
     signature = envelope.get("signature", "")
+    if "document_data" not in envelope:
+        raise HTTPException(status_code=422, detail="document_data is required for record-link verification")
 
     signer = CFRPart11Signer()
-    is_valid, reason = signer.verify_signature({"payload": payload, "signature": signature})
-
+    is_valid, reason = signer.verify_signature(
+        {"payload": payload, "signature": signature},
+        document_data=envelope["document_data"],
+        max_age_hours=int(envelope.get("max_age_hours", 72)),
+    )
     if not is_valid:
-        raise HTTPException(
-            status_code=401,
-            detail=f"21 CFR Part 11 Verification Failed: {reason}",
-        )
+        raise HTTPException(status_code=401, detail=f"Electronic-signature verification failed: {reason}")
 
     receipt_id = f"sig-rec-{hashlib.sha256(signature.encode()).hexdigest()[:16]}"
     receipt = {
@@ -266,13 +337,11 @@ async def verify_swarm_signature(request: Request):
         "document_id": payload.get("document_id"),
         "document_hash": payload.get("document_hash"),
         "verified_at": datetime.now(timezone.utc).isoformat(),
-        "compliance_standard": "FDA_21_CFR_PART_11",
-        "audit_status": "VALID_STATELESS_SIGNATURE",
+        "control_standard": "PART_11_ALIGNED_TECHNICAL_CONTROLS",
+        "validation_status": "PROTOTYPE_NOT_VALIDATED",
+        "audit_status": "CRYPTOGRAPHIC_LINK_VERIFIED",
         "uri": f"/api/v1/signatures/{receipt_id}",
-        "_links": {
-            "self": {"href": f"/api/v1/signatures/{receipt_id}"},
-            "document": {"href": f"/api/v1/documents/{payload.get('document_id', 'doc-1')}"}
-        },
+        "_links": {"self": {"href": f"/api/v1/signatures/{receipt_id}"}},
         "message": reason,
     }
     SIGNATURE_RECEIPTS_REGISTRY[receipt_id] = receipt
@@ -280,45 +349,33 @@ async def verify_swarm_signature(request: Request):
 
 
 @app.get("/api/v1/signatures/{receipt_id}")
-async def get_signature_receipt(receipt_id: str):
-    """Retrieve statutory 21 CFR Part 11 signature verification receipt by receipt_id."""
-    if receipt_id in SIGNATURE_RECEIPTS_REGISTRY:
-        return SIGNATURE_RECEIPTS_REGISTRY[receipt_id]
-    return {
-        "receipt_id": receipt_id,
-        "valid": True,
-        "compliance_standard": "FDA_21_CFR_PART_11",
-        "uri": f"/api/v1/signatures/{receipt_id}",
-        "_links": {"self": {"href": f"/api/v1/signatures/{receipt_id}"}}
-    }
+async def get_signature_receipt(receipt_id: str, authorization: Optional[str] = Header(None)):
+    require_lab_access(authorization)
+    if receipt_id not in SIGNATURE_RECEIPTS_REGISTRY:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Signature receipt not found")
+    return SIGNATURE_RECEIPTS_REGISTRY[receipt_id]
 
 
 @app.get("/api/v1/dossiers/{dossier_id}")
-async def get_fda_dossier_resource(dossier_id: str):
-    """Retrieve FDA 21 CFR Part 11 & GAMP 5 inspection dossier resource by ID."""
+async def get_fda_dossier_resource(dossier_id: str, authorization: Optional[str] = Header(None)):
+    require_lab_access(authorization)
     return {
         "dossier_id": dossier_id,
-        "inspection_id": "FDA-AUDIT-2026-A2A-09881",
-        "status": "CONFORMANT_READY_FOR_BLA",
-        "compliance": "21_CFR_PART_11",
+        "status": "DEMO_TEMPLATE",
+        "validation_status": "NOT_VALIDATED",
+        "compliance_mapping": "21_CFR_PART_11_REFERENCE_ONLY",
         "uri": f"/api/v1/dossiers/{dossier_id}",
-        "_links": {
-            "self": {"href": f"/api/v1/dossiers/{dossier_id}"},
-            "inspection": {"href": "/api/google-labs/fda-inspection-dossier"}
-        }
     }
 
 
 @app.get("/api/v1/benchmarks/{benchmark_id}")
 async def get_benchmark_resource(benchmark_id: str):
-    """Retrieve benchmark run resource by ID."""
     return {
         "benchmark_id": benchmark_id,
-        "ast_latency_us": 9.10,
-        "target_budget_us": 28.0,
-        "status": "PASSED",
+        "status": "STORED_ARTIFACT",
+        "measurement_status": "not-live",
+        "source": "/api/kpi-benchmarks",
         "uri": f"/api/v1/benchmarks/{benchmark_id}",
-        "_links": {"self": {"href": f"/api/v1/benchmarks/{benchmark_id}"}}
     }
 
 
@@ -366,8 +423,8 @@ async def option1_test_action(request: Request):
             "claims": claims,
             "audit": {
                 "verifiedAt": datetime.now(timezone.utc).isoformat(),
-                "gxPCompliant": True,
-                "signatureType": "21 CFR Part 11 Electronic Signature",
+                "controlEvidenceGenerated": True,
+                "signatureType": "Part 11-aligned cryptographic control prototype",
             },
         }
     except Exception as exc:
@@ -533,7 +590,7 @@ async def execute_a2ui_action(request: Request):
             },
             "audit": {
                 "verifiedAt": now_iso,
-                "gxPCompliant": True,
+                "controlEvidenceGenerated": True,
                 "signatureType": "21 CFR Part 11 Stateless JTI Nonce-Guarded Electronic Signature",
                 "idempotencyEnforced": True,
                 "electronicSignature": electronic_signature,
