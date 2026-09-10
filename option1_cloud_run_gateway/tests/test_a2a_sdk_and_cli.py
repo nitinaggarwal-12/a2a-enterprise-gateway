@@ -47,3 +47,47 @@ def test_a2a_sdk_promptcanvas_roundtrip(client):
     dag = client.compile_promptcanvas_diagram(exported["xml"])
     assert dag["nodes_count"] > 0
     assert dag["edges_count"] > 0
+
+
+def test_agent_teal_deployer_templates():
+    from a2a_sdk.agent_teal_adapter import AgentTealGcpDeployer
+    deployer = AgentTealGcpDeployer(
+        agent_file="merck_oncology_agent.py",
+        project_id="merck-clinical-mesh-prod",
+        region="us-central1",
+    )
+    cb = deployer.generate_cloudbuild()
+    assert "us-docker.pkg.dev/cloud-builders/docker" in cb
+    assert "us-docker.pkg.dev/google.com/cloudsdktool/cloud-sdk" in cb
+    assert "gcr.io" not in cb
+
+    df = deployer.generate_dockerfile()
+    assert "USER 10001:10001" in df
+    assert "COPY --chown=gxpuser:gxpuser" in df
+
+    svc = deployer.generate_service_yaml()
+    assert "serving.knative.dev/v1" in svc
+    assert "private-ranges-only" in svc
+
+    card = deployer.generate_a2a_agent_card()
+    assert card["protocolVersion"] == "1.0.0"
+    assert card["capabilities"]["gxpSanitization"] is True
+    assert card["identityFederation"]["provider"] == "Microsoft Entra ID (Azure AD)"
+
+
+def test_agent_teal_gcp_deployer_scaffold(tmp_path):
+    from a2a_sdk.agent_teal_adapter import AgentTealGcpDeployer
+    agent_path = tmp_path / "custom_agent.py"
+    agent_path.write_text("@entraId\nclass CustomAgent:\n    pass\n", encoding="utf-8")
+
+    deployer = AgentTealGcpDeployer(str(agent_path), project_id="test-pharma", region="us-east4")
+    analysis = deployer.analyze_agent()
+    assert analysis["hasEntraIdDecorator"] is True
+    assert "CustomAgent" in analysis["discoveredClasses"]
+
+    artifacts = deployer.scaffold(str(tmp_path / "scaffold_out"))
+    assert (tmp_path / "scaffold_out" / "Dockerfile").exists()
+    assert (tmp_path / "scaffold_out" / "cloudbuild.yaml").exists()
+    assert (tmp_path / "scaffold_out" / "service.yaml").exists()
+    assert (tmp_path / "scaffold_out" / "agent-card.json").exists()
+

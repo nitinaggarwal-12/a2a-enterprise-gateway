@@ -97,7 +97,7 @@ steps:
     args: ['push', '{image_uri}']
 
   # 3. Deploy to Google Cloud Run with VPC connector & Entra ID Workload Identity
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  - name: 'us-docker.pkg.dev/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
