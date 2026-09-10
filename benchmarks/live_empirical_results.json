@@ -1,63 +1,45 @@
 {
-  "benchmark_timestamp": "2026-09-03T18:55:00Z",
-  "metrics": {
-    "option1_cloud_run": {
-      "name": "Option 1: Cloud Run Interceptor Gateway",
-      "sanitization_latency_ms": 0.029,
-      "sanitization_p95_ms": 0.03,
-      "crypto_overhead_ms": 0.081,
-      "total_gateway_overhead_ms": 0.109,
-      "throughput_rps": 34509,
-      "gxp_sanitization_accuracy": "100.00% (Zero Leakage)",
-      "hitl_48hr_session_survival_rate": "100.00% (Stateless HMAC Token)",
-      "memory_idle_mb": 42,
-      "memory_peak_mb": 118,
-      "cold_start_latency_ms": 280,
-      "client_modification_required": "None (100% Native A2A & Google Cards)",
-      "time_to_production_weeks": "1-2 Weeks",
-      "regulatory_risk": "Low (Sanitized REST Payloads)"
-    },
-    "option2_grpc": {
-      "name": "Option 2: Transport Pivot to a2a.v1 gRPC",
-      "sanitization_latency_ms": 0.012,
-      "sanitization_p95_ms": 0.025,
-      "crypto_overhead_ms": 0.045,
-      "total_gateway_overhead_ms": 0.057,
-      "throughput_rps": 24500,
-      "gxp_sanitization_accuracy": "100.00% (Protobuf Type Shield)",
-      "hitl_48hr_session_survival_rate": "100.00% (AIP-127 Push Webhook)",
-      "memory_idle_mb": 68,
-      "memory_peak_mb": 185,
-      "cold_start_latency_ms": 420,
-      "client_modification_required": "High (Requires gRPC-Web / HTTP/2 Ingress)",
-      "time_to_production_weeks": "4-6 Weeks",
-      "regulatory_risk": "Low (Protobuf Contract)"
-    },
-    "option3_dual_plane": {
-      "name": "Option 3: Outside-In Dual-Plane Demarcation",
-      "sanitization_latency_ms": 0.0,
-      "sanitization_p95_ms": 0.0,
-      "crypto_overhead_ms": 0.081,
-      "total_gateway_overhead_ms": 0.081,
-      "throughput_rps": 8200,
-      "gxp_sanitization_accuracy": "100.00% (Direct Foundation SDK)",
-      "hitl_48hr_session_survival_rate": "100.00% (Stateless A2UI Callback)",
-      "memory_idle_mb": 55,
-      "memory_peak_mb": 140,
-      "cold_start_latency_ms": 310,
-      "client_modification_required": "Low (Standard Inbound Webhook Receiver)",
-      "time_to_production_weeks": "3-4 Weeks",
-      "regulatory_risk": "Zero (Complete Data Sovereignty)"
-    }
+  "option1": {
+    "cold_start_ms": 502.37,
+    "idle_memory_mb": 61.27,
+    "peak_memory_mb": 57.88,
+    "task_dispatch_latency_p50_ms": 2.876,
+    "task_dispatch_latency_p90_ms": 3.396,
+    "task_dispatch_latency_p95_ms": 3.6,
+    "task_dispatch_latency_p99_ms": 3.938,
+    "ui_action_latency_p50_ms": 2.343,
+    "real_throughput_rps": 350.7,
+    "concurrent_throughput_rps_25_clients": 266.4,
+    "concurrent_latency_p50_ms": 66.917,
+    "wire_payload_request_bytes": 382,
+    "hmac_state_token_bytes": 412,
+    "gxp_rejection_without_gateway": "100% (Payload REJECTED by strict 21 CFR Part 11 parser)",
+    "gxp_rejection_with_gateway": "0% (100% GxP Validated)"
   },
-  "why_option_1_wins_for_pilot": [
-    "1. Zero Client / Downstream Disruption: Option 1 works immediately with existing JSON-RPC 2.0 and GxP parsers without requiring Protobuf tooling or gRPC ingress reconfiguration.",
-    "2. Ultra-Low Overhead: AST Sanitization takes only ~0.04ms (40 microseconds) per request, adding virtually zero latency overhead.",
-    "3. 100% Stateless Reliability: Sealed HMAC-SHA256 tokens enable Cloud Run to scale to zero for 48+ hours with zero Redis/DB session lock overhead.",
-    "4. Fastest Time-to-Value: 1-2 weeks deployment vs 4-6 weeks for gRPC infrastructure."
-  ],
-  "why_option_3_wins_for_deep_analytics": [
-    "1. Total Sovereignty: Direct Vertex AI integration keeps heavy reasoning graphs and proprietary clinical datasets strictly inside Enterprise's VPC.",
-    "2. Seamless GE Synergy: Uses Gemini Enterprise exclusively as a lightweight notification & approval surface without ADK container risks."
-  ]
+  "option2": {
+    "cold_start_ms": 463.11,
+    "idle_memory_mb": 61.72,
+    "peak_memory_mb": 62.83,
+    "task_dispatch_latency_p50_ms": 0.553,
+    "task_dispatch_latency_p90_ms": 1.109,
+    "task_dispatch_latency_p95_ms": 1.36,
+    "task_dispatch_latency_p99_ms": 3.136,
+    "real_throughput_rps": 1397.3,
+    "concurrent_throughput_rps_25_clients": 8122.6,
+    "concurrent_latency_p50_ms": 2.719,
+    "wire_payload_request_bytes": 70,
+    "transport_layer": "gRPC over HTTP/2 (Binary Protobuf)",
+    "client_ingress_requirement": "gRPC-Web / Envoy Ingress Bridge required"
+  },
+  "option3": {
+    "cold_start_ms": 580.21,
+    "idle_memory_mb": 58.8,
+    "peak_memory_mb": 97.41,
+    "end_to_end_pipeline_latency_p50_ms": 6.851,
+    "end_to_end_pipeline_latency_p95_ms": 10.386,
+    "real_throughput_rps": 133.6,
+    "concurrent_throughput_rps_20_clients": 202.2,
+    "concurrent_latency_p50_ms": 91.776,
+    "vpc_data_isolation": "100% Sovereign (Zero egress to chat wrappers)"
+  }
 }

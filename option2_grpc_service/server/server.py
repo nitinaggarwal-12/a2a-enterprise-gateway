@@ -8,9 +8,14 @@ import asyncio
 import logging
 import os
 import sys
+from pathlib import Path
 from concurrent import futures
 from typing import Optional, Tuple
 import grpc
+
+_OPT2_DIR = Path(__file__).resolve().parent.parent
+if str(_OPT2_DIR) not in sys.path:
+    sys.path.insert(0, str(_OPT2_DIR))
 
 from a2a.v1 import a2a_pb2_grpc
 from .services import A2AServiceImpl

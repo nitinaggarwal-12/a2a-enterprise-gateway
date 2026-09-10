@@ -18,10 +18,10 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 appgroup && \
     adduser --system --uid 1001 --gid 1001 appuser
 
-COPY --from=builder /root/.local /home/appuser/.local
-COPY protos ./protos
-COPY server ./server
-COPY a2a ./a2a
+COPY --from=builder --chown=appuser:appgroup /root/.local /home/appuser/.local
+COPY --chown=appuser:appgroup protos ./protos
+COPY --chown=appuser:appgroup server ./server
+COPY --chown=appuser:appgroup a2a ./a2a
 
 ENV PATH=/home/appuser/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \

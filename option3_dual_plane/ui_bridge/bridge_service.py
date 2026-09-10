@@ -8,11 +8,16 @@ from datetime import datetime, timezone
 import json
 import logging
 import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 import httpx
 from fastapi import FastAPI, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from jose import jwt, JWTError
+
+_OPT3_DIR = Path(__file__).resolve().parent.parent
+if str(_OPT3_DIR) not in sys.path:
+    sys.path.insert(0, str(_OPT3_DIR))
 
 from backend.config import config
 from .card_templates import render_approval_card

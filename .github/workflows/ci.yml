@@ -36,7 +36,7 @@ jobs:
           chmod +x ./scripts/compile_protos.sh
           ./scripts/compile_protos.sh
 
-      - name: Run Full Pytest Quality Gate (115+ Tests)
+      - name: Run Full Pytest Quality Gate (120+ Tests)
         run: |
           python -m pytest -v
 

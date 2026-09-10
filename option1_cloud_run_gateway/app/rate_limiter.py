@@ -4,6 +4,7 @@ Provides sliding-window rate limiting per client IP to protect cryptographic,
 ZKP verification, and DAG compilation routes from resource exhaustion.
 """
 
+import os
 import time
 import threading
 from typing import Dict, List, Optional, Tuple
@@ -22,9 +23,9 @@ class SlidingWindowRateLimiter:
         window_seconds: int = 60,
         max_tracked_ips: int = 20_000,
     ):
-        self.default_limit = default_limit
-        self.crypto_limit = crypto_limit
-        self.window_seconds = window_seconds
+        self.default_limit = int(os.getenv("RATE_LIMIT_DEFAULT", str(default_limit)))
+        self.crypto_limit = int(os.getenv("RATE_LIMIT_CRYPTO", str(crypto_limit)))
+        self.window_seconds = int(os.getenv("RATE_LIMIT_WINDOW", str(window_seconds)))
         self.max_tracked_ips = max_tracked_ips
         self._buckets: Dict[str, List[float]] = {}
         self._lock = threading.Lock()

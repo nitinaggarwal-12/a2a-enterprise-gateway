@@ -10,7 +10,7 @@ RUN addgroup --system --gid 1001 appgroup && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app ./app
+COPY --chown=appuser:appgroup app ./app
 
 ENV PYTHONUNBUFFERED=1 \
     PORT=8080 \
@@ -20,4 +20,4 @@ USER appuser
 
 EXPOSE 8080
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "2"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 2"]
