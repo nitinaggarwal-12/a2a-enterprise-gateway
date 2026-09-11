@@ -92,6 +92,7 @@ def test_production_secret_entropy_guard():
         APP_ENV="production",
         ALLOW_DEV_AUTH=False,
         JWT_SECRET="c0mPl3x_CrYpt0gRapH1c_s3cr3t_f0r_gXp_pr0d_2026!",
+        GATEWAY_HMAC_SECRET="c0mPl3x_CrYpt0gRapH1c_s3cr3t_f0r_gXp_pr0d_2026!",
     )
     assert valid_settings.APP_ENV == "production"
 
