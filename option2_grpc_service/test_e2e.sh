@@ -12,6 +12,7 @@ fi
 GRPC_PORT=50055
 export GRPC_PORT="${GRPC_PORT}"
 export GRPC_HOST="127.0.0.1"
+export PYTHONPATH="${SCRIPT_DIR}/..:${SCRIPT_DIR}:${PYTHONPATH}"
 
 echo "=========================================================="
 echo " Starting Option 2: a2a.v1 gRPC Service E2E Test"

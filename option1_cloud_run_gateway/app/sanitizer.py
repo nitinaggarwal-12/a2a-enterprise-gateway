@@ -4,6 +4,7 @@ Enterprise GxP validation parsers (21 CFR Part 11 strict schema compliance) requ
 complete elimination of undeclared metadata fields and vendor-specific envelopes.
 """
 
+import json
 from typing import Any, Dict, List, Set, Union
 
 
@@ -13,6 +14,11 @@ PROHIBITED_KEYS: Set[str] = {
     "_adk",
     "ge_context",
     "agent_metadata",
+    "__internal_trace__",
+    "adk_internal_context",
+    "prompt_injection_flag",
+    "raw_system_prompt",
+    "__system_instructions__",
 }
 
 # Header prefixes to strip before reverse-proxying downstream
@@ -30,7 +36,7 @@ def is_prohibited_key(key: str) -> bool:
     lower_key = key.lower().strip()
     if lower_key in PROHIBITED_KEYS:
         return True
-    if lower_key.startswith("__adk"):
+    if lower_key.startswith("__"):
         return True
     return False
 
@@ -54,6 +60,15 @@ def sanitize_payload(obj: Any) -> Any:
         return tuple(sanitize_payload(item) for item in obj)
     elif isinstance(obj, set):
         return {sanitize_payload(item) for item in obj}
+    elif isinstance(obj, str) and (obj.startswith("{") or obj.startswith("[")):
+        try:
+            parsed = json.loads(obj)
+            if isinstance(parsed, (dict, list)):
+                sanitized_obj = sanitize_payload(parsed)
+                return json.dumps(sanitized_obj)
+        except (ValueError, TypeError, json.JSONDecodeError):
+            pass
+        return obj
     else:
         return obj
 

@@ -14,6 +14,11 @@ def test_is_prohibited_key():
     assert is_prohibited_key("agent_metadata") is True
     assert is_prohibited_key("__adk_trace_id") is True
     assert is_prohibited_key("__adk_system_prompt") is True
+    assert is_prohibited_key("__internal_trace__") is True
+    assert is_prohibited_key("adk_internal_context") is True
+    assert is_prohibited_key("prompt_injection_flag") is True
+    assert is_prohibited_key("raw_system_prompt") is True
+    assert is_prohibited_key("__system_instructions__") is True
     assert is_prohibited_key("ADK_METADATA") is True
 
     # Valid clinical fields must NOT be stripped

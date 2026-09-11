@@ -49,10 +49,6 @@ from option3_dual_plane.mock_services.mock_clinical_db import (
 
 from portal.advanced_a2a_router import router as advanced_a2a_router
 from portal.cloud_connect_router import router as cloud_connect_router
-from portal.category_killer_router import router as category_killer_router
-from portal.promptcanvas_bridge_router import router as promptcanvas_router
-from portal.google_labs_router import router as google_labs_router
-from portal.omni_orchestrator import router as omni_router
 
 from option1_cloud_run_gateway.app.rate_limiter import RateLimiterMiddleware
 
@@ -83,22 +79,6 @@ app.include_router(advanced_a2a_router, prefix="/api")
 # Mount Cloud Connect & Onboarding Router
 app.include_router(cloud_connect_router, prefix="/api/connect")
 app.include_router(cloud_connect_router, prefix="/api")
-
-# Mount Flagship Category-Killer Router (FDA eCTD & In-Silico Digital Twins)
-app.include_router(category_killer_router, prefix="/api/flagship")
-app.include_router(category_killer_router, prefix="/api")
-
-# Mount PromptCanvas Visual Architecture Bridge Router
-app.include_router(promptcanvas_router, prefix="/api/promptcanvas")
-app.include_router(promptcanvas_router, prefix="/api")
-
-# Mount Google Labs & Foundational Models Router
-app.include_router(google_labs_router, prefix="/api/google-labs")
-app.include_router(google_labs_router, prefix="/api")
-
-# Mount Google Gemini Omni UI/UX Navigation Orchestrator Router
-app.include_router(omni_router, prefix="/api/omni")
-app.include_router(omni_router, prefix="/api")
 
 
 # Mount static directory for screenshots and assets
@@ -844,67 +824,6 @@ async def list_feedback():
     return {"feedback": FEEDBACK_REGISTRY, "totalCount": len(FEEDBACK_REGISTRY)}
 
 
-@app.post("/api/assistant/chat")
-async def assistant_chat(request: Request):
-    """'Dr. A2A' Sovereign Biopharma Virtual Assistant Chatbot."""
-    body = await request.json()
-    user_msg = body.get("message", "").strip().lower()
-
-    if "74980079" in user_msg or "case" in user_msg or "adk" in user_msg or "envelope" in user_msg:
-        reply = (
-            "**Case 74980079 & ADK Envelope Contamination Overview:**\n\n"
-            "- **Root Cause:** Gemini Enterprise ADK auto-injects runtime metadata keys (`adk_metadata`, `_adk`, `__adk_trace`, `system_prompt_hash`) into root JSON-RPC payloads and sets headers like `X-Google-ADK-Session`.\n"
-            "- **Impact:** Downstream GxP strictly typed parsers (CDISC SDTM, E2B(R3), eCTD) reject unrecognized fields, throwing schema validation errors.\n"
-            "- **Our Mitigation (Option 1):** In-memory recursive AST sanitizer executing in **28 µs** (0.028 ms) that strips prohibited keys before GxP dispatch while preserving payload integrity and generating 21 CFR Part 11 HMAC state tokens."
-        )
-        sources = ["Option 1 Cloud Run Gateway", "A2A Protocol Spec 1.0.0 §4.2", "GxP Data Integrity Whitepaper"]
-    elif "hitl" in user_msg or "48" in user_msg or "scale to zero" in user_msg or "state token" in user_msg:
-        reply = (
-            "**48-Hour Scale-to-Zero Human-in-the-Loop Architecture:**\n\n"
-            "- **Challenge:** Medical directors typically take 24–48 hours to review clinical dose titrations. Keeping in-memory containers warm wastes cloud spend; storing unsealed state in DB creates schema coupling.\n"
-            "- **Solution:** The Gateway creates a self-contained, tamper-evident cryptographic token (`HMAC-SHA256` or `Ed25519`) containing `{taskId, studyId, cohort, decision, exp}` and seals it directly into the A2UI Action button.\n"
-            "- **Zero Memory Leak:** Cloud Run scales to zero. 48 hours later, when clicked in Google Workspace/Slack/Web, the token is verified statelessly in **84 µs**."
-        )
-        sources = ["A2UI Protocol Spec 1.0.0", "Option 1 Security Module", "21 CFR Part 11 Electronic Signature Validation"]
-    elif "slider" in user_msg or "dose" in user_msg or "toxicity" in user_msg or "titration" in user_msg:
-        reply = (
-            "**Interactive A2UI Clinical Dose Titration Engine:**\n\n"
-            "- When dose is titrated from **400mg** down to **300mg**:\n"
-            "  - Projected Grade 3+ ALT/AST rate drops from **10.02%** to **6.74%**.\n"
-            "  - Variance delta reduces from **+5.42%** to **+2.14%**.\n"
-            "- At **200mg**, projected toxicity drops to **4.90%** (delta: **+0.30%**), which falls within the safe <= 1.0% threshold.\n"
-            "- You can test this in real-time in the **Workflow Playground** tab!"
-        )
-        sources = ["Protocol MK-3475-087 Amendment v4.2", "Bayesian Biostatistics Model v2.4"]
-    elif "multicloud" in user_msg or "cross cloud" in user_msg or "aws" in user_msg or "azure" in user_msg:
-        reply = (
-            "**Cross-Cloud Sovereign Hybrid Mesh:**\n\n"
-            "- **Google Cloud:** Primary A2A Gateway on Cloud Run / VPC-SC and Vertex AI Model Garden.\n"
-            "- **AWS GovCloud:** Secondary failover cluster running gRPC `a2a.v1` daemon on ECS Fargate.\n"
-            "- **Azure:** Sovereign Private Link endpoints for EU GDPR data boundary isolation.\n"
-            "- **Zero Egress Leakage:** Inter-cloud traffic is encrypted with mTLS 1.3 and signed using Cloud KMS / AWS KMS asymmetric keys."
-        )
-        sources = ["Multi-Cloud Deployment Topology", "ISO 27001 / HIPAA Boundary Map"]
-    else:
-        reply = (
-            f"Hello! I am **Dr. A2A**, your Sovereign Enterprise Biopharma & Protocol Co-pilot. "
-            f"I can guide you on **A2A v1.0.0**, **A2UI v1.0.0**, resolving **Case 74980079 ADK envelope contamination**, "
-            f"**21 CFR Part 11 electronic signatures**, **CDISC SDTM / E2B(R3) ingestion**, and **cross-cloud sovereign orchestration**.\n\n"
-            f"How can I assist your clinical workflow or architecture review today?"
-        )
-        sources = ["Enterprise Gateway Knowledge Hub", "A2A Spec 1.0.0", "21 CFR Part 11"]
-
-    return {
-        "success": True,
-        "reply": reply,
-        "sources": sources,
-        "suggestedPrompts": [
-            "Explain Case 74980079 & ADK envelope filtering",
-            "How does 48-hour scale-to-zero HITL work?",
-            "Simulate dose titration from 400mg to 300mg",
-            "Explain multi-cloud sovereign routing"
-        ]
-    }
 
 
 # Enterprise Integrations Catalog

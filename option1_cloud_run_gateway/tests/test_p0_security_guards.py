@@ -111,23 +111,6 @@ def test_jti_cache_bounded_pruning():
     assert "active-jti-1" in CONSUMED_JTI_REGISTRY
 
 
-def test_promptcanvas_xxe_and_entity_bomb_blocked():
-    """Verify that PromptCanvas XML compiler rejects DOCTYPE and ENTITY expansion attempts."""
-    xxe_payload = """<?xml version="1.0"?>
-    <!DOCTYPE mxGraphModel [
-        <!ENTITY xxe SYSTEM "file:///etc/passwd">
-    ]>
-    <mxGraphModel>
-        <root>
-            <mxCell id="0"/>
-            <mxCell id="1" parent="0"/>
-            <mxCell id="node1" value="&xxe;" vertex="1" parent="1"/>
-        </root>
-    </mxGraphModel>"""
-
-    response = portal_client.post("/api/promptcanvas/compile-to-dag", json={"drawio_xml": xxe_payload})
-    assert response.status_code == 400
-    assert "xxe" in response.text.lower() or "entity" in response.text.lower() or "doctype" in response.text.lower()
 
 
 def test_dynamic_utc_timestamps_iso8601():

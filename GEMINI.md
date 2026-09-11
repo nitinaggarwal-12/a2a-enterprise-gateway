@@ -45,12 +45,21 @@ The Enterprise A2A Gateway provides a sovereign, high-throughput gateway impleme
 
 ### 2. Run Comprehensive Dual-Theme E2E Test Suite
 ```bash
-# Executes automated headless Chrome verification across all 12 views in Light & Dark modes
+# Executes automated headless Chrome verification across all 16 views in Light & Dark modes
 NODE_PATH=node_modules node scratch/run_dual_theme_e2e.js
+
+# Executes behavioral state-mutation and tamper-rejection tests across restored tabs
+NODE_PATH=node_modules node scratch/test_all_restored_tabs.js
 ```
 *Screenshots are automatically output to `docs/screenshots/` and `portal/static/screenshots/`.*
 
-### 3. Python Unit & Security Tests
+### 3. Master 4-Step E2E Quality Gate
+```bash
+# Executes Pytest (57 tests) + Options 1-3 CLI + Multimodal Portal E2E Quality Gate
+./test_all_options.sh
+```
+
+### 4. Python Unit & Security Tests
 ```bash
 .venv/bin/pytest -v
 ```
@@ -84,6 +93,10 @@ NODE_PATH=node_modules node scratch/run_dual_theme_e2e.js
    - Prefer direct DOM clicks (`page.$eval(selector, el => el.click())`) over physical coordinate clicks to prevent click interception by modal scrims.
 4. **Direct String Inspection**:
    - Always verify that target DOM nodes physically exist and render expected text content (e.g. `AST Latency`, `HMAC-SHA256`, `21 CFR Part 11`) rather than relying solely on HTTP 200 or CLI exit codes.
+5. **Zero Shallow Router Assertions**:
+   - Never declare a view verified solely because `currentTab === key`. Every workspace quality gate must execute complete user journeys (trigger action → verify backend response → assert DOM mutation → simulate and verify security rejection).
+6. **Lifecycle Quality Hooks**:
+   - Automatic post-file-write compilation and benchmark verification are registered in [`hooks.json`](./hooks.json) and [`_agents/hooks.json`](./_agents/hooks.json).
 
 ---
 

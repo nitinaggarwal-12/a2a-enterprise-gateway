@@ -11,10 +11,16 @@ Executes the entire workflow:
 
 import asyncio
 import json
+import os
+import sys
 import time
+from multiprocessing import Process
 import httpx
 import uvicorn
-from multiprocessing import Process
+
+# Ensure repository root and option3 directory are in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from backend.orchestrator import EnterpriseClinicalOrchestrator
 from backend.config import config

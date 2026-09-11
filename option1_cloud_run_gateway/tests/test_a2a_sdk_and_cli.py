@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 import pytest
 from a2a_sdk.client import A2AGatewayClient
 
@@ -7,24 +11,20 @@ def test_a2a_sdk_health():
     assert "option1" in health
     assert "option2" in health
 
-def test_a2a_sdk_ectd_compile():
+def test_a2a_sdk_agent_card():
     client = A2AGatewayClient(base_url="http://127.0.0.1:8090")
-    res = client.compile_ectd(protocol_id="MK-3475-TEST", target_dose_mg=250.0)
-    assert res["submissionId"].startswith("FDA-eCTD-IND-140288-")
-    assert "verificationChecksums" in res
-    assert "xmlEctdDocument" in res
+    card = client.get_agent_card()
+    assert "A2A" in card["name"]
+    assert "declaredSkills" in card
+    assert "capabilities" in card
 
-def test_a2a_sdk_in_silico_simulate():
+def test_a2a_sdk_a2ui_templates():
     client = A2AGatewayClient(base_url="http://127.0.0.1:8090")
-    res = client.simulate_in_silico(cohort_size=500, dose_mg=250.0)
-    assert res["cohortSize"] == 500
-    assert "pharmacodynamicResults" in res
-    assert len(res["kaplanMeierSurvivalCurve"]) == 7
+    templates = client.get_a2ui_templates()
+    assert "templates" in templates
+    assert "dose_titration" in templates["templates"]
 
-def test_a2a_sdk_promptcanvas_roundtrip():
+def test_a2a_sdk_kpi_benchmarks():
     client = A2AGatewayClient(base_url="http://127.0.0.1:8090")
-    exported = client.export_drawio_preset("option3_dual_plane")
-    assert "<mxGraphModel" in exported["xml"]
-    dag = client.compile_promptcanvas_diagram(exported["xml"])
-    assert dag["nodes_count"] > 0
-    assert dag["edges_count"] > 0
+    kpis = client.get_kpi_benchmarks()
+    assert "metrics" in kpis

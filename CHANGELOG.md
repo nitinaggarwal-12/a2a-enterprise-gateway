@@ -2,6 +2,40 @@
 
 All notable changes to this project are documented in this file in accordance with [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-09-10
+
+### 🚀 Restored & Fully Interactive
+- **Option 1: Cloud Run Interceptor Gateway (`opt1`)**:
+  - Full interactive 3-stage pipeline UI with real-time AST Key Pruning (28 µs), Text Block Unwrapper (Case 74980079), and HMAC State Sealer (48h TTL).
+  - Contaminated JSON payload editor with preset toggles (`Case 74980079 Contaminated` vs `Standard CDISC`).
+  - Live Inbound Dispatch Probe calling `POST /api/option1/test-dispatch` with side-by-side AST stripped key diff and sealed state token inspector.
+  - Stateless 21 CFR Part 11 Electronic Signature verification (`POST /api/option1/test-action`) with sub-millisecond approval and live cyber-tamper simulation validating HTTP 400 rejection.
+- **Option 2: a2a.v1 gRPC Protobuf Contract (`opt2`)**:
+  - Live HTTP/2 server-streaming reasoning trace terminal (`GET /api/option2/stream-simulation`) with animated progress bar and progressive status transitions (`SUBMITTED` → `WORKING` → `INPUT_REQUIRED`).
+  - Interactive multi-tab schema explorer for `Service RPCs`, `Task Schema`, and `A2UI Action` contracts.
+- **Option 3: Outside-In Dual-Plane Demarcation (`opt3`)**:
+  - Live dual-plane pipeline execution console (`POST /api/option3/execute-pipeline`) demonstrating Sovereign Biopharma VPC Plane 1 (direct in-VPC Vertex AI reasoning over raw CDISC records) vs Gemini Enterprise Plane 2 (A2UI presentation surface).
+  - Zero Clinical Cloud Egress verification badge and Demarcation Security Standards panel (PSC, VPC-SC, Ed25519 PKI).
+- **Tool Integrations Hub (`integrations`)**:
+  - Replaced static HTML mockups with dynamic Alpine.js reactive catalog (`GET /api/integrations/catalog`) supporting 8 enterprise connectors.
+  - Interactive category filter chips (`All Platforms`, `Data Lakehouse`, `Clinical EDC`, `Collaboration`, `Identity & Access`, `Enterprise Ops`).
+  - Live connection status toggling (`POST /api/integrations/toggle`) and inspection modal with live mTLS handshake probe (`POST /api/integrations/test-ping`).
+- **Real-Time KPI Telemetry & Cost Modeling (`kpis`)**:
+  - Live socket benchmark runner (`POST /api/kpi-benchmarks/run`) dynamically updating 5 speedometer cards.
+  - Interactive Serverless Scale-to-Zero vs Always-On Kubernetes cost simulator with dynamic volume slider (100k to 50M requests/month).
+- **Architecture Overview & MECE Matrix (`overview`)**:
+  - 8-dimensional comparative matrix across Option 1, Option 2, and Option 3.
+  - Interactive persona selector (`Architect`, `Clinician`, `Compliance`, `Developer`) displaying personalized adoption recommendations.
+- **Workflow Playground & Content Ingestion (`playground`)**:
+  - 1-click clinical dataset presets (`CDISC SDTM AE.csv`, `FHIR EHR Observation`, `Case 74980079 Contaminated`).
+  - Live swarm execution pipeline with 4-stage validation checkmarks and real-time sanitized JSON output.
+
+### 🛡️ Quality Gate & E2E Testing Hardening
+- **Master Test Suite Integration (`test_all_options.sh`)**: Added Step [4/4] executing mandatory headless Google Signed Chrome E2E browser quality gate.
+- **Canonical Dual-Theme Test Suite (`scratch/run_dual_theme_e2e.js`)**: Updated to verify all 16 views across Light and Dark modes.
+- **Active Behavioral Quality Gate (`scratch/test_all_restored_tabs.js`)**: Replaced shallow router assertions with deep DOM state-mutation assertions and tamper rejection checks.
+- **Lifecycle Quality Hooks (`hooks.json` & `_agents/hooks.json`)**: Configured automatic post-tool compilation and quality gate enforcement.
+
 ---
 
 ## [1.0.0] - 2026-09-03

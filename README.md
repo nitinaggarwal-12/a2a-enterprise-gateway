@@ -153,14 +153,15 @@ To provide the predictability, roadmap visibility, and API contract stability En
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+npm install
 
-# 2. Run master test suite across all 3 options
+# 2. Run master 4-step E2E quality gate (Backend Options 1-3 + Headless Chrome E2E)
 ./test_all_options.sh
 
 # 3. Launch the visual verification portal
-python -m uvicorn portal.app:app --host 0.0.0.0 --port 8090
+.venv/bin/python -m uvicorn portal.app:app --host 127.0.0.1 --port 8090 --reload
 ```
-Open **`http://localhost:8090`** in your browser to inspect the live test harness and visual verification gallery.
+Open **`http://127.0.0.1:8090`** in your browser to inspect the live test harness and visual verification gallery.
 
 ---
 
@@ -172,9 +173,11 @@ This repository serves as the reference implementation for autonomous agent pair
 * **[Project Context & Architecture Guide](docs/CONTEXT_AND_ARCHITECTURE_GUIDE.md)**: Full evolutionary journal detailing why each context layer, verification skill, and Graft evaluation was performed.
 * **[System Rules (`GEMINI.md`)](GEMINI.md)**: Canonical turn-0 directives, latency budgets, and compliance constraints for Google Gemini and Antigravity.
 * **[Multi-Agent Coordination (`AGENTS.md`)](AGENTS.md)**: Universal protocol specification for autonomous agent swarms.
+* **[Lifecycle Quality Hooks (`hooks.json`)](hooks.json)**: Automated post-tool syntax compilation and security benchmark enforcement.
 * **[Architecture Specification (`ARCHITECTURE.md`)](ARCHITECTURE.md)**: Three production deployment archetypes and in-memory AST dictionary stripping algorithm.
 * **[Regulatory & Security Matrix (`SECURITY.md`)](SECURITY.md)**: FDA 21 CFR Part 11 electronic signatures and Zero Clinical Cloud Egress guardrails.
 * **[Operations Runbook (`RUNBOOK.md`)](RUNBOOK.md)**: Port allocation, test harnesses, socket benchmarks, and troubleshooting.
+* **[Changelog (`CHANGELOG.md`)](CHANGELOG.md)**: Comprehensive release history and quality gate hardening audit log.
 
 ---
 

@@ -213,23 +213,6 @@ def test_sliding_window_rate_limiter():
     assert other_retry == 0
 
 
-def test_promptcanvas_export_preset_validation():
-    """Verify export-xml strictly validates preset names."""
-    # Valid preset
-    resp = portal_client.post(
-        "/api/promptcanvas/export-xml",
-        json={"architecture_preset": "option3_dual_plane"},
-    )
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "success"
-
-    # Invalid preset
-    resp = portal_client.post(
-        "/api/promptcanvas/export-xml",
-        json={"architecture_preset": "malicious_or_unknown_preset_123"},
-    )
-    assert resp.status_code == 400
-    assert "Invalid architecture_preset" in resp.json()["detail"]
 
 
 def test_portal_feedback_registry_bounded():

@@ -40,16 +40,35 @@ The visual portal runs on **port 8090** powered by Uvicorn and FastAPI:
 
 ## 🧪 3. Running Automated E2E Verification Suites
 
-The E2E test harness verifies all 12 views in both Dark and Light modes using Google signed Chrome:
+### 3.1 Master 4-Step E2E Quality Gate
+Executes Pytest unit tests, Options 1-3 backend CLI tests, and the headless Google Chrome E2E browser quality gate:
+```bash
+./test_all_options.sh
+```
 
+### 3.2 Restored Tabs Behavioral Verification Suite
+Executes live state-mutation, AST key stripping diff inspection, and cyber-tamper rejection tests across all restored workspaces:
+```bash
+NODE_PATH=node_modules node scratch/test_all_restored_tabs.js
+```
+
+### 3.3 Canonical Dual-Theme Screenshot Suite
+The E2E test harness verifies all 16 views in both Dark and Light modes using Google signed Chrome:
 ```bash
 # Execute headless dual-theme suite
 NODE_PATH=node_modules node scratch/run_dual_theme_e2e.js
 ```
 
+### 3.4 Adversarial, Odd-One-Out & SRE Chaos Suite
+Executes 7 edge-case chaos simulations including Zalgo/Unicode AST stress testing, JTI nonce replay attacks, statutory token expirations, SSRF metadata probing, and live Chrome 503 circuit-breaker trip & DLQ re-drive:
+```bash
+NODE_PATH=node_modules node scratch/test_adversarial_oddities_e2e.js
+```
+
 ### Generated Artifact Locations:
 - `docs/screenshots/`: Official documentation screenshots.
 - `portal/static/screenshots/`: Assets served statically by the web portal.
+- `scratch/screenshots_restored_tabs/`: Real-time audit screenshots across all 16 states.
 - `scratch/screenshots_e2e/`: Local scratch artifacts.
 
 ---

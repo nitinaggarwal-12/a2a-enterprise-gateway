@@ -46,8 +46,8 @@ async function runDualThemeE2E() {
 
   try {
     console.log(`Navigating to Visual Verification Portal: ${portalUrl}...`);
-    await page.goto(portalUrl, { waitUntil: 'networkidle0' });
-    await sleep(1500);
+    await page.goto(portalUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await sleep(2000);
 
     const saveShot = async (filename) => {
       await page.evaluate(() => window.scrollTo(0, 0));
@@ -99,11 +99,35 @@ async function runDualThemeE2E() {
     await sleep(1000);
     await saveShot('light_05_kpis.png');
 
-    // 1.6 Light Veo 2 Studio
-    console.log('Switching to Veo 2 Studio (Light)...');
-    await page.$eval('#tab-veo', el => el.click());
+    // 1.5b Light Overview & MECE Matrix
+    console.log('Switching to Overview & MECE Matrix (Light)...');
+    await page.$eval('#tab-overview', el => el.click());
+    await sleep(1000);
+    await saveShot('light_13_overview.png');
+
+    // 1.5c Light Option 1: Cloud Run
+    console.log('Switching to Option 1 (Light)...');
+    await page.$eval('#tab-opt1', el => el.click());
+    await sleep(1000);
+    await saveShot('light_14_opt1.png');
+
+    // 1.5d Light Option 2: gRPC Stream
+    console.log('Switching to Option 2 (Light)...');
+    await page.$eval('#tab-opt2', el => el.click());
+    await sleep(1000);
+    await saveShot('light_15_opt2.png');
+
+    // 1.5e Light Option 3: Dual-Plane
+    console.log('Switching to Option 3 (Light)...');
+    await page.$eval('#tab-opt3', el => el.click());
+    await sleep(1000);
+    await saveShot('light_16_opt3.png');
+
+    // 1.6 Light A2UI Studio
+    console.log('Switching to Universal A2UI Studio (Light)...');
+    await page.$eval('#tab-a2ui', el => el.click());
     await sleep(1200);
-    await saveShot('light_08_veo_studio.png');
+    await saveShot('light_08_a2ui_studio.png');
 
     // 1.7 Light SSO Modal
     console.log('Opening SSO Modal (Light)...');
@@ -119,17 +143,17 @@ async function runDualThemeE2E() {
     });
     await sleep(600);
 
-    // 1.8 Light Dr. A2A Omni Copilot
-    console.log('Opening Dr. A2A Omni Copilot (Light)...');
+    // 1.8 Light BYOK Key Management Drawer
+    console.log('Opening BYOK Drawer (Light)...');
     await page.evaluate(() => {
       const state = Alpine.$data(document.querySelector('[x-data]'));
-      state.assistantOpen = true;
+      state.byokDrawerOpen = true;
     });
     await sleep(1200);
-    await saveShot('light_07_dr_a2a_assistant.png');
+    await saveShot('light_07_byok_drawer.png');
     await page.evaluate(() => {
       const state = Alpine.$data(document.querySelector('[x-data]'));
-      state.assistantOpen = false;
+      state.byokDrawerOpen = false;
     });
     await sleep(600);
 
@@ -214,11 +238,41 @@ async function runDualThemeE2E() {
     await sleep(1000);
     await saveShot('dark_04_integrations.png');
 
-    // 2.5 Dark Veo 2 Studio
-    console.log('Switching to Veo 2 Studio (Dark)...');
-    await page.$eval('#tab-veo', el => el.click());
+    // 2.4b Dark KPIs
+    console.log('Switching to KPIs (Dark)...');
+    await page.$eval('#tab-kpis', el => el.click());
+    await sleep(1000);
+    await saveShot('dark_08_kpis.png');
+
+    // 2.4c Dark Overview & MECE Matrix
+    console.log('Switching to Overview & MECE Matrix (Dark)...');
+    await page.$eval('#tab-overview', el => el.click());
+    await sleep(1000);
+    await saveShot('dark_13_overview.png');
+
+    // 2.4d Dark Option 1: Cloud Run
+    console.log('Switching to Option 1 (Dark)...');
+    await page.$eval('#tab-opt1', el => el.click());
+    await sleep(1000);
+    await saveShot('dark_14_opt1.png');
+
+    // 2.4e Dark Option 2: gRPC Stream
+    console.log('Switching to Option 2 (Dark)...');
+    await page.$eval('#tab-opt2', el => el.click());
+    await sleep(1000);
+    await saveShot('dark_15_opt2.png');
+
+    // 2.4f Dark Option 3: Dual-Plane
+    console.log('Switching to Option 3 (Dark)...');
+    await page.$eval('#tab-opt3', el => el.click());
+    await sleep(1000);
+    await saveShot('dark_16_opt3.png');
+
+    // 2.5 Dark A2UI Studio
+    console.log('Switching to Universal A2UI Studio (Dark)...');
+    await page.$eval('#tab-a2ui', el => el.click());
     await sleep(1200);
-    await saveShot('dark_05_veo_studio.png');
+    await saveShot('dark_05_a2ui_studio.png');
 
     // 2.6 Dark FAQ
     console.log('Switching to FAQ (Dark)...');
@@ -226,18 +280,17 @@ async function runDualThemeE2E() {
     await sleep(1200);
     await saveShot('dark_07_faq.png');
 
-    // 2.7 Dark Omni Live Voice Stream
-    console.log('Opening Dr. A2A Omni Live Voice (Dark)...');
+    // 2.7 Dark BYOK Key Management Drawer
+    console.log('Opening BYOK Drawer (Dark)...');
     await page.evaluate(() => {
       const state = Alpine.$data(document.querySelector('[x-data]'));
-      state.assistantOpen = true;
-      state.omniVoiceActive = true;
+      state.byokDrawerOpen = true;
     });
     await sleep(1200);
-    await saveShot('dark_06_omni_live_voice.png');
+    await saveShot('dark_06_byok_drawer.png');
     await page.evaluate(() => {
       const state = Alpine.$data(document.querySelector('[x-data]'));
-      state.assistantOpen = false;
+      state.byokDrawerOpen = false;
     });
     await sleep(600);
 

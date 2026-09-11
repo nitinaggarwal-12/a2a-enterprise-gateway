@@ -5,6 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${SCRIPT_DIR}"
 
 source .venv/bin/activate
+export PYTHONPATH="${SCRIPT_DIR}:${PYTHONPATH}"
 
 echo "================================================================================"
 echo " Enterprise ENTERPRISE AGENT INTEGRATION ARCHITECTURE - MASTER TEST SUITE"
@@ -31,6 +32,11 @@ cd option3_dual_plane
 cd ..
 
 echo ""
+echo ">>> [4/4] EXECUTING COMPREHENSIVE FRONTEND PORTAL E2E QUALITY GATE <<<"
+NODE_PATH=node_modules node scratch/test_all_restored_tabs.js
+
+echo ""
 echo "================================================================================"
-echo " ALL 3 OPTIONS COMPILED, EXECUTED, AND VERIFIED END-TO-END WITH ZERO FAILURES!"
+echo " ALL 3 OPTIONS + MULTIMODAL VERIFICATION PORTAL VERIFIED WITH ZERO FAILURES!"
 echo "================================================================================"
+

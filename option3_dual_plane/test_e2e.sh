@@ -9,6 +9,8 @@ if [ ! -f "${PYTHON}" ]; then
     PYTHON="python3"
 fi
 
+export PYTHONPATH="${SCRIPT_DIR}/..:${SCRIPT_DIR}:${PYTHONPATH}"
+
 echo "=========================================================="
 echo " Starting Option 3: Dual-Plane Architecture Simulation"
 echo "=========================================================="
