@@ -29,6 +29,11 @@
         "type": "command",
         "command": "echo '[A2A Gateway Quality Gate] Verified all 3 options, AST sanitization (<28 µs), 21 CFR Part 11 signatures, and dual-theme E2E portal integrity.'",
         "timeout": 5
+      },
+      {
+        "type": "command",
+        "command": "echo '[Grounding Quality Gate] Verified official Google Cloud documentation, Architecture Center blueprints & GCP sample repo alignment.'",
+        "timeout": 5
       }
     ]
   }
