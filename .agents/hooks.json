@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "omni_guard",
+  "version": "2.3.0",
+  "description": "Google Omni 1.1 Universal Multi-Project Quality, Model Selection & Multi-Agent Orchestration Engine",
+  "global_governance": {
+    "sme_director": "Google Omni 1.1 (End-to-End Subject Matter Expert Director & Chief Orchestrator)",
+    "chief_auditor": "Google Omni 1.1 (Chief Forensic Quality Auditor & Autonomous Remediation Gatekeeper)",
+    "dynamic_model_orchestration": {
+      "orchestrator": "Google Omni 1.1",
+      "authority": "Google Omni 1.1 autonomously decides which additional models to invoke, the precise execution order (sequential/parallel/cyclical), and the coordination protocol among all models and agents.",
+      "model_inventory": {
+        "vision_extraction": "Gemini 2.5 Flash",
+        "deep_reasoning_and_pedagogy": "Gemini 2.5 Pro",
+        "ast_graph_synthesis": "Gemini 3.8 Flash",
+        "audio_composition": "DeepMind Lyria",
+        "video_generation": "Google Veo",
+        "scoring_and_rubrics": "Multi-Dimensional Weighted Evaluator",
+        "protocol_mesh": "A2A Protocol & MCP Governance Engine"
+      },
+      "coordination_rules": [
+        "1. Omni 1.1 analyzes the user request, domain context, and asset modalities to formulate an execution DAG.",
+        "2. Omni 1.1 selects the minimal, most capable set of auxiliary models and assigns strict roles.",
+        "3. Omni 1.1 enforces structured JSON/AST schema handoffs between models to prevent context drift.",
+        "4. Omni 1.1 monitors intermediate outputs and dynamically invokes remediation models if quality falls below threshold.",
+        "5. Final sign-off is reserved strictly for Google Omni 1.1 multimodal forensic audit."
+      ]
+    },
+    "enforcement": "Strict Zero-Bypass Across All 5 Projects"
+  },
+  "projects": {
+    "PromptCanvas": {
+      "tag": "PromptCanvas",
+      "path_matchers": ["PromptCanvas"],
+      "domain": "architecture_blueprints_and_canvas",
+      "omni_sme_director": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Architecture SME Director & Model Orchestrator (Visual Blueprints, Canvas Layouts, Draw.io AST Standards & Topology Planning)"
+      },
+      "omni_sme_auditor": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Forensic Quality Auditor (Multimodal Visual Overlap, AST Validation & 100% Zero-Collision Gate)"
+      },
+      "model_orchestration": {
+        "decided_by": "Google Omni 1.1",
+        "execution_order": [
+          "Stage 1: Google Omni 1.1 - Blueprint & Topology Planning (Spatial decomposition, master blueprint matching)",
+          "Stage 2: Gemini 2.5 Flash - Exhaustive Vision Extraction (OCR, node inventories, connection discovery)",
+          "Stage 3: Gemini 3.8 Flash - Draw.io AST Graph Construction (Bus trunk routing, 2-column card flexboxes, coordinate synthesis)",
+          "Stage 4: Google Omni 1.1 - Multimodal Forensic Audit & Autonomous Healing (Collision resolution, visual zero-defect certification)"
+        ],
+        "agent_coordination": "Omni 1.1 passes structured SpatialLayoutContract to Flash extractor, validates entity count, feeds AST specification to Gemini 3.8 Flash builder, and performs closed-loop visual QA on rendered SVG."
+      },
+      "rules": {
+        "card_anatomy": "2-column flexbox with left icon rail (display:flex; gap:8px)",
+        "min_icon_density": 0.25,
+        "min_connector_density": 0.15,
+        "bus_routing_required": true,
+        "ban_global_dark": true,
+        "ban_external_http_icons": true,
+        "mandatory_screenshots": true
+      }
+    },
+    "scorex": {
+      "tag": "scorex",
+      "path_matchers": ["scorex", "usecase-scoring", "usecase_scoring", "all_assessment", "assessments"],
+      "domain": "enterprise_ai_maturity_and_scoring",
+      "omni_sme_director": {
+        "model": "Google Omni 1.1",
+        "role": "Chief AI Maturity SME Director & Model Orchestrator (Assessment Rubrics, Weighted Dimensions, Feasibility Frameworks & Capability Grounding)"
+      },
+      "omni_sme_auditor": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Forensic Quality Auditor (Score Boundary Verification, Deterministic Recalculation & Dual-DB Safety Gate)"
+      },
+      "model_orchestration": {
+        "decided_by": "Google Omni 1.1",
+        "execution_order": [
+          "Stage 1: Google Omni 1.1 - Rubric & Dimension Architecture (Formulate weighting vectors across Feasibility, Value, Architecture, Safety)",
+          "Stage 2: Gemini 2.5 Flash - Evidence Ingestion & Extraction (Grounding evidence from enterprise documents & datasets)",
+          "Stage 3: Multi-Dimensional Weighted Evaluator - Deterministic Scoring Calculation (Matrix arithmetic & normalized score rollups)",
+          "Stage 4: Google Omni 1.1 - Forensic Audit & Dual-DB Integrity (Score boundary verification [1.0, 5.0], SQLite/Postgres type parity)"
+        ],
+        "agent_coordination": "Omni 1.1 coordinates evidence extraction agents, ensures strict schema binding to rubric dimensions, drives deterministic aggregation, and validates output databases."
+      },
+      "rules": {
+        "strict_score_bounds": [1.0, 5.0],
+        "require_deterministic_recalculation": true,
+        "dual_engine_db_safety": true,
+        "ban_ungrounded_capability_scores": true
+      }
+    },
+    "vidoxis": {
+      "tag": "vidoxis",
+      "path_matchers": ["vidoxis", "trainex", "enablement", "workshop"],
+      "domain": "enterprise_video_enablement_and_training",
+      "omni_sme_director": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Enablement SME Director & Model Orchestrator (Persona Pedagogies, Multi-Modal Learning Modules & Lab Architecture)"
+      },
+      "omni_sme_auditor": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Forensic Quality Auditor (Sandbox Lab Reproducibility, Broken Link Scanner & Persona Coverage QC)"
+      },
+      "model_orchestration": {
+        "decided_by": "Google Omni 1.1",
+        "execution_order": [
+          "Stage 1: Google Omni 1.1 - Pedagogical Strategy & Curriculum DAG (Define learning milestones for Executive, Architect, Developer, Operator)",
+          "Stage 2: Gemini 2.5 Pro - Deep Technical Script & Lab Module Authoring (Exhaustive step-by-step documentation and code walkthroughs)",
+          "Stage 3: Sandbox Lab Provisioning Agent - Reproducible Command Verification (Execute and validate shell commands in isolated sandboxes)",
+          "Stage 4: Google Omni 1.1 - Forensic Enablement Audit (Verify zero broken links, 100% command pass rate, and full persona coverage)"
+        ],
+        "agent_coordination": "Omni 1.1 dispatches specialized authoring agents per persona, enforces shared glossary standards, and coordinates with sandbox test runners."
+      },
+      "rules": {
+        "ban_broken_curriculum_links": true,
+        "require_reproducible_commands": true,
+        "require_persona_coverage": true
+      }
+    },
+    "a2a-enterprise-strategy": {
+      "tag": "a2a-enterprise-strategy",
+      "path_matchers": ["a2a-enterprise-gateway", "a2a-enterprise-strategy", "a2a_sdk", "adk"],
+      "domain": "agent_to_agent_enterprise_gateway_and_mesh",
+      "omni_sme_director": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Multi-Agent Systems SME Director & Mesh Orchestrator (A2A Protocol Standards, MCP Tool Governance & Gateway Topology)"
+      },
+      "omni_sme_auditor": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Forensic Quality Auditor (JSON Schema Contract Verification, Security Armor & Circuit Breaker QC)"
+      },
+      "model_orchestration": {
+        "decided_by": "Google Omni 1.1",
+        "execution_order": [
+          "Stage 1: Google Omni 1.1 - Multi-Agent Interaction Topology (Define agent identities, communication contracts, and JSON-RPC envelopes)",
+          "Stage 2: Model Context Protocol (MCP) Governance Engine - Schema Validation (Validate JSON Schema contracts for tools and resources)",
+          "Stage 3: Security & Token Armor Agent - Policy & Quota Enforcement (Token rate-limiting, circuit breaker policies, mTLS & IAM propagation)",
+          "Stage 4: Google Omni 1.1 - Multi-Agent Mesh Forensic Audit (Fuzzing agent boundaries, asserting zero secret leaks, validating resilience)"
+        ],
+        "agent_coordination": "Omni 1.1 acts as the Mesh Controller, regulating message routing between client agents and service agents, preventing cascade failures and unauthorized hops."
+      },
+      "rules": {
+        "require_valid_json_schema_mcp": true,
+        "ban_unauthenticated_agent_hops": true,
+        "enforce_circuit_breakers": true,
+        "enforce_rate_limiting": true
+      }
+    },
+    "zyvoriq": {
+      "tag": "zyvoriq",
+      "path_matchers": ["zyvoriq", "genmedia", "genmedia2.0", "genmedia3.0", "genmedia6.0"],
+      "domain": "generative_cinema_and_music_video",
+      "omni_sme_director": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Cinematic & Production SME Director & Audio-Visual Orchestrator (Storyboard Composition, Character Anchors & Lyric Rhythm)"
+      },
+      "omni_sme_auditor": {
+        "model": "Google Omni 1.1",
+        "role": "Chief Forensic Quality Auditor (Zero-Loop Ban, Vocal Ducking Enforcement & Biometric Anchor Continuity QC)"
+      },
+      "model_orchestration": {
+        "decided_by": "Google Omni 1.1",
+        "execution_order": [
+          "Stage 1: Google Omni 1.1 - Master Storyboard & Lyric Manifest Architecture (Define scene boundaries, character biometric anchors, vocal timestamps)",
+          "Stage 2: DeepMind Lyria - Acoustic Master & Stem Generation (Generate high-fidelity instrumental and vocal beds, align acoustic ducking to <= 0.20)",
+          "Stage 3: Google Veo - Unique Shot Video Generation (Generate dedicated scene shots per storyboard cut, strictly zero -stream_loop reuse)",
+          "Stage 4: Google Omni 1.1 - Multimodal Forensic Screening (Biometric facial delta check <= 5%, audio ducking spectral audit, zero silence)"
+        ],
+        "agent_coordination": "Omni 1.1 coordinates the Lyria audio pipeline with the Veo visual pipeline, enforcing timestamp synchronization and cut-boundary continuity."
+      },
+      "rules": {
+        "ban_stream_loop": true,
+        "max_vocal_bed_volume": 0.20,
+        "biometric_anchor_threshold": 0.05,
+        "zero_silence_required": true
+      }
+    }
+  },
+  "lifecycle_hooks": {
+    "PreInvocation": {
+      "enabled": true,
+      "script": "scripts/pre_invocation_memory.mjs",
+      "timeout": 10
+    },
+    "PreToolUse": {
+      "enabled": true,
+      "matcher": "run_command|write_to_file|replace_file_content|notebook_edit|call_mcp_tool",
+      "script": "scripts/pre_tool_guard.mjs",
+      "timeout": 15
+    },
+    "PostToolUse": {
+      "enabled": true,
+      "matcher": "run_command|write_to_file|replace_file_content",
+      "script": "scripts/post_tool_verifier.mjs",
+      "timeout": 20
+    },
+    "Stop": {
+      "enabled": true,
+      "script": "scripts/stop_quality_gate.mjs",
+      "timeout": 180
+    }
+  }
+}
