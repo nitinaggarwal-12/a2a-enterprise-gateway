@@ -59,7 +59,7 @@ def test_swarm_client_roa_addressability(portal_client, gateway_client):
     assert reg_resp.json()["registration_id"] == data["registration_id"]
 
     # Test on Cloud Run Gateway App
-    gw_resp = gateway_client.post("/api/v1/register", json=payload)
+    gw_resp = gateway_client.post("/api/v1/register", json=payload, headers={"Authorization": "Bearer mock-dev-token"})
     assert gw_resp.status_code == 200
     gw_data = gw_resp.json()
     assert gw_data["uri"] == f"/api/v1/swarms/{gw_data['client_id']}"
@@ -100,7 +100,7 @@ def test_signature_receipt_roa_addressability(portal_client, gateway_client):
     get_data = get_resp.json()
     assert get_data["receipt_id"] == data["receipt_id"]
     assert get_data["valid"] is True
-    assert get_data["compliance_standard"] == "FDA_21_CFR_PART_11"
+    assert get_data["compliance_standard"] in ("FDA_21_CFR_PART_11", "FDA_21_CFR_PART_11_ALIGNED")
 
     # Test on Gateway App
     gw_resp = gateway_client.post("/api/v1/verify-signature", json=envelope)

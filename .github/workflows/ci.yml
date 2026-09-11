@@ -1,0 +1,49 @@
+name: Enterprise A2A Gateway CI & GxP Compliance Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: development
+      ALLOW_DEV_AUTH: "true"
+      GATEWAY_HMAC_SECRET: "c0mPl3x_CrYpt0gRapH1c_s3cr3t_f0r_gXp_pr0d_2026!"
+      PYTHONPATH: .
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio anyio httpx
+
+      - name: Recompile Protocol Buffers
+        run: |
+          chmod +x ./scripts/compile_protos.sh
+          ./scripts/compile_protos.sh
+
+      - name: Run Full Pytest Quality Gate (120+ Tests)
+        run: |
+          python -m pytest -v
+
+      - name: Run AST Sanitizer Performance Benchmark (< 28µs target)
+        run: |
+          python skills/ast-sanitizer-benchmark/scripts/benchmark_ast.py
+
+      - name: Run 21 CFR Part 11 Token Cryptography & Tamper Suite
+        run: |
+          python skills/gxp-21cfr11-token-verifier/scripts/verify_tokens.py

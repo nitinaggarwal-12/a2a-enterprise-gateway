@@ -11,12 +11,74 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, Optional
+import ipaddress
+import socket
+import urllib.parse
+from typing import Any, Dict, Optional, Tuple
 import httpx
 
-from option1_cloud_run_gateway.app.security import is_safe_webhook_url
-
 logger = logging.getLogger("grpc_push_dispatcher")
+
+
+def is_safe_webhook_url(url: str, allow_localhost: Optional[bool] = None) -> Tuple[bool, str]:
+    """Validate webhook URL against SSRF attacks (metadata IP, private IPs, non-http schemes)."""
+    if not url or not isinstance(url, str):
+        return False, "URL is missing or invalid"
+
+    if allow_localhost is None:
+        allow_localhost = os.getenv("APP_ENV", "").lower() != "production"
+
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except Exception as exc:
+        return False, f"Malformed URL: {exc}"
+
+    if parsed.scheme not in ("http", "https"):
+        return False, f"Invalid scheme '{parsed.scheme}': only http and https are permitted"
+
+    if not allow_localhost and parsed.scheme != "https":
+        return False, "Production webhooks must use secure HTTPS scheme"
+
+    hostname = parsed.hostname
+    if not hostname:
+        return False, "URL contains no valid hostname"
+
+    # Block cloud metadata addresses immediately by hostname
+    blocked_hostnames = {
+        "metadata.google.internal",
+        "metadata.internal",
+        "169.254.169.254",
+        "instance-data",
+        "169.254.169.254.xip.io",
+        "169.254.169.254.nip.io",
+    }
+    if hostname.lower() in blocked_hostnames:
+        return False, f"Access to cloud metadata hostname '{hostname}' is strictly prohibited (SSRF Protection)"
+
+    try:
+        addr_info = socket.getaddrinfo(hostname, parsed.port or (443 if parsed.scheme == "https" else 80))
+    except socket.gaierror as exc:
+        if allow_localhost:
+            return True, "Mock domain permitted in development"
+        return False, f"DNS resolution failed for hostname '{hostname}': {exc}"
+
+    for item in addr_info:
+        ip_str = item[4][0]
+        try:
+            ip = ipaddress.ip_address(ip_str)
+        except ValueError:
+            return False, f"Invalid IP address resolved: {ip_str}"
+
+        if ip.is_link_local:
+            return False, f"Target IP {ip_str} is in blocked link-local range (cloud metadata defense)"
+
+        if ip.is_reserved or ip.is_multicast:
+            return False, f"Target IP {ip_str} is in reserved or multicast range"
+
+        if not allow_localhost and (ip.is_loopback or ip.is_private):
+            return False, f"Target IP {ip_str} is in private or loopback range (prohibited in production)"
+
+    return True, "URL is valid and safe"
 
 
 async def deliver_task_push_notification(
@@ -58,7 +120,7 @@ async def deliver_task_push_notification(
         headers["Authorization"] = f"Bearer {token}"
 
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             resp = await client.post(url, content=payload_bytes, headers=headers)
             logger.info(
                 f"[PushDispatcher] Dispatched notification for {task_id} to {url}. Status: {resp.status_code}"

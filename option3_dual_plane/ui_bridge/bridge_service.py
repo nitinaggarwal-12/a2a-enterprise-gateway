@@ -8,11 +8,16 @@ from datetime import datetime, timezone
 import json
 import logging
 import sys
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 import httpx
 from fastapi import FastAPI, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from jose import jwt, JWTError
+
+_OPT3_DIR = Path(__file__).resolve().parent.parent
+if str(_OPT3_DIR) not in sys.path:
+    sys.path.insert(0, str(_OPT3_DIR))
 
 from backend.config import config
 from .card_templates import render_approval_card
@@ -89,7 +94,7 @@ async def dispatch_approval(req: DispatchApprovalRequest):
 
     delivery_status = "DELIVERED"
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             resp = await client.post(target_ge_url, json=card_data)
             logger.info(f"[Bridge] Pushed card to GE. Receiver status: {resp.status_code}")
     except Exception as exc:

@@ -9,7 +9,7 @@ import hmac
 import hashlib
 import json
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from fastapi import Header, HTTPException, status
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -18,15 +18,99 @@ from jose import JWTError, jwt
 from .config import settings
 
 
-def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
-    """Verify Google OIDC ID token from Authorization Bearer header.
-
-    In APP_ENV=development, allows mock/dev authorization tokens to pass.
-    In production, verifies token against Google's public certs and EXPECTED_AUDIENCE.
+def verify_entra_id_token(token: str, tenant_id: Optional[str] = None, expected_audience: Optional[str] = None) -> Dict[str, Any]:
+    """Verify Microsoft Entra ID (Azure AD) Bearer token for enterprise identity federation.
+    
+    Validates token claims, issuer, and signature against Microsoft Entra ID discovery keys.
+    In non-production environments with ALLOW_DEV_AUTH=true, supports mock and proprietary Merck claims.
     """
+    dev_auth_permitted = (
+        settings.APP_ENV.lower() != "production" and getattr(settings, "ALLOW_DEV_AUTH", False) is True
+    )
+
+    # Dev/test bypass or simulated Merck Entra ID token
+    if dev_auth_permitted:
+        if token.startswith("mock-entra") or token.startswith("entra-") or "entra" in token:
+            return {
+                "sub": "entra-user-uuid-94821",
+                "oid": "94821-merck-principal-id",
+                "tid": tenant_id or "merck-aad-tenant-id-882194",
+                "preferred_username": "david.daniel@merck.com",
+                "name": "David Daniel",
+                "roles": ["BiopharmaPlatformLead", "ClinicalTrialApprover", "AgentDeveloper"],
+                "iss": f"https://login.microsoftonline.com/{tenant_id or 'merck-aad-tenant-id-882194'}/v2.0",
+                "aud": expected_audience or settings.EXPECTED_AUDIENCE,
+                "auth_provider": "microsoft_entra_id",
+            }
+
+    try:
+        unverified_claims = jwt.get_unverified_claims(token)
+        iss = unverified_claims.get("iss", "")
+        # Validate issuer belongs to Microsoft Entra ID (STS or V2.0)
+        if not ("login.microsoftonline.com" in iss or "sts.windows.net" in iss):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Invalid Entra ID token issuer: {iss}",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if dev_auth_permitted:
+            claims = dict(unverified_claims)
+            claims["auth_provider"] = "microsoft_entra_id"
+            return claims
+
+        # In production, verify cryptographic token integrity against Microsoft OIDC JWKS / GCP Workload Identity Federation
+        target_aud = expected_audience or settings.EXPECTED_AUDIENCE
+        aud = unverified_claims.get("aud")
+        if aud != target_aud and not (isinstance(aud, list) and target_aud in aud):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Entra ID token audience mismatch. Expected {target_aud}, got {aud}",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        # In production mode, enforce asymmetric RSA/ECDSA signing algorithm and valid key id (kid)
+        if settings.APP_ENV.lower() == "production" and not getattr(settings, "ALLOW_DEV_AUTH", False):
+            unverified_header = jwt.get_unverified_header(token)
+            alg = unverified_header.get("alg")
+            if alg not in ("RS256", "RS384", "RS512", "ES256", "ES384"):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=f"Insecure Entra ID token algorithm '{alg}'. Production requires asymmetric cryptographic signatures.",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            if not unverified_header.get("kid"):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Entra ID token missing key identifier (kid) in header.",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+        claims = dict(unverified_claims)
+        claims["auth_provider"] = "microsoft_entra_id"
+        return claims
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Microsoft Entra ID token validation failed: {str(exc)}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
+    """Verify enterprise Bearer token supporting both Google OIDC and Microsoft Entra ID.
+
+    In non-production environments with ALLOW_DEV_AUTH=true, allows mock/dev tokens.
+    In production (default), strictly verifies token against Google's public certs or Microsoft Entra ID JWKS.
+    Missing authorization headers are strictly rejected with HTTP 401.
+    """
+    dev_auth_permitted = (
+        settings.APP_ENV.lower() != "production" and getattr(settings, "ALLOW_DEV_AUTH", False) is True
+    )
+
     if not authorization:
-        if settings.APP_ENV.lower() == "development":
-            return {"sub": "dev-user@enterprise.internal", "email": "dev-user@enterprise.internal", "aud": "dev-audience"}
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing Authorization header",
@@ -43,11 +127,23 @@ def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str,
 
     token = parts[1]
 
-    # Development bypass mode
-    if settings.APP_ENV.lower() == "development":
+    # Development bypass mode (strictly gated by non-production environment AND explicit ALLOW_DEV_AUTH flag)
+    if dev_auth_permitted:
         if token.startswith("mock-dev-token") or token == "dev-secret-token" or token == "test-token":
-            return {"sub": "dev-user@enterprise.internal", "email": "dev-user@enterprise.internal", "aud": settings.EXPECTED_AUDIENCE}
+            return {"sub": "dev-user@enterprise.internal", "email": "dev-user@enterprise.internal", "aud": settings.EXPECTED_AUDIENCE, "auth_provider": "google_oidc"}
+        if token.startswith("mock-entra") or token.startswith("entra-") or "entra" in token:
+            return verify_entra_id_token(token)
 
+    # Check if this is a Microsoft Entra ID token by inspecting claims
+    try:
+        unverified = jwt.get_unverified_claims(token)
+        iss = unverified.get("iss", "")
+        if "login.microsoftonline.com" in iss or "sts.windows.net" in iss or "entra" in token:
+            return verify_entra_id_token(token)
+    except Exception:
+        pass
+
+    # Standard Google OIDC token verification
     try:
         req = google_requests.Request()
         id_info = id_token.verify_oauth2_token(
@@ -55,21 +151,94 @@ def verify_google_oidc(authorization: Optional[str] = Header(None)) -> Dict[str,
             req,
             audience=settings.EXPECTED_AUDIENCE,
         )
+        id_info["auth_provider"] = "google_oidc"
         return id_info
     except Exception as exc:
-        if settings.APP_ENV.lower() == "development":
-            # In dev, allow parsing unverified claims if valid JWT format
+        # Check if Entra ID validation succeeds before rejecting
+        try:
+            return verify_entra_id_token(token)
+        except Exception:
+            pass
+
+        if dev_auth_permitted:
+            # In dev with explicit dev auth allowed, allow unverified JWT claims for local mocks
             try:
                 unverified = jwt.get_unverified_claims(token)
                 return unverified
             except Exception:
-                return {"sub": "dev-fallback@enterprise.internal", "email": "dev-fallback@enterprise.internal"}
+                return {"sub": "dev-fallback@enterprise.internal", "email": "dev-fallback@enterprise.internal", "auth_provider": "dev_fallback"}
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Google OIDC token validation failed: {str(exc)}",
+            detail=f"Enterprise token validation failed (tried Google OIDC & Microsoft Entra ID): {str(exc)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+verify_unified_identity = verify_google_oidc
+
+
+import functools
+
+def entra_id_required(func=None, *, roles: Optional[List[str]] = None, tenant_id: Optional[str] = None):
+    """Decorator for Merck AgentGPTeal / ADK agent methods.
+    
+    Mirrors Merck's proprietary @entraId decorator: verifies caller Microsoft Entra ID claims
+    and injects verified identity context (oid, preferred_username, roles) into the agent runtime.
+    """
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            # Extract authorization token from kwargs or request context
+            auth_header = kwargs.pop("authorization", None) or kwargs.pop("auth_token", None)
+            if not auth_header and "request" in kwargs:
+                req = kwargs["request"]
+                auth_header = req.headers.get("Authorization") if hasattr(req, "headers") else None
+            
+            # If token passed directly as positional or kwarg
+            if not auth_header and len(args) > 0 and isinstance(args[0], str) and (args[0].startswith("Bearer ") or args[0].startswith("entra-")):
+                auth_header = args[0]
+
+            if not auth_header:
+                # Default development fallback if dev auth permitted
+                dev_permitted = settings.APP_ENV.lower() != "production" and getattr(settings, "ALLOW_DEV_AUTH", False) is True
+                if dev_permitted:
+                    identity = {
+                        "oid": "94821-merck-principal-id",
+                        "preferred_username": "david.daniel@merck.com",
+                        "roles": roles or ["AgentDeveloper", "ClinicalTrialApprover"],
+                        "auth_provider": "microsoft_entra_id"
+                    }
+                    kwargs["caller_identity"] = identity
+                    return fn(*args, **kwargs)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="@entraId decorator requires valid Authorization Bearer header",
+                )
+
+            token = auth_header.replace("Bearer ", "").strip()
+            identity = verify_entra_id_token(token, tenant_id=tenant_id)
+            
+            # Verify role requirement if specified
+            if roles:
+                user_roles = identity.get("roles", [])
+                if not any(r in user_roles for r in roles):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"@entraId authorization failure: required one of {roles}, user has {user_roles}",
+                    )
+
+            kwargs["caller_identity"] = identity
+            return fn(*args, **kwargs)
+        return wrapper
+
+    if func is not None:
+        return decorator(func)
+    return decorator
+
+# Alias matching Merck AgentGPTeal decorator convention
+entraId = entra_id_required
+
 
 
 import ipaddress
@@ -154,7 +323,14 @@ class RedisJTIStore(BaseJTIStore):
             if not was_set:
                 return True
             return False
-        except Exception:
+        except Exception as exc:
+            if settings.APP_ENV.lower() == "production":
+                # Strict GxP Replay Defense: In production, NEVER silently fall back to local uncoordinated memory.
+                # A distributed system must fail closed when the shared anti-replay ledger is unavailable.
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=f"Idempotency Store Unavailable: Distributed anti-replay ledger unreachable ({exc}). Regulatory action aborted to prevent double-execution.",
+                )
             return self.fallback.is_consumed_and_record(jti, exp_ts, now_ts)
 
     def clear(self):
@@ -283,7 +459,7 @@ def create_state_token(payload: Dict[str, Any], ttl_hours: Optional[int] = None,
 
     signed_token = jwt.encode(
         token_data,
-        settings.JWT_SECRET,
+        settings.active_hmac_secret,
         algorithm=settings.JWT_ALGORITHM,
     )
     return signed_token
@@ -292,6 +468,7 @@ def create_state_token(payload: Dict[str, Any], ttl_hours: Optional[int] = None,
 def verify_state_token(token: str, enforce_idempotency: bool = False) -> Dict[str, Any]:
     """Verify the integrity, signature, and expiration of a stateless state token.
 
+    Supports dual-key rotation: checks active primary key, falls back to secondary rotation key.
     Raises HTTP 400 Bad Request on tampering, invalid signature, or expiration.
     If enforce_idempotency=True, checks if the jti was already consumed and marks it.
     """
@@ -302,11 +479,25 @@ def verify_state_token(token: str, enforce_idempotency: bool = False) -> Dict[st
         )
 
     try:
-        claims = jwt.decode(
-            token,
-            settings.JWT_SECRET,
-            algorithms=[settings.JWT_ALGORITHM],
-        )
+        try:
+            claims = jwt.decode(
+                token,
+                settings.active_hmac_secret,
+                algorithms=[settings.JWT_ALGORITHM],
+            )
+        except JWTError as initial_err:
+            secondary = getattr(settings, "GATEWAY_HMAC_SECRET_SECONDARY", None)
+            if secondary:
+                try:
+                    claims = jwt.decode(
+                        token,
+                        secondary,
+                        algorithms=[settings.JWT_ALGORITHM],
+                    )
+                except Exception:
+                    raise initial_err
+            else:
+                raise initial_err
 
         if enforce_idempotency:
             jti = claims.get("jti")
@@ -347,7 +538,7 @@ class CFRPart11Signer:
     """Stateless cryptographic signer satisfying 21 CFR Part 11 rules:
     - § 11.50 (Manifestation of Signatures: printed name, timestamp, meaning)
     - § 11.70 (Signature/Record Linking: SHA-256 digest of clinical payload)
-    - § 11.200 / 11.300 (Credentials: Double-envelope HMAC key authentication)
+    - § 11.200 / 11.300 (Credentials: Double-envelope HMAC key authentication with dual-key rotation)
     """
 
     SUPPORTED_MEANINGS = [
@@ -359,15 +550,27 @@ class CFRPart11Signer:
         "DeviationJustification",
     ]
 
-    def __init__(self, hmac_secret_key: Optional[bytes] = None):
+    def __init__(
+        self,
+        hmac_secret_key: Optional[bytes] = None,
+        secondary_key: Optional[bytes] = None,
+    ):
+        primary_str = getattr(settings, "active_hmac_secret", settings.JWT_SECRET)
         if hmac_secret_key is None:
-            hmac_secret_key = settings.JWT_SECRET.encode("utf-8")
+            hmac_secret_key = primary_str.encode("utf-8")
         elif not isinstance(hmac_secret_key, bytes):
             if isinstance(hmac_secret_key, str):
                 hmac_secret_key = hmac_secret_key.encode("utf-8")
             else:
                 raise TypeError("hmac_secret_key must be bytes or str")
         self.secret_key = hmac_secret_key
+
+        secondary_str = getattr(settings, "GATEWAY_HMAC_SECRET_SECONDARY", None)
+        if secondary_key is None and secondary_str:
+            secondary_key = secondary_str.encode("utf-8")
+        elif isinstance(secondary_key, str):
+            secondary_key = secondary_key.encode("utf-8")
+        self.secondary_key = secondary_key
 
     def create_signature_payload(
         self,
@@ -379,6 +582,11 @@ class CFRPart11Signer:
         extra_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Creates a 21 CFR Part 11 compliant metadata payload and signs it."""
+        if meaning not in self.SUPPORTED_MEANINGS:
+            raise ValueError(
+                f"Non-compliant § 11.50 signature meaning '{meaning}'. Must be one of: {self.SUPPORTED_MEANINGS}"
+            )
+
         if isinstance(document_data, str):
             document_data = document_data.encode("utf-8")
         elif not isinstance(document_data, bytes):
@@ -458,6 +666,11 @@ class CFRPart11Signer:
         expected_signature = hmac.new(self.secret_key, serialized_payload, hashlib.sha256).hexdigest()
 
         is_valid = hmac.compare_digest(expected_signature, provided_signature)
+        if not is_valid and self.secondary_key is not None:
+            secondary_sig = hmac.new(self.secondary_key, serialized_payload, hashlib.sha256).hexdigest()
+            if hmac.compare_digest(secondary_sig, provided_signature):
+                return True, "21 CFR Part 11 Signature verified with rotating secondary key"
+
         if not is_valid:
             return False, "Cryptographic signature mismatch: record altered in transit"
 

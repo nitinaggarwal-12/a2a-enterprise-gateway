@@ -62,6 +62,50 @@ class A2AGatewayClient:
         """Fetch gateway performance benchmarks including AST sanitization latency."""
         return self._get("/api/kpi-benchmarks")
 
+    def compile_ectd(
+        self,
+        protocol_id: str = "MK-3475-087",
+        amendment_id: str = "AMD-ONC-2026-08",
+        target_dose_mg: float = 250.0,
+        sponsor_name: str = "Merck Sharp & Dohme LLC"
+    ) -> Dict[str, Any]:
+        """Compile complete FDA Form 1571/1572, Merkle signature ledger, and eCTD XML bundle in < 25ms."""
+        return self._post("/api/ectd/compile", {
+            "protocol_id": protocol_id,
+            "amendment_id": amendment_id,
+            "target_dose_mg": target_dose_mg,
+            "sponsor_name": sponsor_name
+        })
+
+    def simulate_in_silico(
+        self,
+        cohort_size: int = 10000,
+        dose_mg: float = 250.0,
+        biomarker_cutoff_percent: float = 50.0,
+        prophylactic_protectant: bool = True
+    ) -> Dict[str, Any]:
+        """Execute 10,000 synthetic patient PK/PD trial simulation across 24 weeks."""
+        return self._post("/api/insilico/simulate", {
+            "cohort_size": cohort_size,
+            "dose_mg": dose_mg,
+            "biomarker_cutoff_percent": biomarker_cutoff_percent,
+            "prophylactic_protectant": prophylactic_protectant
+        })
+
+    def compile_promptcanvas_diagram(self, drawio_xml: str) -> Dict[str, Any]:
+        """Compile PromptCanvas Draw.io mxGraphModel XML into an executable A2A Gateway DAG."""
+        return self._post("/api/promptcanvas/compile-to-dag", {
+            "drawio_xml": drawio_xml,
+            "target_protocol": "a2a.v1.0.0",
+            "enforce_ast_sanitization": True
+        })
+
+    def export_drawio_preset(self, preset_key: str = "option3_dual_plane") -> Dict[str, Any]:
+        """Export preset architecture directly to Draw.io XML."""
+        return self._post("/api/promptcanvas/export-xml", {
+            "architecture_preset": preset_key
+        })
+
     def run_diagnostics(self, endpoint: str = "psc://10.128.0.50:50051") -> Dict[str, Any]:
         """Run mTLS and AST latency diagnostics probe."""
         return self._post("/api/connect/diagnostics", {

@@ -6,7 +6,7 @@ import warnings
 from a2a.v1 import a2a_pb2 as a2a_dot_v1_dot_a2a__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
-GRPC_GENERATED_VERSION = '1.83.1'
+GRPC_GENERATED_VERSION = '1.80.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -26,7 +26,7 @@ if _version_not_supported:
     )
 
 
-class A2AServiceStub:
+class A2AServiceStub(object):
     """Canonical AIP-127 Compliant A2A Service
     """
 
@@ -53,7 +53,7 @@ class A2AServiceStub:
                 _registered_method=True)
 
 
-class A2AServiceServicer:
+class A2AServiceServicer(object):
     """Canonical AIP-127 Compliant A2A Service
     """
 
@@ -104,7 +104,7 @@ def add_A2AServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class A2AService:
+class A2AService(object):
     """Canonical AIP-127 Compliant A2A Service
     """
 

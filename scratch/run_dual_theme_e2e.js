@@ -42,7 +42,8 @@ async function runDualThemeE2E() {
   });
 
   const page = await browser.newPage();
-  const portalUrl = 'http://127.0.0.1:8090';
+  const portalPort = process.env.PORTAL_PORT || '8091';
+  const portalUrl = `http://127.0.0.1:${portalPort}`;
 
   try {
     console.log(`Navigating to Visual Verification Portal: ${portalUrl}...`);

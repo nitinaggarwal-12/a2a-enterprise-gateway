@@ -83,7 +83,8 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
     ) -> AsyncIterator[a2a_pb2.StreamTaskResponse]:
         """Stream progressive clinical dossier reasoning traces and state changes."""
         task_id = request.task_id or "task-stream-001"
-        self._cancelled_tasks[task_id] = False
+        if not self._cancelled_tasks.get(task_id, False):
+            self._cancelled_tasks[task_id] = False
 
         params_dict = dict(request.parameters.fields) if request.parameters else {}
         study_id = "MK-3475-087"
@@ -107,6 +108,10 @@ class A2AServiceImpl(a2a_pb2_grpc.A2AServiceServicer):
 
         try:
             for state, msg, is_terminal in events:
+                if context and hasattr(context, "is_active") and not context.is_active():
+                    logger.warning(f"[StreamTask] Client disconnected; aborting stream for {task_id}")
+                    break
+
                 if self._cancelled_tasks.get(task_id, False):
                     logger.info(f"[StreamTask] Task {task_id} cancelled during stream.")
                     yield a2a_pb2.StreamTaskResponse(
