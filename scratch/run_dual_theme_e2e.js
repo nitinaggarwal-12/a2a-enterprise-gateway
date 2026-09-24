@@ -5,7 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -20,7 +20,7 @@ async function runDualThemeE2E() {
   });
 
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
+  const executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   console.log(`Using Chrome binary: ${executablePath || 'bundled Chromium'}`);
 
   const tempProfileDir = path.join(rootDir, 'scratch', '.chrome_profile_dual_' + Date.now());

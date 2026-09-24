@@ -22,6 +22,9 @@ import uvicorn
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
+os.environ.setdefault("APP_ENV", "development")
+os.environ.setdefault("ALLOW_DEV_AUTH", "true")
+
 from backend.orchestrator import EnterpriseClinicalOrchestrator
 from backend.config import config
 from mock_services.mock_ge_inbound import app as ge_app

@@ -75,7 +75,7 @@ def compute_user_readiness(dose_mg: float, has_signed: bool, pv_cleared: bool, c
 
     if total_score >= 85:
         tier = "AUDIT_READY"
-        halo_color = "emerald"
+        halo_color = "slate"
         primary_directive = "All safety criteria conformant. Cleared for 21 CFR Part 11 regulatory submission."
     elif total_score >= 60:
         tier = "TRIAGE_IN_PROGRESS"
@@ -338,7 +338,7 @@ CANONICAL_THEME_TOKENS = {
         "text_secondary": "#334155",
         "text_muted": "#64748b",
         "badge_cyan_text": "#075985",
-        "badge_emerald_text": "#065f46",
+        "badge_emerald_text": "#0f172a",
         "badge_purple_text": "#581c87",
         "badge_amber_text": "#92400e",
         "badge_rose_text": "#9f1239",
@@ -350,7 +350,7 @@ CANONICAL_THEME_TOKENS = {
         "text_secondary": "#cbd5e1",
         "text_muted": "#94a3b8",
         "badge_cyan_text": "#38bdf8",
-        "badge_emerald_text": "#34d399",
+        "badge_emerald_text": "#f8fafc",
         "badge_purple_text": "#c084fc",
         "badge_amber_text": "#fbbf24",
         "badge_rose_text": "#fb7185",

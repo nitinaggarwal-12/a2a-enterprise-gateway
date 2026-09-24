@@ -10,7 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

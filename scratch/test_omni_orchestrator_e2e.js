@@ -10,7 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -63,7 +63,7 @@ async function runOmniDualThemeE2E() {
   fs.mkdirSync(taskDir, { recursive: true });
 
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
+  const executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   console.log(`[E2E] Using Chrome binary: ${executablePath || 'bundled Chromium'}`);
 
   const tempProfileDir = path.join(rootDir, 'scratch', '.chrome_profile_omni_' + Date.now());

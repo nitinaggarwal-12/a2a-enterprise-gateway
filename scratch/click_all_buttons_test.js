@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
 
@@ -7,7 +7,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 async function clickAllButtonsTest() {
   const rootDir = '/Users/nitinagga/Documents/a2a-enterprise-gateway';
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
+  const executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
   const tempProfileDir = path.join(rootDir, 'scratch', '.chrome_profile_clickall_' + Date.now());
   fs.mkdirSync(tempProfileDir, { recursive: true });

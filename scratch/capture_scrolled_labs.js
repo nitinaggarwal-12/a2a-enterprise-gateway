@@ -1,13 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function main() {
   const rootDir = '/Users/nitinagga/Documents/a2a-enterprise-gateway';
   const taskDir = path.join(rootDir, 'scratch', 'screenshots_google_labs');
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
+  const executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
   const browser = await puppeteer.launch({
     executablePath,

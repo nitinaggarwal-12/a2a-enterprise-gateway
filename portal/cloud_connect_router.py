@@ -49,26 +49,26 @@ async def evaluate_architecture_match(payload: MatchmakerRequest):
     comp = payload.compliance_tier.lower()
 
     if comp == "consortium_zkp":
-        archetype = "Option 1 / 2 + Confidential Enclave (AMD SEV-SNP)"
-        pattern = "Option B: Hardware Enclave & Groth16 zk-SNARKs"
+        archetype = "Cloud Run + Confidential Enclave (AMD SEV-SNP)"
+        pattern = "Pattern B: Hardware Enclave & Groth16 zk-SNARKs"
         egress_guarantee = "0 Raw Records (Mathematical Proof Only)"
         setup_time = "1 - 2 Hours"
         network_driver = "Google Cloud Confidential Space with AMD SEV-SNP Memory Encryption"
     elif cloud in ["gcp", "aws"] and data in ["bigquery", "snowflake", "databricks"]:
-        archetype = "Option 3: Outside-In Dual-Plane Sovereign Demarcation"
-        pattern = "Option A: In-Place Cloud Network Peering (Private Service Connect)"
+        archetype = "Cloud Run Interceptor Gateway (Private Service Connect)"
+        pattern = "Pattern A: In-Place Cloud Network Peering (PSC / PrivateLink)"
         egress_guarantee = "Zero Data Movement (Compute-to-Data In Situ)"
         setup_time = "15 - 30 Minutes"
         network_driver = "Google Cloud Private Service Connect (PSC) / AWS PrivateLink"
     elif data == "swarm_mcp":
-        archetype = "Option 1: Cloud Run HTTP + Anthropic MCP Bridge"
-        pattern = "Option C: Federated A2A & MCP Tool Proxy"
+        archetype = "Cloud Run HTTP + Anthropic MCP Bridge"
+        pattern = "Pattern C: Federated A2A & MCP Tool Proxy"
         egress_guarantee = "Synthetic Insights & Transpiled Schema Only"
         setup_time = "5 Minutes"
         network_driver = "Mutual TLS 1.3 (mTLS) with Workload Identity Federation"
     else:
-        archetype = "Option 1: Managed Cloud Run Gateway (BYOK)"
-        pattern = "Option D: Secure Structured Batch Dropping (CDISC SDTM / FHIR)"
+        archetype = "Managed Cloud Run Gateway (BYOK)"
+        pattern = "Pattern D: Secure Structured Batch Dropping (CDISC SDTM / FHIR)"
         egress_guarantee = "In-Memory Sub-28µs AST Stripped Enclave"
         setup_time = "Immediate (Turnkey)"
         network_driver = "Encrypted Cloud Storage Signed URLs (TLS 1.3, AES-256-GCM)"

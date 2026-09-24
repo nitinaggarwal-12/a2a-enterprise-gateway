@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -17,7 +17,7 @@ async function main() {
   fs.mkdirSync(outDir, { recursive: true });
 
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
+  const executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   console.log(`Starting Navigation E2E Suite with Chrome binary: ${executablePath || 'bundled Chromium'}`);
 
   const tempProfileDir = path.join(rootDir, 'scratch', '.chrome_profile_nav_' + Date.now());

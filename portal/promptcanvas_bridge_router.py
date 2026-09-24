@@ -75,15 +75,15 @@ ARCHETYPE_XML_TEMPLATES: Dict[str, Dict[str, Any]] = {
     <mxCell id="0" />
     <mxCell id="1" parent="0" />
     <!-- Demarcation Enclave 1: Sovereign Biopharma VPC -->
-    <mxCell id="vpc_sovereign" value="SOVEREIGN BIOPHARMA VPC (ON-PREM / RESTRICTED GCP)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#10b981;fontColor=#34d399;fontStyle=1;fontSize=13;dashed=1;dashPattern=8 4;rounded=1;shadow=1;" vertex="1" parent="1">
+    <mxCell id="vpc_sovereign" value="SOVEREIGN BIOPHARMA VPC (ON-PREM / RESTRICTED GCP)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#71717a;fontColor=#d4d4d8;fontStyle=1;fontSize=13;dashed=1;dashPattern=8 4;rounded=1;shadow=1;" vertex="1" parent="1">
       <mxGeometry x="60" y="80" width="680" height="680" as="geometry" />
     </mxCell>
     <!-- Node: Clinical Trial DB -->
-    <mxCell id="node_clinical_db" value="&lt;b&gt;CDISC SDTM Lakehouse&lt;/b&gt;&lt;br/&gt;&lt;font color='#94a3b8'&gt;BigQuery / Postgres RLS&lt;br/&gt;AES-256 GCM Rest&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#059669;fontColor=#e2e8f0;shadow=1;arcSize=15;" vertex="1" parent="vpc_sovereign">
+    <mxCell id="node_clinical_db" value="&lt;b&gt;CDISC SDTM Lakehouse&lt;/b&gt;&lt;br/&gt;&lt;font color='#94a3b8'&gt;BigQuery / Postgres RLS&lt;br/&gt;AES-256 GCM Rest&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#52525b;fontColor=#e2e8f0;shadow=1;arcSize=15;" vertex="1" parent="vpc_sovereign">
       <mxGeometry x="60" y="80" width="220" height="90" as="geometry" />
     </mxCell>
     <!-- Node: Sovereign Agent Swarm -->
-    <mxCell id="node_agent_swarm" value="&lt;b&gt;Sovereign Biopharma Agents&lt;/b&gt;&lt;br/&gt;&lt;font color='#94a3b8'&gt;MK-3475 Titration Pod&lt;br/&gt;In-Silico 10K Digital Twins&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#10b981;fontColor=#e2e8f0;shadow=1;arcSize=15;" vertex="1" parent="vpc_sovereign">
+    <mxCell id="node_agent_swarm" value="&lt;b&gt;Sovereign Biopharma Agents&lt;/b&gt;&lt;br/&gt;&lt;font color='#94a3b8'&gt;MK-3475 Titration Pod&lt;br/&gt;In-Silico 10K Digital Twins&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#71717a;fontColor=#e2e8f0;shadow=1;arcSize=15;" vertex="1" parent="vpc_sovereign">
       <mxGeometry x="60" y="250" width="220" height="90" as="geometry" />
     </mxCell>
     <!-- Node: Sub-28us AST Sanitizer -->
@@ -95,7 +95,7 @@ ARCHETYPE_XML_TEMPLATES: Dict[str, Dict[str, Any]] = {
       <mxGeometry x="60" y="440" width="220" height="90" as="geometry" />
     </mxCell>
     <!-- Node: PSC Producer Service -->
-    <mxCell id="node_psc_producer" value="&lt;b&gt;Private Service Connect Producer&lt;/b&gt;&lt;br/&gt;&lt;font color='#a7f3d0'&gt;mTLS 1.3 Strict Mutual Auth&lt;br/&gt;ILB Port 50051 (Zero Egress)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#064e3b;strokeColor=#34d399;fontColor=#ffffff;shadow=1;arcSize=15;" vertex="1" parent="vpc_sovereign">
+    <mxCell id="node_psc_producer" value="&lt;b&gt;Private Service Connect Producer&lt;/b&gt;&lt;br/&gt;&lt;font color='#e4e4e7'&gt;mTLS 1.3 Strict Mutual Auth&lt;br/&gt;ILB Port 50051 (Zero Egress)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27272a;strokeColor=#d4d4d8;fontColor=#ffffff;shadow=1;arcSize=15;" vertex="1" parent="vpc_sovereign">
       <mxGeometry x="400" y="440" width="220" height="90" as="geometry" />
     </mxCell>
 
@@ -120,12 +120,12 @@ ARCHETYPE_XML_TEMPLATES: Dict[str, Dict[str, Any]] = {
       <mxGeometry x="390" y="250" width="230" height="90" as="geometry" />
     </mxCell>
     <!-- Node: Human Investigator Reviewer -->
-    <mxCell id="node_hitl_reviewer" value="&lt;b&gt;Principal Investigator (HITL)&lt;/b&gt;&lt;br/&gt;&lt;font color='#34d399'&gt;Dr. Sarah Chen, MD (MSKCC)&lt;br/&gt;1-Click 48h HMAC Sign Off&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#10b981;fontColor=#e2e8f0;shadow=1;arcSize=15;" vertex="1" parent="vpc_external">
+    <mxCell id="node_hitl_reviewer" value="&lt;b&gt;Principal Investigator (HITL)&lt;/b&gt;&lt;br/&gt;&lt;font color='#d4d4d8'&gt;Dr. Sarah Chen, MD (MSKCC)&lt;br/&gt;1-Click 48h HMAC Sign Off&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#71717a;fontColor=#e2e8f0;shadow=1;arcSize=15;" vertex="1" parent="vpc_external">
       <mxGeometry x="60" y="440" width="230" height="90" as="geometry" />
     </mxCell>
 
     <!-- Connectors / Edges -->
-    <mxCell id="edge_db_agent" value="Read Cohort" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#10b981;strokeWidth=2;fontColor=#94a3b8;fontSize=10;" edge="1" parent="1" source="node_clinical_db" target="node_agent_swarm">
+    <mxCell id="edge_db_agent" value="Read Cohort" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#71717a;strokeWidth=2;fontColor=#94a3b8;fontSize=10;" edge="1" parent="1" source="node_clinical_db" target="node_agent_swarm">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
     <mxCell id="edge_agent_ast" value="Outbound Payload" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#38bdf8;strokeWidth=2;fontColor=#38bdf8;fontSize=10;" edge="1" parent="1" source="node_agent_swarm" target="node_ast_sanitizer">
@@ -134,7 +134,7 @@ ARCHETYPE_XML_TEMPLATES: Dict[str, Dict[str, Any]] = {
     <mxCell id="edge_agent_cfr11" value="Dose Titration Decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#f59e0b;strokeWidth=2;fontColor=#f59e0b;fontSize=10;" edge="1" parent="1" source="node_agent_swarm" target="node_cfr11_signer">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="edge_ast_psc" value="Sanitized AST" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#10b981;strokeWidth=3;fontColor=#10b981;fontSize=10;" edge="1" parent="1" source="node_ast_sanitizer" target="node_psc_producer">
+    <mxCell id="edge_ast_psc" value="Sanitized AST" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#71717a;strokeWidth=3;fontColor=#71717a;fontSize=10;" edge="1" parent="1" source="node_ast_sanitizer" target="node_psc_producer">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
     <mxCell id="edge_psc_tunnel" value="Private Service Connect Peering (Zero Internet Transit)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#00f2fe;strokeWidth=4;fontColor=#00f2fe;fontSize=11;fontStyle=1;dashed=1;dashPattern=6 3;" edge="1" parent="1" source="node_psc_producer" target="node_psc_consumer">
@@ -146,7 +146,7 @@ ARCHETYPE_XML_TEMPLATES: Dict[str, Dict[str, Any]] = {
     <mxCell id="edge_vertex_a2ui" value="A2UI Spec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#38bdf8;strokeWidth=2;fontColor=#38bdf8;fontSize=10;" edge="1" parent="1" source="node_vertex_gemini" target="node_a2ui_renderer">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
-    <mxCell id="edge_a2ui_hitl" value="Render Card" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#10b981;strokeWidth=2;fontColor=#10b981;fontSize=10;" edge="1" parent="1" source="node_a2ui_renderer" target="node_hitl_reviewer">
+    <mxCell id="edge_a2ui_hitl" value="Render Card" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#71717a;strokeWidth=2;fontColor=#71717a;fontSize=10;" edge="1" parent="1" source="node_a2ui_renderer" target="node_hitl_reviewer">
       <mxGeometry relative="1" as="geometry" />
     </mxCell>
     <mxCell id="edge_hitl_ectd" value="Approved Signature" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#fb923c;strokeWidth=3;fontColor=#fb923c;fontSize=10;fontStyle=1;" edge="1" parent="1" source="node_hitl_reviewer" target="node_ectd_engine">
@@ -171,15 +171,15 @@ ARCHETYPE_XML_TEMPLATES: Dict[str, Dict[str, Any]] = {
     <mxCell id="crun_sanitizer" value="&lt;b&gt;Microsecond AST Sanitizer&lt;/b&gt;&lt;br/&gt;&lt;font color='#38bdf8'&gt;Strip __internal_trace__ (5.95µs)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0284c7;strokeColor=#38bdf8;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="crun_boundary">
       <mxGeometry x="360" y="80" width="240" height="80" as="geometry" />
     </mxCell>
-    <mxCell id="crun_a2ui" value="&lt;b&gt;A2UI Transpiler&lt;/b&gt;&lt;br/&gt;&lt;font color='#34d399'&gt;Google Chat / Slack Cards&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#065f46;strokeColor=#34d399;fontColor=#ffffff;" vertex="1" parent="crun_boundary">
+    <mxCell id="crun_a2ui" value="&lt;b&gt;A2UI Transpiler&lt;/b&gt;&lt;br/&gt;&lt;font color='#d4d4d8'&gt;Google Chat / Slack Cards&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27272a;strokeColor=#d4d4d8;fontColor=#ffffff;" vertex="1" parent="crun_boundary">
       <mxGeometry x="680" y="80" width="220" height="80" as="geometry" />
     </mxCell>
     <mxCell id="crun_gemini" value="&lt;b&gt;Gemini Enterprise Agent&lt;/b&gt;&lt;br/&gt;&lt;font color='#c084fc'&gt;A2A Protocol Task Executor&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#581c87;strokeColor=#c084fc;fontColor=#ffffff;" vertex="1" parent="crun_boundary">
       <mxGeometry x="360" y="240" width="240" height="80" as="geometry" />
     </mxCell>
     <mxCell id="crun_edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#38bdf8;strokeWidth=2;" edge="1" parent="1" source="crun_client" target="crun_sanitizer"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="crun_edge2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#10b981;strokeWidth=2;" edge="1" parent="1" source="crun_sanitizer" target="crun_gemini"><mxGeometry relative="1" as="geometry" /></mxCell>
-    <mxCell id="crun_edge3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#34d399;strokeWidth=2;" edge="1" parent="1" source="crun_gemini" target="crun_a2ui"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="crun_edge2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#71717a;strokeWidth=2;" edge="1" parent="1" source="crun_sanitizer" target="crun_gemini"><mxGeometry relative="1" as="geometry" /></mxCell>
+    <mxCell id="crun_edge3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d4d4d8;strokeWidth=2;" edge="1" parent="1" source="crun_gemini" target="crun_a2ui"><mxGeometry relative="1" as="geometry" /></mxCell>
   </root>
 </mxGraphModel>"""
     }

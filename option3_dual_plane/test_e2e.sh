@@ -10,6 +10,8 @@ if [ ! -f "${PYTHON}" ]; then
 fi
 
 export PYTHONPATH="${SCRIPT_DIR}/..:${SCRIPT_DIR}:${PYTHONPATH}"
+export APP_ENV="development"
+export ALLOW_DEV_AUTH="true"
 
 echo "=========================================================="
 echo " Starting Option 3: Dual-Plane Architecture Simulation"

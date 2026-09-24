@@ -26,7 +26,7 @@ def client():
     return TestClient(app)
 
 
-def test_matchmaker_dual_plane_psc(client):
+def test_matchmaker_cloud_run_psc(client):
     payload = {
         "cloud_provider": "gcp",
         "data_lake": "bigquery",
@@ -36,8 +36,8 @@ def test_matchmaker_dual_plane_psc(client):
     response = client.post("/api/connect/matchmaker", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert "Dual-Plane" in data["recommendedArchetype"]
-    assert "Private Service Connect" in data["recommendedPattern"]
+    assert "Cloud Run" in data["recommendedArchetype"]
+    assert "PSC" in data["recommendedPattern"]
     assert data["selectedCloud"] == "GCP"
     assert "FDA 21 CFR Part 11" in data["complianceStandards"]
 

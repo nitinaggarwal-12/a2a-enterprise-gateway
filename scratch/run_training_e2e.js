@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -34,7 +34,7 @@ async function runTrainingE2ESuite() {
   console.log('🧹 Purged stale training screenshots across all output directories.');
 
   const macChromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const executablePath = fs.existsSync(macChromePath) ? macChromePath : undefined;
+  const executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
   const tempProfileDir = path.join(__dirname, '.chrome_profile_' + Date.now());
   fs.mkdirSync(tempProfileDir, { recursive: true });

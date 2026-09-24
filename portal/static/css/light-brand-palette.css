@@ -1,0 +1,122 @@
+/**
+ * Enterprise A2A Gateway — Light Theme Blue Brand Palette
+ * =========================================================
+ * Variables:
+ *   --bg-base:             #F8FAFC (Page background)
+ *   --bg-surface:          #FFFFFF (Surface / Card background)
+ *   --color-primary:       #2563EB (Brand Blue accent)
+ *   --color-primary-hover: #1D4ED8 (Brand Blue hover state)
+ *   --text-main:           #0F172A (Primary high-contrast text)
+ *   --text-muted:          #64748B (Secondary / Muted text)
+ *   --border-subtle:       #E2E8F0 (Soft structural borders)
+ */
+
+:root, .light {
+  --bg-base: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border-subtle: #E2E8F0;
+}
+
+/* Dark theme complementary mapping */
+.dark {
+  --bg-base: #050811;
+  --bg-surface: rgba(15, 23, 42, 0.90);
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+  --border-subtle: rgba(255, 255, 255, 0.12);
+}
+
+/* Card Component */
+.brand-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-card-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.015em;
+}
+
+.brand-card-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+/* Input & Button Controls */
+.brand-input-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .brand-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.brand-input {
+  flex: 1;
+  background-color: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brand-input::placeholder {
+  color: var(--text-muted);
+}
+
+.brand-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.brand-btn-primary {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+  white-space: nowrap;
+}
+
+.brand-btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.brand-btn-primary:active {
+  transform: scale(0.98);
+}

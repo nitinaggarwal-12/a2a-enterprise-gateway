@@ -18,6 +18,7 @@ echo "=========================================================="
 
 # Start server in background using project virtualenv
 export APP_ENV="development"
+export ALLOW_DEV_AUTH="true"
 export PORT="${PORT}"
 
 "${PYTHON}" -m uvicorn app.main:app --host 127.0.0.1 --port ${PORT} &
